@@ -1,0 +1,118 @@
+* {
+    box-sizing: border-box;
+}
+body{
+    font-family: sans-serif;
+}
+h1 {
+    text-align: center;
+}
+.wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.control {
+    margin: 0 10px;
+}
+
+.control:first-of-type {
+    text-align: right;
+}
+
+.control:last-of-type {
+    text-align: left;
+}
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    width: calc(70px * 8);
+}
+
+.case{
+    height : 70px;
+    width : 70px;
+    border : 1px solid #9E9E9E;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.row:nth-of-type(odd) .case:nth-of-type(even) {
+    background-color: #9E9E9E;
+}
+
+.row:nth-of-type(odd) .case:nth-of-type(odd) {
+    background-color: #fff;
+}
+
+.row:nth-of-type(even) .case:nth-of-type(even) {
+    background-color: #fff;
+}
+
+.row:nth-of-type(even) .case:nth-of-type(odd) {
+    background-color: #9E9E9E;
+}
+
+.case:hover{
+    background-color: rgba(255, 187, 17, 0.2) !important;
+}
+
+
+/* Les pieces */
+.piece-roi {
+    background: url('pions/roi.png');
+}
+
+.piece-dame {
+    background: url('pions/dame.png');
+}
+
+.piece-tour {
+    background: url('pions/tour.png');
+}
+
+.piece-fou {
+    background: url('pions/fou.png');
+}
+
+.piece-cavalier {
+    background: url('pions/cavalier.png');
+}
+
+.piece-pion {
+    background: url('pions/pion.png');
+}
+
+.piece-roi-rouge {
+    background: url('pions/roi-rouge.png');
+}
+
+.piece-dame-rouge {
+    background: url('pions/dame-rouge.png');
+}
+
+.piece-tour-rouge {
+    background: url('pions/tour-rouge.png');
+}
+
+.piece-fou-rouge {
+    background: url('pions/fou-rouge.png');
+}
+
+.piece-cavalier-rouge {
+    background: url('pions/cavalier-rouge.png');
+}
+
+.piece-pion-rouge {
+    background: url('pions/pion-rouge.png');
+}
+
+[class*="piece"] {
+    width: 100%;
+    height: 100%;
+    background-size: 80%;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
