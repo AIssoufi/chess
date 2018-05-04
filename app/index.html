@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Projet Module : javascript</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <h1> Echiquier</h1>
+    <div class="wrapper">
+        <div class="control">
+            <h1 id="j1-name">Joueur 1</h1>
+            <p>Scrore: <span id="j1-scrore">0</span></p>
+        </div>
+        <div class="game">
+            <div class="container">
+                <div class="row" data-ligne="8">
+                    <div class="case" data-colonne="a"><div data-avancer="vers-le-bas" class="piece tour rouge"></div></div>
+                    <div class="case" data-colonne="b"><div data-avancer="vers-le-bas" class="piece cavalier rouge"></div></div>
+                    <div class="case" data-colonne="c"><div data-avancer="vers-le-bas" class="piece fou rouge"></div></div>
+                    <div class="case" data-colonne="d"><div data-avancer="vers-le-bas" class="piece dame rouge"></div></div>
+                    <div class="case" data-colonne="e"><div data-avancer="vers-le-bas" class="piece roi rouge"></div></div>
+                    <div class="case" data-colonne="f"><div data-avancer="vers-le-bas" class="piece fou rouge"></div></div>
+                    <div class="case" data-colonne="g"><div data-avancer="vers-le-bas" class="piece cavalier rouge"></div></div>
+                    <div class="case" data-colonne="h"><div data-avancer="vers-le-bas" class="piece tour rouge"></div></div>
+                </div>
+                <div class="row" data-ligne="7">
+                    <div class="case" data-colonne="a"><div data-avancer="vers-le-bas" class="piece pion rouge"></div></div>
+                    <div class="case" data-colonne="b"><div data-avancer="vers-le-bas" class="piece pion rouge"></div></div>
+                    <div class="case" data-colonne="c"><div data-avancer="vers-le-bas" class="piece pion rouge"></div></div>
+                    <div class="case" data-colonne="d"><div data-avancer="vers-le-bas" class="piece pion rouge"></div></div>
+                    <div class="case" data-colonne="e"><div data-avancer="vers-le-bas" class="piece pion rouge"></div></div>
+                    <div class="case" data-colonne="f"><div data-avancer="vers-le-bas" class="piece pion rouge"></div></div>
+                    <div class="case" data-colonne="g"><div data-avancer="vers-le-bas" class="piece pion rouge"></div></div>
+                    <div class="case" data-colonne="h"><div data-avancer="vers-le-bas" class="piece pion rouge"></div></div>
+                </div>
+                <div class="row" data-ligne="6">
+                    <div class="case" data-colonne="a"></div>
+                    <div class="case" data-colonne="b"></div>
+                    <div class="case" data-colonne="c"></div>
+                    <div class="case" data-colonne="d"></div>
+                    <div class="case" data-colonne="e"></div>
+                    <div class="case" data-colonne="f"></div>
+                    <div class="case" data-colonne="g"></div>
+                    <div class="case" data-colonne="h"></div>
+                </div>
+                <div class="row" data-ligne="5">
+                    <div class="case" data-colonne="a"></div>
+                    <div class="case" data-colonne="b"></div>
+                    <div class="case" data-colonne="c"></div>
+                    <div class="case" data-colonne="d"></div>
+                    <div class="case" data-colonne="e"></div>
+                    <div class="case" data-colonne="f"></div>
+                    <div class="case" data-colonne="g"></div>
+                    <div class="case" data-colonne="h"></div>
+                </div>
+                <div class="row" data-ligne="4">
+                    <div class="case" data-colonne="a"></div>
+                    <div class="case" data-colonne="b"></div>
+                    <div class="case" data-colonne="c"></div>
+                    <div class="case" data-colonne="d"></div>
+                    <div class="case" data-colonne="e"></div>
+                    <div class="case" data-colonne="f"></div>
+                    <div class="case" data-colonne="g"></div>
+                    <div class="case" data-colonne="h"></div>
+                </div>
+                <div class="row" data-ligne="3">
+                    <div class="case" data-colonne="a"></div>
+                    <div class="case" data-colonne="b"></div>
+                    <div class="case" data-colonne="c"></div>
+                    <div class="case" data-colonne="d"></div>
+                    <div class="case" data-colonne="e"></div>
+                    <div class="case" data-colonne="f"></div>
+                    <div class="case" data-colonne="g"></div>
+                    <div class="case" data-colonne="h"></div>
+                </div>
+                <div class="row" data-ligne="2">
+                    <div class="case" data-colonne="a"><div data-avancer="vers-le-haut" class="piece pion noire"></div></div>
+                    <div class="case" data-colonne="b"><div data-avancer="vers-le-haut" class="piece pion noire"></div></div>
+                    <div class="case" data-colonne="c"><div data-avancer="vers-le-haut" class="piece pion noire"></div></div>
+                    <div class="case" data-colonne="d"><div data-avancer="vers-le-haut" class="piece pion noire"></div></div>
+                    <div class="case" data-colonne="e"><div data-avancer="vers-le-haut" class="piece pion noire"></div></div>
+                    <div class="case" data-colonne="f"><div data-avancer="vers-le-haut" class="piece pion noire"></div></div>
+                    <div class="case" data-colonne="g"><div data-avancer="vers-le-haut" class="piece pion noire"></div></div>
+                    <div class="case" data-colonne="h"><div data-avancer="vers-le-haut" class="piece pion noire"></div></div>
+                </div>
+                <div class="row" data-ligne="1">
+                    <div class="case" data-colonne="a"><div data-avancer="vers-le-haut" class="piece tour noire"></div></div>
+                    <div class="case" data-colonne="b"><div data-avancer="vers-le-haut" class="piece cavalier noire"></div></div>
+                    <div class="case" data-colonne="c"><div data-avancer="vers-le-haut" class="piece fou noire"></div></div>
+                    <div class="case" data-colonne="d"><div data-avancer="vers-le-haut" class="piece dame noire"></div></div>
+                    <div class="case" data-colonne="e"><div data-avancer="vers-le-haut" class="piece roi noire"></div></div>
+                    <div class="case" data-colonne="f"><div data-avancer="vers-le-haut" class="piece fou noire"></div></div>
+                    <div class="case" data-colonne="g"><div data-avancer="vers-le-haut" class="piece cavalier noire"></div></div>
+                    <div class="case" data-colonne="h"><div data-avancer="vers-le-haut" class="piece tour noire"></div></div>
+                </div>
+            </div>
+        </div>
+        <div class="control">
+            <h1 id="j2-name">Joueur 2</h1>
+            <p>Scrore: <span id="j2-scrore">0</span></p>
+        </div>
+    </div>
+    
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

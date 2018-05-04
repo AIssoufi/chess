@@ -1,0 +1,18 @@
+{
+  "name": "echec",
+  "version": "1.0.0",
+  "description": "Un jeu d'echec en JavaScript",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "echec"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "browser-sync": "^2.24.3",
+    "gulp": "^3.9.1"
+  }
+}
