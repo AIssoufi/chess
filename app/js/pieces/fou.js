@@ -1,5 +1,15 @@
 const fou = {
-  directions: [
+  pièce: {
+    type: 'fou',
+    blanche: '&#9815;',
+    noire: '&#9821;',
+    quantitéIntiale: 2,
+    positionInitiale: {
+      blanche: ["c1", "f1"],
+      noire: ["c8", "f8"]
+    }
+  },
+  mouvements: [
     { haut: 1, droite: 1 },
     { haut: 2, droite: 2 },
     { haut: 3, droite: 3 },

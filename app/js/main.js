@@ -1,142 +1,65 @@
+import consoleLog from './console-log.js';
+import Plateau from './Plateau.js'
+import PièceFactory from './PièceFactory.js';
 
-let cases = [...document.querySelectorAll(".case")];
-let caseSelectionnee;
+class Main {
+    constructor() {
+        this.cases = [...document.querySelectorAll(".case")];
+        this.plateau = new Plateau();
+        this.factory = new PièceFactory();
+    }
 
-import cavalier from './pieces/cavalier.js';
-import dame from './pieces/dame.js';
-import tour from './pieces/tour.js';
-import pion from './pieces/pion.js';
-import roi from './pieces/roi.js';
-import fou from './pieces/fou.js';
+    initialiser() {
+        const configPièces = this.factory.getPiècesConfigArray();
+        for(const config of configPièces) {
+            ["blanche", "noire"].forEach(couleur => {
+                for(let i = 0; i < config.pièce.quantitéIntiale; i++) {
+                    const pièceNode = this.factory.créer({
+                        type: config.pièce.type, 
+                        couleur: couleur
+                    });
 
-cases.forEach((piece) => {
-     piece.addEventListener("click", function(event) {
-        const uneCase = event.currentTarget;
+                    const position = config.pièce.positionInitiale[couleur][i];
+                    const uneCase = this.plateau.getCaseNode(position);
 
-        if (uneCase.hasChildNodes()) {
-            selectionner(uneCase);
-        } else {
-            deplacer(caseSelectionnee, uneCase);
+                    this.plateau.placerNode(position, pièceNode);
+                }
+            });
         }
-     });
-});
 
-function deplacer(from, to) {
-    if (!to.classList.contains("chemin")) {
-        console.log("Déplacement pas possible !");
-        return;
-    }
-    to.appendChild(from.childNodes[0]);
-    selectionner(to);
-}
+        this.cases.forEach(uneCase => {
+            uneCase.addEventListener('click', event => {
+                const c = event.currentTarget;
+                const pièce = c.childNodes[0];
 
-function getEmplacement(uneCase) {
-    const parent = uneCase.parentNode;
-    const fils = uneCase.childNodes[0];
-
-    return {
-        colonne: uneCase.dataset.colonne,
-        ligne: parent.dataset.ligne,
-        inverserChemin: (fils.dataset.avancer == "vers-le-bas")
-    }
-}
-
-function getTypeDePiece(uneCase) {
-    return {
-        type: uneCase.childNodes[0].classList[1]
-    }
-}
-
-function selectionner(uneCase) {
-    caseSelectionnee = uneCase;
-    
-    switch(getTypeDePiece(uneCase).type) {
-        case "pion":
-            affihcerChemin(getEmplacement(uneCase), pion);
-            break;
-        case "tour":
-            affihcerChemin(getEmplacement(uneCase), tour);
-            break;
-        case "cavalier":
-            affihcerChemin(getEmplacement(uneCase), cavalier);
-            break;
-        case "fou":
-            affihcerChemin(getEmplacement(uneCase), fou);
-            break;
-        case "roi":
-            affihcerChemin(getEmplacement(uneCase), roi);
-            break;
-        case "dame":
-            affihcerChemin(getEmplacement(uneCase), dame);
-            break;
-        default:
-            break;
+                if (this.plateau.getCaseSelectionnee()) { // si une case est déjà selctionnée
+                    if(c.hasChildNodes()) {
+                        const childTo = this.plateau.getCaseSelectionnee().childNodes[0]
+                        if(pièce.dataset.couleur == childTo.dataset.couleur) {
+                            
+                            this.plateau.selectionnerCase(c.dataset.position);
+                            const configPièces = this.factory.getConfigPièces();
+                            this.plateau.affihcerChemin(c.dataset.position, configPièces[pièce.dataset.type].mouvements);
+                        } else {
+                            this.plateau.capturer(c.dataset.position, this.plateau.getCaseSelectionnee().dataset.position);
+                        }
+                    } else {
+                        this.plateau.deplacer(this.plateau.getCaseSelectionnee().dataset.position, c.dataset.position);
+                    }
+                } else { // si une case n'est pas selctionnée
+                    this.plateau.selectionnerCase(c.dataset.position);
+                    const configPièces = this.factory.getConfigPièces();
+                    this.plateau.affihcerChemin(c.dataset.position, configPièces[pièce.dataset.type].mouvements);
+                }
+            });
+        });
     }
 
-    caseSelectionnee.classList.add('selectionner');
-}
-
-function affihcerChemin(positionDeDepart, cheminPossible) {
-    decolorerCase();
-    for(let chemin of cheminPossible.directions) {
-        colorerCase(getDeplacementPossible(positionDeDepart, chemin));
+    start() {
+        this.initialiser();
+        consoleLog();
     }
 }
 
-function getDeplacementPossible(positionDeDepart, cheminPossible) {
-    let colonneChemin, ligneChemin;
-
-    if (cheminPossible.haut != undefined) {
-        ligneChemin = +cheminPossible.haut;
-    } else if (cheminPossible.bas != undefined) {
-        ligneChemin = -cheminPossible.bas;
-    }
-
-    if (cheminPossible.droite != undefined) {
-        colonneChemin = +cheminPossible.droite;
-    } else if (cheminPossible.gauche != undefined) {
-        colonneChemin = -cheminPossible.gauche;
-    }
-
-    if (positionDeDepart.inverserChemin) { ligneChemin = -1 * ligneChemin; }
-
-    return {
-        colonne: nombreVersLettre(lettreVersNombre(positionDeDepart.colonne) + colonneChemin),
-        ligne: 1 * positionDeDepart.ligne + ligneChemin
-    };
-}
-
-function lettreVersNombre(lettre) {
-    const tab = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-
-    return tab.indexOf(lettre) + 1;
-}
-
-function nombreVersLettre(nombre) {
-    if (nombre < 1) { return null; }
-    const tab = ["a", "b", "c", "d", "e", "f", "g", "h"];
-    return tab[nombre-1];
-}
-
-function colorerCase(postion) {
-    if (postion.ligne < 1 || postion.ligne > 8 || lettreVersNombre(postion.colonne) < 1 || lettreVersNombre(postion.colonne) > 8) {
-        return;
-    }
-
-    const ligne = document.querySelector(`.row[data-ligne='${postion.ligne}']`);
-    const uneCase = ligne.querySelector(`.case[data-colonne='${postion.colonne}']`);
-
-    uneCase.classList.add('chemin');
-}
-
-function decolorerCase() {
-    const tab = [...document.querySelectorAll('.chemin')];
-    for( let caseColore of tab ) {
-        caseColore.classList.remove('chemin');
-    }
-
-    const select = document.querySelector('.selectionner');
-    if(select) {
-        select.classList.remove('selectionner');
-    }
-}
+const main = new Main();
+main.start();

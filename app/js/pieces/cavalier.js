@@ -1,5 +1,15 @@
 const cavalier = {
-  directions: [
+  pièce: {
+    type: 'cavalier',
+    blanche: '&#9816;',
+    noire: '&#9822;',
+    quantitéIntiale: 2,
+    positionInitiale: {
+      blanche: ["b1", "g1"],
+      noire: ["b8", "g8"]
+    }
+  },
+  mouvements: [
     { haut: 2, gauche: 1 },
     { haut: 2, droite: 1 },
     { bas: 2, gauche: 1 },

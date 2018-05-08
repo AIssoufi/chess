@@ -3,8 +3,14 @@
   "version": "1.0.0",
   "description": "Un jeu d'echec en JavaScript",
   "main": "index.html",
+  "babel": {
+    "presets": [
+      "env"
+    ]
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "gulp",
+    "test": "mocha --require babel-polyfill --compilers js:babel-register"
   },
   "keywords": [
     "echec"
@@ -13,6 +19,13 @@
   "license": "ISC",
   "dependencies": {
     "browser-sync": "^2.24.3",
-    "gulp": "^3.9.1"
+    "gulp": "^3.9.1",
+    "mocha": "^5.1.1"
+  },
+  "devDependencies": {
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-register": "^6.26.0",
+    "mocha-jsdom": "^1.1.0"
   }
 }

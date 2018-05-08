@@ -1,5 +1,15 @@
 const dame = {
-  directions: [
+  pièce: {
+    type: 'dame',
+    blanche: '&#9813;',
+    noire: '&#9819;',
+    quantitéIntiale: 1,
+    positionInitiale: {
+      blanche: ["d1"],
+      noire: ["d8"]
+    }
+  },
+  mouvements: [
     { haut: 1, droite: 1 },
     { haut: 2, droite: 2 },
     { haut: 3, droite: 3 },
