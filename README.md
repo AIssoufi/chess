@@ -1,4 +1,4 @@
-# echiquier
+# Échiquier
 Un échiquier écrit en JavaScript
 
 <p align="center">
@@ -12,7 +12,11 @@ Un échiquier écrit en JavaScript
 npm start
 ```
 
-## Autres captures d'écran
+## Les déplacements
 <p align="center">
-<img src="https://raw.githubusercontent.com/AIssoufi/echiquier/master/app/css/img/screen2.png" alt="capture d'écran">
+<img src="https://raw.githubusercontent.com/AIssoufi/echiquier/master/app/css/img/cavalier.png" width="40%" alt="capture d'écran">
+<img src="https://raw.githubusercontent.com/AIssoufi/echiquier/master/app/css/img/dame.png"  width="40%" alt="capture d'écran">
+<img src="https://raw.githubusercontent.com/AIssoufi/echiquier/master/app/css/img/fou.png" width="40%" alt="capture d'écran">
+<img src="https://raw.githubusercontent.com/AIssoufi/echiquier/master/app/css/img/pion.png"  width="40%" alt="capture d'écran">
+<img src="https://raw.githubusercontent.com/AIssoufi/echiquier/master/app/css/img/tour.png" width="40%" alt="capture d'écran">
 </p>
