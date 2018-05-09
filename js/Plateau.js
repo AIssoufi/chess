@@ -34,7 +34,7 @@ export default class Plateau {
             this.deselectionnerCase();
             caseNode.classList.add('selectionner');
         } else {
-            console.log("selection non autorié");
+            console.log("Sélection non autorisée");
         }
     }
   }
@@ -71,7 +71,7 @@ export default class Plateau {
 
     if (!v.classList.contains("chemin")) {
         this.deselectionnerCase();
-        console.log("Opération pas possible !");
+        console.log("Opération non possible !");
         return;
     } 
 
