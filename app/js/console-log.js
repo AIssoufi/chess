@@ -4,7 +4,12 @@ export default function consoleLog() {
   console.log = function() {
     log.apply(console, arguments);
     const div = document.createElement("div");
-    div.textContent = `${new Date()} > ${arguments[0]}`;
+    const dateCoutante = new Date();
+    const dateFormatee = dateCoutante.getHours() + ":"  
+                + dateCoutante.getMinutes() + ":" 
+                + dateCoutante.getSeconds();
+    div.textContent = `${dateFormatee} > ${arguments[0]}`;
     consoleCopie.appendChild(div);
+    consoleCopie.scrollTop = consoleCopie.scrollHeight;
   }
 }

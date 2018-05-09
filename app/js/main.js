@@ -7,6 +7,12 @@ class Main {
         this.cases = [...document.querySelectorAll(".case")];
         this.plateau = new Plateau();
         this.factory = new PièceFactory();
+        this.changerDeJoueur = () => {
+            const ctr = document.querySelectorAll(".control");
+            ctr.forEach(c => {
+                c.classList.toggle("joueur-courant");
+            });
+        }
     }
 
     initialiser() {
@@ -42,9 +48,11 @@ class Main {
                             this.plateau.affihcerChemin(c.dataset.position, configPièces[pièce.dataset.type].mouvements);
                         } else {
                             this.plateau.capturer(c.dataset.position, this.plateau.getCaseSelectionnee().dataset.position);
+                            this.changerDeJoueur();
                         }
                     } else {
                         this.plateau.deplacer(this.plateau.getCaseSelectionnee().dataset.position, c.dataset.position);
+                        this.changerDeJoueur();
                     }
                 } else { // si une case n'est pas selctionnée
                     this.plateau.selectionnerCase(c.dataset.position);

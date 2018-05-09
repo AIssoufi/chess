@@ -26,9 +26,16 @@ export default class Plateau {
 
   selectionnerCase(position) {
     const caseNode = this.getCaseNode(position);
-    if(caseNode) {
-        this.deselectionnerCase();
-        caseNode.classList.add('selectionner');
+    if(caseNode && caseNode.hasChildNodes()) {
+        const pièce = this.getPièce(position);
+        const couleurJoueurCourant = document.querySelector('.joueur-courant').dataset.couleur;
+
+        if(couleurJoueurCourant == pièce.dataset.couleur) {
+            this.deselectionnerCase();
+            caseNode.classList.add('selectionner');
+        } else {
+            console.log("selection non autorié");
+        }
     }
   }
 
@@ -52,6 +59,7 @@ export default class Plateau {
         console.log("Déplacement pas possible !");
     } else {
         toNode.appendChild(fromNode.childNodes[0]);
+        console.log(`Déplacement ${from} vers ${to}`);
     }
 
     this.deselectionnerCase();
@@ -60,16 +68,34 @@ export default class Plateau {
   capturer(victimePos, remplacentPos) {
     const v = this.getCaseNode(victimePos);
     const r = this.getCaseNode(remplacentPos);
-    document.querySelector('#noire-prisonier').appendChild(v.childNodes[0]);
+
+    if (!v.classList.contains("chemin")) {
+        this.deselectionnerCase();
+        console.log("Opération pas possible !");
+        return;
+    } 
+
+    document.querySelector(`.joueur-courant [id*="prisoniers"]`).appendChild(v.childNodes[0]);
     v.appendChild(r.childNodes[0]);
+    console.log(`${remplacentPos} a capturé ${victimePos}`);
     this.deselectionnerCase();
+
+    const nbPrisonier = document.querySelector(".joueur-courant [id*='nb-prisonier']");
+    ++nbPrisonier.textContent;
   }
 
   affihcerChemin(positionDeDepart, cheminPossible) {
+    let inverser = false;
+    const caseSelectionee = this.getCaseSelectionnee();
+
+    if (this.getCaseNode(positionDeDepart) != caseSelectionee) {
+        return;
+    }
     this.decolorerCase();
 
-    let inverser = false;
+    
     const pièce = this.getPièce(positionDeDepart);
+
 
     if (pièce) { inverser = pièce.dataset.couleur == "noire"; }
 
