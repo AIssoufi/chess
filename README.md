@@ -14,9 +14,10 @@ npm start
 
 ## Les déplacements
 <p align="center">
-<img src="https://raw.githubusercontent.com/AIssoufi/echiquier/master/app/css/img/cavalier.png" width="40%" alt="capture d'écran">
-<img src="https://raw.githubusercontent.com/AIssoufi/echiquier/master/app/css/img/dame.png"  width="40%" alt="capture d'écran">
-<img src="https://raw.githubusercontent.com/AIssoufi/echiquier/master/app/css/img/fou.png" width="40%" alt="capture d'écran">
-<img src="https://raw.githubusercontent.com/AIssoufi/echiquier/master/app/css/img/pion.png"  width="40%" alt="capture d'écran">
-<img src="https://raw.githubusercontent.com/AIssoufi/echiquier/master/app/css/img/tour.png" width="40%" alt="capture d'écran">
+https://raw.githubusercontent.com/AIssoufi/echiquier/master/app/css/img/cavalier.png
+<img src="https://raw.githubusercontent.com/AIssoufi/echiquier/master/app/css/img/cavalier.png" width="50%" alt="capture d'écran">
+<img src="https://raw.githubusercontent.com/AIssoufi/echiquier/master/app/css/img/dame.png"  width="50%" alt="capture d'écran">
+<img src="https://raw.githubusercontent.com/AIssoufi/echiquier/master/app/css/img/fou.png" width="50%" alt="capture d'écran">
+<img src="https://raw.githubusercontent.com/AIssoufi/echiquier/master/app/css/img/pion.png"  width="50%" alt="capture d'écran">
+<img src="https://raw.githubusercontent.com/AIssoufi/echiquier/master/app/css/img/tour.png" width="50%" alt="capture d'écran">
 </p>
