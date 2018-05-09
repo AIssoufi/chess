@@ -1,7 +1,8 @@
 {
-  "name": "echec",
+  "name": "echiquier",
   "version": "1.0.0",
   "description": "Un jeu d'echec en JavaScript",
+  "homepage": "https://AIssoufi.github.io/echiquier",
   "main": "index.html",
   "babel": {
     "presets": [
@@ -10,7 +11,8 @@
   },
   "scripts": {
     "start": "gulp",
-    "test": "mocha --require babel-polyfill --compilers js:babel-register"
+    "test": "mocha --require babel-polyfill --compilers js:babel-register",
+    "deploy": "gh-pages -d app"
   },
   "keywords": [
     "echec"
@@ -19,6 +21,7 @@
   "license": "ISC",
   "dependencies": {
     "browser-sync": "^2.24.3",
+    "gh-pages": "^1.1.0",
     "gulp": "^3.9.1",
     "mocha": "^5.1.1"
   },
