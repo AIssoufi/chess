@@ -1,0 +1,262 @@
+* {
+    box-sizing: border-box;
+}
+body{
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+h1 {
+    text-align: center;
+    color: #FFF;
+    font-family: fantasy;
+}
+.wrapper {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: 1fr min-content 1fr;
+    max-width: 1000px;
+    margin: 0 auto;
+    background-color: #ffffff52;
+    padding: 26px 0;
+    border-radius: 10px;
+}
+    .wrapper::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-image: url("./img/bg.jpg");
+        background-size: cover;
+        z-index: -1;
+        filter: blur(5px);
+        transform: scale(1.01);
+    }
+
+.game {
+    display: grid;
+    grid-template-areas: ". lettre" "numero piece";
+    grid-template-columns: 15px 1fr;
+    grid-template-rows: 15px 1fr;
+}
+
+.container-lettre {
+    grid-area: lettre;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    flex: 1 1 0;
+}
+
+.container-numero {
+    grid-area: numero;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: space-around;
+    flex: 1 1 0;
+}
+
+.container-piece {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    grid-area: piece;
+    width: calc(70px * 8);
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.control {
+    margin: 0 20px;
+}
+
+.control:first-of-type {
+    text-align: right;
+}
+
+.control:last-of-type {
+    text-align: left;
+}
+
+.case{
+    height : 70px;
+    width : 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.row:nth-of-type(odd) .case:nth-of-type(even) {
+    background-color: #d18b46;
+}
+
+.row:nth-of-type(odd) .case:nth-of-type(odd) {
+    background-color:#ffcf9e;
+}
+
+.row:nth-of-type(even) .case:nth-of-type(even) {
+    background-color: #ffcf9e;
+}
+
+.row:nth-of-type(even) .case:nth-of-type(odd) {
+    background-color: #d18b46;
+}
+
+.case:hover{
+    background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+
+/* Les pieces */
+
+.piece {
+    font-size: 3rem;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+}
+
+
+.case.chemin {
+    background-color: rgba(139, 195, 74, 1) !important;
+    animation: clignoter 0.5s linear 1s infinite alternate;
+}
+
+.case.chemin:hover {
+    cursor: crosshair;
+}
+
+.case {
+    cursor: not-allowed;
+}
+
+.case.selectionner {
+    background-color: rgba(76, 255, 76, 1) !important;
+}
+
+[id*="prisoniers"] {
+    display: grid;
+    grid-auto-flow: row;
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+}
+
+.console-log {
+    position: fixed;
+    bottom: 0;
+    color: #FFF;
+    width: 1000%;
+    padding: 10px 10px;
+    font-family: monospace;
+    max-height: 10vh;
+    overflow: auto;
+}
+
+.alert__background {
+    filter: blur(5px);
+    transform: scale(1.01);
+    height: 100vh;
+    width: 100vw;
+}
+
+.alert__wrapper {
+    position: fixed;
+    width: 500px;
+    height: 300px;
+    margin: auto auto;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: #fff;
+    border-radius: 10px;
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    text-align: center;
+}
+    .alert__wrapper > .logo {
+        font-size: 5rem;
+        margin: 0;
+        color: #000;
+    }
+
+    .alert__wrapper > p {
+        font-size: 1.3rem;
+        font-family: fantasy;
+        margin: 0;
+    }
+
+    .alert__wrapper > button {
+        font-size: 1.2rem;
+        line-height: 2rem;
+        height: 2rem;
+        max-width: 150px;
+        font-family: fantasy;
+        background-color: #FF9800;
+        border-radius: 5px;
+        border: none;
+    }
+    .alert__wrapper > button:hover, .piece {
+        cursor: pointer;
+    }
+
+.joueur-courant h2 {
+    border-radius: 10px;
+    animation: clignoter 0.5s linear 1s infinite alternate;
+}
+
+@keyframes clignoter {
+    from {
+        background-color: rgba(139, 195, 74, 0.5);
+    }
+
+    to {
+        background-color: rgba(139, 195, 74, 0.1);
+    }
+}
+
+.copyright {
+    color: #FFF;
+    position: fixed;
+    top: 20px;
+    right: 0;
+    font-size: 1rem;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+
+  .copyright a {
+      color: #FF9800;
+  }
+  
+  .réseaux-sociaux {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+  }
+  
+    .réseaux-sociaux svg {
+      fill: #ffffff70;
+      height: 3rem;
+      width: 3rem;
+      margin-right: 1.2rem;
+    }
+  
+    .réseaux-sociaux svg:hover {
+      fill: #d18b46;
+    }
