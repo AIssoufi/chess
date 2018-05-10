@@ -9,9 +9,7 @@ class Main {
         this.factory = new PièceFactory();
         this.changerDeJoueur = () => {
             const ctr = document.querySelectorAll(".control");
-            ctr.forEach(c => {
-                c.classList.toggle("joueur-courant");
-            });
+            ctr.forEach(c => { c.classList.toggle("joueur-courant"); });
         }
     }
 
@@ -38,20 +36,20 @@ class Main {
                 const c = event.currentTarget;
                 const pièce = c.childNodes[0];
 
-                if (this.plateau.getCaseSelectionnee()) { // si une case est déjà selctionnée
+                if (this.plateau.getCaseSelectionneeNode()) { // si une case est déjà selctionnée
                     if(c.hasChildNodes()) {
-                        const childTo = this.plateau.getCaseSelectionnee().childNodes[0]
+                        const childTo = this.plateau.getCaseSelectionneeNode().childNodes[0]
                         if(pièce.dataset.couleur == childTo.dataset.couleur) {
                             
                             this.plateau.selectionnerCase(c.dataset.position);
                             const configPièces = this.factory.getConfigPièces();
                             this.plateau.affihcerChemin(c.dataset.position, configPièces[pièce.dataset.type].mouvements);
                         } else {
-                            this.plateau.capturer(c.dataset.position, this.plateau.getCaseSelectionnee().dataset.position);
+                            this.plateau.capturer(c.dataset.position, this.plateau.getCaseSelectionneeNode().dataset.position);
                             this.changerDeJoueur();
                         }
                     } else {
-                        this.plateau.deplacer(this.plateau.getCaseSelectionnee().dataset.position, c.dataset.position);
+                        this.plateau.deplacer(this.plateau.getCaseSelectionneeNode().dataset.position, c.dataset.position);
                         this.changerDeJoueur();
                     }
                 } else { // si une case n'est pas selctionnée

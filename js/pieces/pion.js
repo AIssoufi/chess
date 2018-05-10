@@ -10,10 +10,10 @@ const pion = {
     }
   },
   mouvements: [
-    {type: 'vecteur', x: 0, y: -2, regPion: true, premier: true},
-    {type: 'vecteur', x: 0, y: -1},
-    {type: 'vecteur', x: -1, y: -1, regPion: true, attaque: true},
-    {type: 'vecteur', x: 1, y: -1, regPion: true, attaque: true},
+    {type: 'vecteur', x: -1, y: -1, situation: 'CAPTURER'}, // peut capturer
+    {type: 'vecteur', x: 1, y: -1, situation: 'CAPTURER'}, // peut capturer
+    {type: 'vecteur', x: 0, y: -2, situation: 'PRMIER_MOUVEMENT'}, // peut se deplacer de deux cases
+    {type: 'vecteur', x: 0, y: -1, situation: 'NORMAL'} // peut avancer d'une case à condition qu'il n'y ait pas de pion devant.
   ]
 }
 
