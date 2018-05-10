@@ -10,9 +10,10 @@ const pion = {
     }
   },
   mouvements: [
-    { haut: 1, droite: 0 },
-    { haut: 0, droite: 1 },
-    { haut: 0, gauche: 1 }
+    {type: 'vecteur', x: 0, y: -2, regPion: true, premier: true},
+    {type: 'vecteur', x: 0, y: -1},
+    {type: 'vecteur', x: -1, y: -1, regPion: true, attaque: true},
+    {type: 'vecteur', x: 1, y: -1, regPion: true, attaque: true},
   ]
 }
 
