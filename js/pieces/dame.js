@@ -6,8 +6,8 @@ const dame = {
     quantitéIntiale: 1,
     positionInitiale: {
       blanche: ["d1"],
-      noire: ["d4"]
-      // noire: ["d8"]
+      // noire: ["d4"]
+      noire: ["d8"]
     }
   },
   mouvements: [
