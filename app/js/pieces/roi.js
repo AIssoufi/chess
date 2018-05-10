@@ -10,14 +10,14 @@ const roi = {
     }
   },
   mouvements: [
-    { haut: 1, droite: 1 },
-    { haut: 1, gauche: 1 },
-    { bas: 1, droite: 1 },
-    { bas: 1, gauche: 1 },
-    { haut: 1, droite: 0 },
-    { bas: 1, droite: 0 },
-    { haut: 0, droite: 1 },
-    { bas: 0, gauche: 1 },
+    {type: 'vecteur', x: 1, y: 1},
+    {type: 'vecteur', x: 1, Y: 0},
+    {type: 'vecteur', x: 1, y: -1},
+    {type: 'vecteur', x: 0, y: -1},
+    {type: 'vecteur', x: -1, y: -1},
+    {type: 'vecteur', x: -1, y: 0},
+    {type: 'vecteur', x: -1, y: 1},
+    {type: 'vecteur', x: 0, y: 1},
   ]
 }
 
