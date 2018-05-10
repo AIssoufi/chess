@@ -103,11 +103,13 @@ export default class Plateau {
    * @returns {Node} Retourne le Node de la case ciblé
    */
   getCaseNode(position) { return document.querySelector(`.case[data-position="${position}"]`); }
+
   /**
    * Obtenir la case (Node) actuellement sélectionnée
    * @returns {Node} Retourne le Node de la case actuellement sélectionnée
    */
   getCaseSelectionneeNode() { return document.querySelector('.selectionner'); }
+
   /**
    * Obtenir le couleur de la pièce ciblé
    * @param {String} position La position de la pièce ciblé | Exemple: a1
@@ -116,6 +118,10 @@ export default class Plateau {
   getCouleur(position) {
     const pièce = this.getPièceNode(position);
     if (pièce) { return pièce.dataset.couleur; }
+  }
+
+  getCouleurCaseSelectionnee() {
+    return this.getCouleur(this.getPositionSelectionnee());
   }
 
   /**
@@ -167,13 +173,13 @@ export default class Plateau {
             if(tabCheminPossible.y) {
                 const nvxChemin = inverser ? -1 * tabCheminPossible.y : tabCheminPossible.y;
                
-                // On avance sur l'alphabet. Exemple on passe de A vers B
+                // On incéremnte le nombre.
                 if (nvxChemin > 0) {
                     const chiffreLegnth = positionOrigine[1]*1 + nvxChemin;
                     for(let i = positionOrigine[1]*1 + 1; i <= chiffreLegnth; i++ ) {
                         chiffres.push(i);
                     }
-                // On recule sur l'alphabet. Exemple on passe  de B vers A
+                // On décréremnte le nombre.
                 } else if (nvxChemin < 0) {
                     const chiffreLegnth = positionOrigine[1]*1 + nvxChemin;
        
@@ -248,6 +254,12 @@ export default class Plateau {
     const caseNode = this.getCaseNode(position);
     if (caseNode) { return caseNode.childNodes[0]; }
   }
+
+  /**
+   * Obtenir la position actuellement sélectionnée
+   * @returns {Qtring} Retourne la position de la case actuellement sélectionnée
+   */
+  getPositionSelectionnee() { return this.getCaseSelectionneeNode().dataset.position; }
 
   /**
    * Placer une pièce (un Node) sur case (position)
