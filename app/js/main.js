@@ -66,6 +66,9 @@ const placerLesPièces = (plateau, factory) => {
     [...document.querySelectorAll('.piece')].forEach(pièce => {
         pièce.remove();
     });
+    [...document.querySelectorAll("[id*='nb-prisonier']")].forEach(counter => {
+        counter.textContent = 0;
+    });
 
     const configPièces = factory.getPiècesConfigArray();
     for(const config of configPièces) {
