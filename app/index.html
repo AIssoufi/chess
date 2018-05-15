@@ -133,9 +133,16 @@
         <div class="console-log"></div>
     </div>
     <div class="alert__wrapper">
-        <h1 class="logo">&#9812;</h1>
-        <p>Le projet suivant n'est pas finalisé. Il est encore à l'état de prototype.</p>
-        <button onclick="supprimerAlerte()">J'ai compris !</button>
+        <div class="alert debut-de-partie">
+            <h1 class="logo">&#9812;</h1>
+            <p>Le projet suivant n'est pas finalisé. Il est encore à l'état de prototype.</p>
+            <button>J'ai compris !</button>
+        </div>
+        <div class="alert fin-de-partie">
+            <h1>Echec et mat</h1>
+            <p>Le joueur de couleur <span class="couleur-joueur-gagnant"></span> à gagné la partie.</p>
+            <button>Rejouer !</button>
+        </div>
     </div>
     <div>
         <p class="copyright">Copyright © 2018 <a href='https://www.issoufi.fr'>Adam Issoufi</a>, tout droit reservé</p>
@@ -153,12 +160,7 @@
 
     <script type="module" src="js/main.js"></script>
     <script>
-        function supprimerAlerte() {
-            const alerte    = document.querySelector('.alert__wrapper');
-            const alerte_bg = document.querySelector('.alert__background');
-            if (alerte)    { alerte.style.display = "none"; }
-            if (alerte_bg) { alerte_bg.classList.remove("alert__background"); }
-        }
+
     </script>
 </body>
 </html>

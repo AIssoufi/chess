@@ -9,6 +9,53 @@ const changerDeJoueur = () => {
     const ctr = document.querySelectorAll(".control");
     ctr.forEach(c => { c.classList.toggle("joueur-courant"); });
 };
+/**
+ * 
+ * @param {*} couleurGagnat 
+ * @param {*} plateau 
+ * @param {*} factory 
+ */
+const echecEtMat = (couleurGagnat, plateau, factory) => {
+    document.querySelector('.couleur-joueur-gagnant').textContent = couleurGagnat;
+
+    afficherAlerte('fin-de-partie', event => {
+        supprimerAlerte();
+        initialiser(plateau, factory);
+    });
+}
+
+/**
+ * Affciher une alerte
+ * @param {*} nom Nom de l'alerte à affciher
+ * @param {*} boutonClickHandle Le gestionnaire de l'event click du bouton
+ */
+function afficherAlerte(nom, boutonClickHandle) {
+    const wrapper = document.querySelector('.alert__wrapper');
+    const bg      = document.querySelector('.main__wrapper');
+    const alert   = wrapper.querySelector(`.${nom}`);
+
+    wrapper.style.display = "block";
+    bg.classList.add("alert__background");
+    alert.classList.add("afficher");
+
+    if (boutonClickHandle) {
+        const bouton = alert.querySelector('button');
+        bouton.addEventListener('click', boutonClickHandle);
+    }
+}
+
+/**
+ * Supprimer
+ */
+function supprimerAlerte() {
+    const wrapper = document.querySelector('.alert__wrapper');
+    const bg      = document.querySelector('.main__wrapper');
+    const alert   = wrapper.querySelector(".afficher");
+
+    wrapper.style.display = "none";
+    bg.classList.remove("alert__background");
+    alert && alert.classList.remove("afficher");
+}
 
 /**
  * Place les pièces à leur position initiale.
@@ -16,6 +63,10 @@ const changerDeJoueur = () => {
  * @param {PièceFactory} factory La factory des pièce
  */
 const placerLesPièces = (plateau, factory) => {
+    [...document.querySelectorAll('.piece')].forEach(pièce => {
+        pièce.remove();
+    });
+
     const configPièces = factory.getPiècesConfigArray();
     for(const config of configPièces) {
         ["blanche", "noire"].forEach(couleur => {
@@ -56,7 +107,13 @@ const abonnerLesCases = (plateau, factory) => {
                         plateau.affihcerChemin(positionCase, configPièces[typePièce].mouvements);
                     } else {
                         plateau.capturer(positionCase, plateau.getPositionSelectionnee());
-                        changerDeJoueur();
+                        switch(typePièce) {
+                            case 'roi':
+                                echecEtMat(couleurPièceSelectionee, plateau, factory);
+                                break;
+                            default:
+                                changerDeJoueur();
+                        }
                     }
                 } else {
                     plateau.deplacer(plateau.getPositionSelectionnee(), positionCase);
@@ -89,6 +146,10 @@ class Main {
     start() {
         initialiser(this.plateau, this.factory);
         consoleLog();
+
+        afficherAlerte('debut-de-partie', event => {
+            supprimerAlerte();
+        });
     }
 }
 
