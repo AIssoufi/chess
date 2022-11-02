@@ -22,7 +22,7 @@
   "dependencies": {
     "browser-sync": "^2.24.3",
     "gh-pages": "^1.1.0",
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.2",
     "mocha": "^5.1.1",
     "npm": "^6.13.4"
   },
