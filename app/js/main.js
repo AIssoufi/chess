@@ -1,160 +1,210 @@
-import consoleLog from './console-log.js';
-import Plateau from './Plateau.js'
+import Echiquier from './Echiquier.js';
 import PièceFactory from './PièceFactory.js';
+import consoleLog from './console-log.js';
 
-/**
- * Alterne le statut de joueur courant entre les deux joueurs.
- */
-const changerDeJoueur = () => {
-    const ctr = document.querySelectorAll(".control");
-    ctr.forEach(c => { c.classList.toggle("joueur-courant"); });
-};
-/**
- * 
- * @param {*} couleurGagnat 
- * @param {*} plateau 
- * @param {*} factory 
- */
-const echecEtMat = (couleurGagnat, plateau, factory) => {
-    document.querySelector('.couleur-joueur-gagnant').textContent = couleurGagnat;
+const jeu = new Echiquier();
+const factory = new PièceFactory();
 
-    afficherAlerte('fin-de-partie', event => {
-        supprimerAlerte();
-        initialiser(plateau, factory);
-    });
+let positionSelectionnee = null;
+let coupsPossibles = [];
+
+// ─── Rendu DOM ──────────────────────────────────────────────────────────────
+
+function rendreBoard() {
+  document.querySelectorAll('.piece').forEach((p) => p.remove());
+  for (const [position, piece] of jeu.plateau) {
+    const caseNode = document.querySelector(`.case[data-position="${position}"]`);
+    if (caseNode) caseNode.appendChild(factory.créer({ type: piece.type, couleur: piece.couleur }));
+  }
 }
 
-/**
- * Affciher une alerte
- * @param {*} nom Nom de l'alerte à affciher
- * @param {*} boutonClickHandle Le gestionnaire de l'event click du bouton
- */
-function afficherAlerte(nom, boutonClickHandle) {
-    const wrapper = document.querySelector('.alert__wrapper');
-    const bg      = document.querySelector('.main__wrapper');
-    const alert   = wrapper.querySelector(`.${nom}`);
-
-    wrapper.style.display = "block";
-    bg.classList.add("alert__background");
-    alert.classList.add("afficher");
-
-    if (boutonClickHandle) {
-        const bouton = alert.querySelector('button');
-        bouton.addEventListener('click', boutonClickHandle);
+function rendrePrisonniers() {
+  for (const couleur of ['blanche', 'noire']) {
+    const zone = document.getElementById(`${couleur}-prisoniers`);
+    const compteur = document.getElementById(`${couleur}-nb-prisonier`);
+    zone.innerHTML = '';
+    compteur.textContent = jeu.captures[couleur].length;
+    for (const piece of jeu.captures[couleur]) {
+      zone.appendChild(factory.créer({ type: piece.type, couleur: piece.couleur }));
     }
+  }
 }
 
-/**
- * Supprimer
- */
+function mettreAJourJoueurCourant() {
+  document.querySelectorAll('.control').forEach((c) => c.classList.remove('joueur-courant'));
+  document
+    .querySelector(`.control[data-couleur="${jeu.couleurCourante}"]`)
+    ?.classList.add('joueur-courant');
+}
+
+// ─── Sélection et mise en valeur ────────────────────────────────────────────
+
+function deselectionner() {
+  document.querySelectorAll('.chemin').forEach((c) => c.classList.remove('chemin'));
+  document.querySelectorAll('.selectionner').forEach((c) => c.classList.remove('selectionner'));
+  positionSelectionnee = null;
+  coupsPossibles = [];
+}
+
+function selectionner(position) {
+  deselectionner();
+  const piece = jeu.getPièce(position);
+  if (!piece || piece.couleur !== jeu.couleurCourante) return;
+
+  const moves = jeu.getDeplacementsPossibles(position);
+  if (moves.length === 0) return;
+
+  positionSelectionnee = position;
+  coupsPossibles = moves;
+  document.querySelector(`.case[data-position="${position}"]`)?.classList.add('selectionner');
+  for (const dest of moves) {
+    document.querySelector(`.case[data-position="${dest}"]`)?.classList.add('chemin');
+  }
+}
+
+// ─── Indicateur d'échec ─────────────────────────────────────────────────────
+
+function marquerEchec(couleur) {
+  effacerEchec();
+  for (const [p, piece] of jeu.plateau) {
+    if (piece.type === 'roi' && piece.couleur === couleur) {
+      document.querySelector(`.case[data-position="${p}"]`)?.classList.add('echec');
+      break;
+    }
+  }
+}
+
+function effacerEchec() {
+  document.querySelectorAll('.case.echec').forEach((c) => c.classList.remove('echec'));
+}
+
+// ─── Après chaque coup ──────────────────────────────────────────────────────
+
+function apresDeplacemement() {
+  const couleur = jeu.couleurCourante;
+  if (jeu.estEchecEtMat(couleur)) {
+    jeu.termine = true;
+    const gagnant = couleur === 'blanche' ? 'noire' : 'blanche';
+    console.log(`Échec et mat ! ${gagnant} gagne.`);
+    setTimeout(() => {
+      document.querySelector('.couleur-joueur-gagnant').textContent = gagnant;
+      afficherAlerte('fin-de-partie', () => initialiser());
+    }, 200);
+  } else if (jeu.estPat(couleur)) {
+    jeu.termine = true;
+    console.log('Pat — match nul.');
+    setTimeout(() => afficherAlerte('pat', () => initialiser()), 200);
+  } else if (jeu.estEnEchec(couleur)) {
+    console.log(`${couleur} est en échec !`);
+    marquerEchec(couleur);
+  }
+}
+
+// ─── Promotion ──────────────────────────────────────────────────────────────
+
+function afficherPromotion(position) {
+  const piece = jeu.getPièce(position);
+  const wrapper = document.querySelector('.promotion__wrapper');
+  wrapper.querySelectorAll('[data-type]').forEach((btn) => {
+    btn.textContent = factory.getSymbole(btn.dataset.type, piece.couleur);
+  });
+  wrapper.style.display = 'flex';
+}
+
+document.querySelector('.promotion__wrapper').addEventListener('click', (event) => {
+  const btn = event.target.closest('[data-type]');
+  if (!btn || !jeu.positionPromotion) return;
+
+  jeu.promouvoir(jeu.positionPromotion, btn.dataset.type);
+  document.querySelector('.promotion__wrapper').style.display = 'none';
+  rendreBoard();
+  rendrePrisonniers();
+  mettreAJourJoueurCourant();
+  effacerEchec();
+  apresDeplacemement();
+});
+
+// ─── Alertes ────────────────────────────────────────────────────────────────
+
+function afficherAlerte(nom, callback) {
+  const wrapper = document.querySelector('.alert__wrapper');
+  const alerte = wrapper.querySelector(`.${nom}`);
+  wrapper.style.display = 'block';
+  document.querySelector('.main__wrapper').classList.add('alert__background');
+  alerte.classList.add('afficher');
+  if (callback) {
+    const btn = alerte.querySelector('button');
+    const handler = () => {
+      btn.removeEventListener('click', handler);
+      supprimerAlerte();
+      callback();
+    };
+    btn.addEventListener('click', handler);
+  }
+}
+
 function supprimerAlerte() {
-    const wrapper = document.querySelector('.alert__wrapper');
-    const bg      = document.querySelector('.main__wrapper');
-    const alert   = wrapper.querySelector(".afficher");
-
-    wrapper.style.display = "none";
-    bg.classList.remove("alert__background");
-    alert && alert.classList.remove("afficher");
+  const wrapper = document.querySelector('.alert__wrapper');
+  wrapper.style.display = 'none';
+  document.querySelector('.main__wrapper').classList.remove('alert__background');
+  wrapper.querySelectorAll('.afficher').forEach((a) => a.classList.remove('afficher'));
 }
 
-/**
- * Place les pièces à leur position initiale.
- * @param {Plateau} plateau Le plateau du jeu
- * @param {PièceFactory} factory La factory des pièce
- */
-const placerLesPièces = (plateau, factory) => {
-    [...document.querySelectorAll('.piece')].forEach(pièce => {
-        pièce.remove();
-    });
-    [...document.querySelectorAll("[id*='nb-prisonier']")].forEach(counter => {
-        counter.textContent = 0;
-    });
+// ─── Gestionnaire de clics (délégation sur le plateau) ──────────────────────
 
-    const configPièces = factory.getPiècesConfigArray();
-    for(const config of configPièces) {
-        ["blanche", "noire"].forEach(couleur => {
-            for(let i = 0; i < config.pièce.quantitéIntiale; i++) {
-                const position  = config.pièce.positionInitiale[couleur][i];
-                const pièceNode = factory.créer({
-                    type: config.pièce.type, 
-                    couleur: couleur
-                });
-                plateau.placerNode(position, pièceNode);
-            }
-        });
+document.querySelector('.container-piece').addEventListener('click', (event) => {
+  if (jeu.termine || jeu.positionPromotion) return;
+
+  const caseNode = event.target.closest('.case');
+  if (!caseNode) return;
+
+  const position = caseNode.dataset.position;
+  const piece = jeu.getPièce(position);
+
+  if (positionSelectionnee) {
+    if (coupsPossibles.includes(position)) {
+      // Exécuter le coup
+      const result = jeu.deplacer(positionSelectionnee, position);
+      if (!result) return;
+
+      rendreBoard();
+      rendrePrisonniers();
+      deselectionner();
+      effacerEchec();
+
+      const log = result.coupSpécial
+        ? `${result.from} → ${result.to} (${result.coupSpécial})`
+        : `${result.from} → ${result.to}`;
+      console.log(log);
+
+      if (result.promotion) {
+        afficherPromotion(result.to);
+        return;
+      }
+
+      mettreAJourJoueurCourant();
+      apresDeplacemement();
+    } else if (piece && piece.couleur === jeu.couleurCourante) {
+      // Resélectionner une autre pièce alliée
+      selectionner(position);
+    } else {
+      deselectionner();
     }
-};
+  } else if (piece && piece.couleur === jeu.couleurCourante) {
+    selectionner(position);
+  }
+});
 
-/**
- * Grosso-modo, cette méthode attache une logique de gestion des sélections à chaque case. 
- * Je sais, ce n'est pas beau à voir ;D
- * @param {*} plateau 
- * @param {*} factory 
- */
-const abonnerLesCases = (plateau, factory) => {
-    [...document.querySelectorAll(".case")].forEach(uneCase => {
-        uneCase.addEventListener('click', event => {
-            const c            = event.currentTarget;
-            const positionCase = c.dataset.position;
-            const pièce        = plateau.getPièceNode(positionCase);
-            const configPièces = factory.getConfigPièces();
+// ─── Initialisation ──────────────────────────────────────────────────────────
 
-            if (plateau.getCaseSelectionneeNode()) { // si une case est déjà selctionnée
-                if(c.hasChildNodes()) {
-                    const typePièce               = pièce.dataset.type;
-                    const couleurPièceSelectionee = plateau.getCouleurCaseSelectionnee();
-                    const couleurCase             = plateau.getCouleur(positionCase);
-
-                    if (couleurCase == couleurPièceSelectionee) {
-                        plateau.selectionnerCase(positionCase);
-                        plateau.affihcerChemin(positionCase, configPièces[typePièce].mouvements);
-                    } else {
-                        plateau.capturer(positionCase, plateau.getPositionSelectionnee());
-                        switch(typePièce) {
-                            case 'roi':
-                                echecEtMat(couleurPièceSelectionee, plateau, factory);
-                                break;
-                            default:
-                                changerDeJoueur();
-                        }
-                    }
-                } else {
-                    plateau.deplacer(plateau.getPositionSelectionnee(), positionCase);
-                    changerDeJoueur();
-                }
-            } else if(pièce) { // si une case n'est pas selctionnée
-                const typePièce = pièce.dataset.type;
-                plateau.selectionnerCase(positionCase);
-                plateau.affihcerChemin(positionCase, configPièces[typePièce].mouvements);
-            }
-        });
-    });
-}
-/**
- * Initialise le jeu
- * @param {Plateau} plateau Le plateau du jeu
- * @param {PièceFactory} factory La factory des pièce
- */
-const initialiser = (plateau, factory) => {
-    placerLesPièces(plateau, factory);
-    abonnerLesCases(plateau, factory);
+function initialiser() {
+  jeu.initialiser();
+  rendreBoard();
+  rendrePrisonniers();
+  deselectionner();
+  effacerEchec();
+  mettreAJourJoueurCourant();
 }
 
-class Main {
-    constructor() {
-        this.plateau = new Plateau();
-        this.factory = new PièceFactory();
-    }
-
-    start() {
-        initialiser(this.plateau, this.factory);
-        consoleLog();
-
-        afficherAlerte('debut-de-partie', event => {
-            supprimerAlerte();
-        });
-    }
-}
-
-const main = new Main();
-main.start();
+consoleLog();
+initialiser();

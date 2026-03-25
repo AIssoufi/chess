@@ -5,29 +5,24 @@ import pion from './pieces/pion.js';
 import roi from './pieces/roi.js';
 import fou from './pieces/fou.js';
 
+const CONFIGS = { cavalier, dame, fou, pion, roi, tour };
+
 export default class PièceFactory {
   constructor() {
     this.compteur = 1;
   }
 
-  créer({type, couleur}) {
-    const pièces = this.getConfigPièces();
-    const pièceNode = document.createElement('div');
-
-    pièceNode.id = this.compteur++;
-    pièceNode.innerHTML = pièces[type].pièce[couleur];
-    pièceNode.className = 'piece';
-    pièceNode.dataset.type = type;
-    pièceNode.dataset.couleur = couleur;
-
-    return pièceNode;
+  créer({ type, couleur }) {
+    const node = document.createElement('div');
+    node.id = this.compteur++;
+    node.textContent = CONFIGS[type].pièce[couleur];
+    node.className = 'piece';
+    node.dataset.type = type;
+    node.dataset.couleur = couleur;
+    return node;
   }
 
-  getConfigPièces() {
-    return { cavalier, dame, fou, pion, roi, tour }
-  }
-
-  getPiècesConfigArray() {
-    return [cavalier, dame, fou, pion, roi, tour ]
+  getSymbole(type, couleur) {
+    return CONFIGS[type].pièce[couleur];
   }
 }

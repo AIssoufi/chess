@@ -1,34 +1,38 @@
 {
   "name": "echiquier",
-  "version": "1.0.0",
-  "description": "Un jeu d'echec en JavaScript",
-  "homepage": "https://AIssoufi.github.io/echiquier",
-  "main": "index.html",
-  "babel": {
-    "presets": [
-      "env"
-    ]
-  },
+  "version": "2.0.0",
+  "description": "Un jeu d'échecs en JavaScript",
+  "homepage": "https://AIssoufi.github.io/chess",
+  "type": "module",
   "scripts": {
-    "start": "gulp",
-    "test": "mocha --require babel-polyfill --compilers js:babel-register",
-    "deploy": "gh-pages -d app"
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "deploy": "pnpm build && gh-pages -d dist",
+    "prepare": "husky"
   },
   "keywords": [
     "echec"
   ],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "browser-sync": "^2.24.3",
-    "gh-pages": "^1.1.0",
-    "gulp": "^3.9.1",
-    "mocha": "^5.1.1",
-    "npm": "^6.13.4"
+  "author": "Adam Issoufi",
+  "license": "MIT",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
+  "lint-staged": {
+    "*.{js,json,css,html,md}": "prettier --write"
   },
   "devDependencies": {
-    "babel-polyfill": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
-    "babel-register": "^6.26.0"
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "gh-pages": "^6.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.1",
+    "vite": "^5.4.0",
+    "vitest": "^2.1.0"
   }
 }
