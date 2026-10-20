@@ -26,11 +26,11 @@
     "*.{js,json,css,html,md,yml,yaml}": "prettier --write"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.5.0",
-    "@commitlint/config-conventional": "^20.5.0",
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
     "husky": "^9.1.7",
-    "lint-staged": "^16.4.0",
-    "prettier": "^3.8.1",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.10",
     "vite": "^5.4.0",
     "vitest": "^2.1.0"
   }
