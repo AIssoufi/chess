@@ -1,11 +1,34 @@
 * {
   box-sizing: border-box;
 }
+
+/*
+ * Board sizing: a square is 70px at most, and shrinks so that the board and its coordinates fit
+ * the screen width (with a 1rem gutter on each side) and, on short screens, the screen height
+ * (leaving 12rem for the title and the padding around the board).
+ */
+:root {
+  --viewport-height: 100vh;
+  --coordinates-size: 15px;
+  --square: min(
+    70px,
+    calc((100vw - 2rem - var(--coordinates-size)) / 8),
+    calc((var(--viewport-height) - 12rem) / 8)
+  );
+}
+
+/* The dynamic unit follows the mobile browser bars as they show and hide */
+@supports (height: 100dvh) {
+  :root {
+    --viewport-height: 100dvh;
+  }
+}
+
 body {
   font-family: sans-serif;
   margin: 0;
   padding: 0;
-  height: 100vh;
+  min-height: var(--viewport-height);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -42,8 +65,8 @@ h1 {
 .game {
   display: grid;
   grid-template-areas: '. lettre' 'numero piece';
-  grid-template-columns: 15px 1fr;
-  grid-template-rows: 15px 1fr;
+  grid-template-columns: var(--coordinates-size) 1fr;
+  grid-template-rows: var(--coordinates-size) 1fr;
 }
 
 .container-lettre {
@@ -67,7 +90,7 @@ h1 {
   flex-direction: column;
   flex-wrap: wrap;
   grid-area: piece;
-  width: calc(70px * 8);
+  width: calc(var(--square) * 8);
 }
 
 .row {
@@ -88,8 +111,8 @@ h1 {
 }
 
 .case {
-  height: 70px;
-  width: 70px;
+  height: var(--square);
+  width: var(--square);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -111,14 +134,18 @@ h1 {
   background-color: #d18b46;
 }
 
-.case:hover {
-  background-color: rgba(0, 0, 0, 0.5) !important;
+/* Only on devices with a real pointer: a touch screen would keep the last tapped square dark */
+@media (hover: hover) {
+  .case:hover {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+  }
 }
 
 /* Les pieces */
 
 .piece {
-  font-size: 3rem;
+  /* 3rem in a 70px square, scaled down with smaller squares */
+  font-size: min(3rem, calc(var(--square) * 0.69));
   text-align: center;
   width: 100%;
   height: 100%;
@@ -323,4 +350,55 @@ h1 {
 .promotion__pieces button:hover {
   transform: scale(1.15);
   background-color: #ff9800;
+}
+
+/*
+ * Narrow screens: the player panels go above and below the board, since side by side they need
+ * about 820px. The copyright and the social links leave the screen edges, where they would cover
+ * the board, and follow the game.
+ */
+@media (max-width: 899px) {
+  body {
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .main__wrapper {
+    width: 100%;
+    padding: 0 1rem;
+  }
+
+  .wrapper {
+    grid-auto-flow: row;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    padding: 0 0 1rem;
+  }
+
+  .control,
+  .control:first-of-type,
+  .control:last-of-type {
+    width: 100%;
+    margin: 0;
+    padding: 0 1rem;
+    text-align: center;
+  }
+
+  .copyright {
+    position: static;
+    writing-mode: horizontal-tb;
+    transform: none;
+    margin: 1rem 1rem 0;
+    text-align: center;
+  }
+
+  .réseaux-sociaux {
+    position: static;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .réseaux-sociaux svg {
+    margin: 0 0.6rem;
+  }
 }
