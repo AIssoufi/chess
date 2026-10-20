@@ -6,7 +6,7 @@ import { COLORS, OPPONENT_COLORS, PAWN_DIRECTIONS } from './constants.js';
  * @param {unknown} value Any value.
  * @returns {boolean} true for a color.
  */
-function isColor(value) {
+export function isColor(value) {
   return COLORS.includes(value);
 }
 

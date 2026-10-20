@@ -433,6 +433,22 @@ describe('castling edge cases', () => {
     expect(moves).not.toContain('g1');
     expect(moves).toContain('c1');
   });
+
+  it.each([
+    ['kingside', 'h1', 'g1'],
+    ['queenside', 'a1', 'c1'],
+  ])('%s is not offered with an unmoved opponent rook on %s', (_side, rookSquare, kingTarget) => {
+    // The opponent rook also attacks the squares the king crosses, so this position is refused
+    // either way: isCastlingRook is what refuses the rook itself, see test/castling.test.js.
+    setUpBoard({
+      pieces: {
+        ...UNMOVED_WHITE_KING_AND_ROOKS,
+        [rookSquare]: { type: 'tour', couleur: 'noire', aBouge: false },
+      },
+    });
+
+    expect(jeu.getDeplacementsPossibles('e1')).not.toContain(kingTarget);
+  });
 });
 
 describe('en passant edge cases', () => {
