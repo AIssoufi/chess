@@ -49,11 +49,12 @@ pnpm preview    # serve dist/ on http://localhost:4173/
 ## Tests
 
 `pnpm test` runs Vitest in Node.js, without a DOM. The tests live in `test/` and are named
-`*.test.js`.
+`*.test.js`. The tests of the `prepare-commit-msg` hook run Git in temporary repositories.
 
 ## Project structure
 
 ```text
+.husky/              Git hooks: lint-staged, the ticket trailer and commitlint
 app/                 Vite root: the page, its styles and images
   css/               Styles and images
   js/                Game code
@@ -107,8 +108,8 @@ the game in another site.
 ## Conventions
 
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org/) and name their
-  ticket in a `Refs: CHESS-<n>` trailer. commitlint checks each commit, merge, revert, fixup and
-  bot commits aside.
+  ticket in a `Refs: CHESS-<n>` trailer, which the `prepare-commit-msg` hook adds on a `CHESS-<n>`
+  branch. commitlint checks each commit, merge, revert, fixup and bot commits aside.
 - Prettier formats the staged files on each commit, and the CI rejects unformatted files.
 - pnpm only runs the build scripts of the packages listed in `allowBuilds` of
   `pnpm-workspace.yaml`.

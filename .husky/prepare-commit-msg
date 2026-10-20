@@ -1,0 +1,43 @@
+# On a ticket branch (CHESS-12), adds the trailer "Refs: CHESS-12" to the commit message, after the
+# other trailers, unless the message already has a Refs line. Git passes the message file, then the
+# source of the message: merge, squash and commit (--amend, -c, -C) messages are left alone, as
+# are the fixup!, squash! and amend! commits that git rebase --autosquash folds into another one.
+case "$2" in
+  merge | squash | commit) exit 0 ;;
+esac
+
+# Whether the branch named $1 is a ticket branch, such as CHESS-12.
+is_ticket_branch() {
+  printf '%s\n' "$1" | grep -Eq '^CHESS-[1-9][0-9]*$'
+}
+
+# Whether the message $1 is a fixup!, squash! or amend! commit, from its subject.
+is_autosquash_message() {
+  printf '%s\n' "$1" | head -n 1 | grep -Eq '^(fixup|squash|amend)! '
+}
+
+# Whether the message file $1, read as $2 without its comments, has a Refs line: in the trailer
+# block, as git reads it, or in any other paragraph.
+has_refs_line() {
+  trailers=$(git interpret-trailers --parse "$1")
+  printf '%s\n%s\n' "$trailers" "$2" | grep -q '^Refs:'
+}
+
+branch=$(git branch --show-current)
+if ! is_ticket_branch "$branch"; then
+  exit 0
+fi
+
+message=$(git stripspace --strip-comments < "$1")
+if is_autosquash_message "$message" || has_refs_line "$1" "$message"; then
+  exit 0
+fi
+
+git interpret-trailers --in-place --trailer "Refs: $branch" "$1"
+
+# Before the editor opens, the message is empty: keep its first line for the subject, followed by
+# a blank line, instead of the trailer.
+if [ -z "$message" ]; then
+  template=$(cat "$1")
+  printf '\n%s\n' "$template" > "$1"
+fi
