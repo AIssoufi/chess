@@ -58,6 +58,7 @@ app/                 Vite root: the page, its styles and images
   css/               Styles and images
   js/                Game code
     Echiquier.js     Board model and rules, without DOM
+    game-over/       Move outcome (check, mate, stalemate) and game over dialog constants
     main.js          UI controller: renders the board and handles clicks
     pieces/          Piece configs: Unicode symbol and starting squares
   public/            Files copied as they are to dist/, such as the Cloudflare Pages _headers
