@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-- Scripts: see `package.json` and the README. There is no deploy script: `deploy.yml` deploys on push to `master`.
+- Scripts: see `package.json` and the README. There is no deploy script: Cloudflare Pages deploys `master` from its Git integration, and `deploy.yml` only publishes the GitHub Pages redirect of `redirect/`.
 - pnpm is pinned by `packageManager`; allow a dependency's build scripts in `allowBuilds` of `pnpm-workspace.yaml`, never in `package.json`.
 
 ## Architecture

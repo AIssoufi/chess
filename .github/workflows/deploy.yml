@@ -1,8 +1,14 @@
-name: Deploy
+# Cloudflare Pages builds and deploys the game from its Git integration. This workflow only
+# publishes the page that redirects the old GitHub Pages URL to https://chess.issoufi.fr.
+name: GitHub Pages redirect
 
 on:
   push:
     branches: [master]
+    paths:
+      - redirect/**
+      - .github/workflows/deploy.yml
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -19,21 +25,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Reads the pnpm version from the packageManager field of package.json.
-      - uses: pnpm/action-setup@v6
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - run: pnpm build
+      # GitHub Pages serves 404.html for any other path, so deep links redirect too.
+      - run: cp redirect/index.html redirect/404.html
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/
+          path: redirect/
 
   deploy:
     needs: build
