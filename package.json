@@ -16,11 +16,6 @@
   ],
   "author": "Adam Issoufi",
   "license": "MIT",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild"
-    ]
-  },
   "lint-staged": {
     "*.{js,json,css,html,md}": "prettier --write"
   },
