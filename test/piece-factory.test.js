@@ -5,6 +5,18 @@ import dame from '../app/js/pieces/dame.js';
 import cavalier from '../app/js/pieces/cavalier.js';
 
 const PIECE_TYPES = ['cavalier', 'dame', 'fou', 'pion', 'roi', 'tour'];
+/** Pieces whose type or color is unknown or missing. */
+const UNKNOWN_PIECES = [
+  ['an unknown type', { type: 'licorne', couleur: 'blanche' }],
+  ['a type in another case', { type: 'Dame', couleur: 'blanche' }],
+  ['a key of Object.prototype as type', { type: 'toString', couleur: 'blanche' }],
+  ['an unknown color', { type: 'dame', couleur: 'rouge' }],
+  ['a key of the piece config as color', { type: 'dame', couleur: 'type' }],
+  ['a missing type', { couleur: 'noire' }],
+  ['a missing color', { type: 'dame' }],
+  ['null values', { type: null, couleur: null }],
+  ['an empty object', {}],
+];
 
 let factory;
 
@@ -39,6 +51,23 @@ describe('PièceFactory.créer', () => {
     expect(black).not.toBe('');
     expect(white).not.toBe(black);
   });
+
+  it.each(UNKNOWN_PIECES)('returns null for %s', (_label, piece) => {
+    expect(factory.créer(piece)).toBeNull();
+  });
+
+  it.each([
+    ['no argument', undefined],
+    ['null', null],
+  ])('returns null for %s', (_label, params) => {
+    expect(factory.créer(params)).toBeNull();
+  });
+
+  it('does not use an id for a piece it refuses', () => {
+    factory.créer({ type: 'licorne', couleur: 'blanche' });
+
+    expect(factory.créer({ type: 'pion', couleur: 'blanche' }).id).toBe('1');
+  });
 });
 
 describe('PièceFactory.getSymbole', () => {
@@ -52,5 +81,9 @@ describe('PièceFactory.getSymbole', () => {
         factory.getSymbole(type, 'noire')
       );
     }
+  });
+
+  it.each(UNKNOWN_PIECES)('returns an empty string for %s', (_label, { type, couleur }) => {
+    expect(factory.getSymbole(type, couleur)).toBe('');
   });
 });

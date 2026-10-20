@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getOpponent, getPawnDirection } from '../app/js/colors/utils.js';
+import { getOpponent, getPawnDirection, isColor } from '../app/js/colors/utils.js';
 
 /** Values that are not one of the two colors. */
 const NOT_COLORS = [
@@ -12,6 +12,16 @@ const NOT_COLORS = [
   ['a number', 1],
   ['an object', { couleur: 'blanche' }],
 ];
+
+describe('isColor', () => {
+  it.each(['blanche', 'noire'])('accepts %s', (color) => {
+    expect(isColor(color)).toBe(true);
+  });
+
+  it.each(NOT_COLORS)('rejects %s', (_label, value) => {
+    expect(isColor(value)).toBe(false);
+  });
+});
 
 describe('getPawnDirection', () => {
   it('moves a white pawn toward higher ranks', () => {

@@ -101,8 +101,14 @@ function play(moves) {
   }
 }
 
-/** Renders the body of index.html, then runs a fresh copy of main.js on it. */
-async function loadPage() {
+/**
+ * Renders the body of index.html, then runs a fresh copy of main.js on it.
+ *
+ * @param {object} [params]
+ * @param {() => Promise<void>} [params.beforeMain] Runs after the module reset and before main.js,
+ *   to change the fresh modules that main.js imports.
+ */
+async function loadPage({ beforeMain } = {}) {
   // A template keeps its content inert: happy-dom neither loads the stylesheet nor runs main.js.
   const template = document.createElement('template');
   template.innerHTML = PAGE_BODY;
@@ -111,10 +117,11 @@ async function loadPage() {
   // main.js copies every log into the page and prints it: keep the test output quiet.
   console.log = vi.fn();
   vi.resetModules();
+  await beforeMain?.();
   await import('../app/js/main.js');
 }
 
-beforeEach(loadPage);
+beforeEach(() => loadPage());
 
 afterEach(() => {
   console.log = originalConsoleLog;
@@ -127,6 +134,31 @@ describe('main.js start', () => {
     expect(pieceOn('e1')).toEqual({ type: 'roi', couleur: 'blanche' });
     expect(pieceOn('d8')).toEqual({ type: 'dame', couleur: 'noire' });
     expect(currentPlayer()).toBe('blanche');
+  });
+
+  it('skips an unknown piece and still renders the rest of the board and the captures', async () => {
+    await loadPage({
+      beforeMain: async () => {
+        const { default: Echiquier } = await import('../app/js/Echiquier.js');
+        const initialiser = Echiquier.prototype.initialiser;
+        vi.spyOn(Echiquier.prototype, 'initialiser').mockImplementation(function () {
+          initialiser.call(this);
+          this.plateau.set('e4', { type: 'licorne', couleur: 'blanche', aBouge: false });
+          this.plateau.set('d4', { type: 'pion', couleur: 'rouge', aBouge: false });
+          this.captures.blanche.push({ type: 'licorne', couleur: 'noire' });
+          this.captures.blanche.push({ type: 'pion', couleur: 'noire' });
+        });
+      },
+    });
+
+    expect(pieceOn('e4')).toBeNull();
+    expect(pieceOn('d4')).toBeNull();
+    expect(document.querySelectorAll('.container-piece .piece')).toHaveLength(32);
+    expect(document.getElementById('blanche-prisoniers').children).toHaveLength(1);
+    expect(document.getElementById('blanche-prisoniers').firstElementChild.dataset.type).toBe(
+      'pion'
+    );
+    expect(document.body.textContent).not.toContain('undefined');
   });
 
   it('ends the copyright range of the footer with the current year', async () => {

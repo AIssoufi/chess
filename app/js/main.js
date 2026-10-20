@@ -22,7 +22,8 @@ function rendreBoard() {
   document.querySelectorAll('.piece').forEach((p) => p.remove());
   for (const [position, piece] of jeu.plateau) {
     const caseNode = document.querySelector(`.case[data-position="${position}"]`);
-    if (caseNode) caseNode.appendChild(factory.créer({ type: piece.type, couleur: piece.couleur }));
+    const pieceNode = factory.créer({ type: piece.type, couleur: piece.couleur });
+    if (caseNode && pieceNode) caseNode.appendChild(pieceNode);
   }
 }
 
@@ -33,7 +34,8 @@ function rendrePrisonniers() {
     zone.innerHTML = '';
     compteur.textContent = jeu.captures[couleur].length;
     for (const piece of jeu.captures[couleur]) {
-      zone.appendChild(factory.créer({ type: piece.type, couleur: piece.couleur }));
+      const pieceNode = factory.créer({ type: piece.type, couleur: piece.couleur });
+      if (pieceNode) zone.appendChild(pieceNode);
     }
   }
 }
