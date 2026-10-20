@@ -70,6 +70,7 @@ app/                 Vite root: the page, its styles and images
   js/                Game code
     colors/          Color helpers, such as the opponent of a color
     console-log.js   Copies each console.log line to the move log panel of the page
+    copyright/       Writes the current year at the end of the footer copyright
     Echiquier.js     Board model and rules, without DOM
     game-over/       Move outcome (check, mate, stalemate) and game over dialog constants
     main.js          UI controller: renders the board and handles clicks

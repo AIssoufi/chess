@@ -2,6 +2,7 @@ import Echiquier from './Echiquier.js';
 import PièceFactory from './PièceFactory.js';
 import { COLORS } from './colors/constants.js';
 import consoleLog from './console-log.js';
+import { showCopyrightYear } from './copyright/show-copyright-year.js';
 import {
   GAME_OUTCOMES,
   GAME_OVER_ALERTS,
@@ -205,4 +206,5 @@ function initialiser() {
 }
 
 consoleLog();
+showCopyrightYear();
 initialiser();
