@@ -1,0 +1,47 @@
+# Checks the commit messages and the title of each pull request with commitlint. A workflow of its
+# own, so that editing the title of a pull request runs this check and not the whole CI.
+name: Commit messages
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: commit-messages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The whole history and every branch, to list the commits that the base lacks.
+          fetch-depth: 0
+
+      # Reads the pnpm version from the packageManager field of package.json.
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Compares with the current base branch rather than the base commit of the event, which may
+      # be older than the base the branch was rebased on.
+      - name: Check the commits
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: pnpm exec commitlint --from "origin/$BASE_REF" --to "$HEAD_SHA" --verbose
+
+      # The title goes through an environment variable, never into the script itself.
+      - name: Check the title
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: printf '%s\n' "$TITLE" | pnpm exec commitlint --config commitlint/pr-title.config.js

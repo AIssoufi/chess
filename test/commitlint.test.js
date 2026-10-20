@@ -6,7 +6,12 @@ import { TICKET_REFERENCE_ERROR, TICKET_REFERENCE_RULE } from '../commitlint/con
 import { hasTicketReference, isBotCommit, ticketReference } from '../commitlint/utils.js';
 
 const COMMIT_CONFIG_FILE = fileURLToPath(new URL('../commitlint.config.js', import.meta.url));
+const PR_TITLE_CONFIG_FILE = fileURLToPath(
+  new URL('../commitlint/pr-title.config.js', import.meta.url)
+);
 const CO_AUTHOR = 'Co-Authored-By: Claude <noreply@anthropic.com>';
+/** `header-max-length` of `@commitlint/config-conventional`. */
+const HEADER_MAX_LENGTH = 100;
 const DEPENDABOT_COMMIT = `build(deps-dev): bump @commitlint/config-conventional from 20.5.0 to 21.2.4
 
 Bumps [@commitlint/config-conventional](https://github.com/conventional-changelog/commitlint/tree/HEAD/@commitlint/config-conventional) from 20.5.0 to 21.2.4.
@@ -163,5 +168,33 @@ describe('commit messages', () => {
 
   it('links the commit conventions from its errors', () => {
     expect(config.helpUrl).toBe('https://github.com/AIssoufi/chess#conventions');
+  });
+});
+
+describe('pull request titles', () => {
+  let config;
+
+  beforeAll(async () => {
+    config = await load({}, { file: PR_TITLE_CONFIG_FILE });
+  });
+
+  it('accepts a conventional title without a ticket reference', async () => {
+    const message = 'fix: drop the em dash from the stalemate message';
+
+    expect(await lintMessage({ config, message })).toEqual({ valid: true, errors: [] });
+  });
+
+  it('refuses a title that is not a conventional commit header', async () => {
+    const { valid, errors } = await lintMessage({ config, message: 'Fix the stalemate message' });
+
+    expect(valid).toBe(false);
+    expect(errors).toEqual(expect.arrayContaining(['type-empty', 'subject-empty']));
+  });
+
+  it('refuses a title longer than a commit header', async () => {
+    const message = `fix: ${'x'.repeat(HEADER_MAX_LENGTH)}`;
+    const { errors } = await lintMessage({ config, message });
+
+    expect(errors).toContain('header-max-length');
   });
 });
