@@ -13,6 +13,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "prepare": "husky"
   },
   "keywords": [
@@ -21,7 +23,7 @@
   "author": "Adam Issoufi",
   "license": "MIT",
   "lint-staged": {
-    "*.{js,json,css,html,md}": "prettier --write"
+    "*.{js,json,css,html,md,yml,yaml}": "prettier --write"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
