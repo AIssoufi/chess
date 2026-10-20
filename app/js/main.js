@@ -1,5 +1,6 @@
 import Echiquier from './Echiquier.js';
 import PièceFactory from './PièceFactory.js';
+import { COLORS } from './colors/constants.js';
 import consoleLog from './console-log.js';
 import {
   GAME_OUTCOMES,
@@ -25,7 +26,7 @@ function rendreBoard() {
 }
 
 function rendrePrisonniers() {
-  for (const couleur of ['blanche', 'noire']) {
+  for (const couleur of COLORS) {
     const zone = document.getElementById(`${couleur}-prisoniers`);
     const compteur = document.getElementById(`${couleur}-nb-prisonier`);
     zone.innerHTML = '';

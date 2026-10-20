@@ -19,7 +19,8 @@ the deployment.
   docs and commits are in English; text shown to players stays in French.
 - `couleur` is `'blanche'` or `'noire'`, nothing else.
 - Squares are lowercase algebraic notation, `'a1'` to `'h8'`, and the keys of the `plateau` Map.
-- Pawn direction: `couleur === 'blanche' ? 1 : -1`, white moves toward higher ranks.
+- Pawn direction: `getPawnDirection(couleur)` of `app/js/colors/utils.js`, white moves toward
+  higher ranks; the opponent is `getOpponent(couleur)`, never an inline ternary.
 
 ## Pitfalls
 

@@ -4,10 +4,15 @@ import fou from './pieces/fou.js';
 import pion from './pieces/pion.js';
 import roi from './pieces/roi.js';
 import tour from './pieces/tour.js';
+import { COLORS } from './colors/constants.js';
+import { getOpponent, getPawnDirection } from './colors/utils.js';
+import { getEnPassantCaptureSquare } from './squares/utils.js';
 
 const COLONNES = 'abcdefgh';
 /** Piece types a pawn may be promoted to. */
 const PROMOTION_PIECE_TYPES = ['dame', 'tour', 'fou', 'cavalier'];
+/** Rank a pawn of each color is promoted on: the last rank in its direction. */
+const PROMOTION_RANKS = Object.freeze({ blanche: '8', noire: '1' });
 
 function col(lettre) {
   return COLONNES.indexOf(lettre);
@@ -26,7 +31,7 @@ function construirePositionInitiale() {
   const configs = [cavalier, dame, fou, pion, roi, tour];
   const positions = {};
   for (const config of configs) {
-    for (const couleur of ['blanche', 'noire']) {
+    for (const couleur of COLORS) {
       for (const p of config.pièce.positionInitiale[couleur]) {
         positions[p] = { type: config.pièce.type, couleur, aBouge: false };
       }
@@ -88,7 +93,7 @@ export default class Echiquier {
     const c = col(position[0]);
     const r = parseInt(position[1]);
     const coups = [];
-    const dir = piece.couleur === 'blanche' ? 1 : -1;
+    const dir = getPawnDirection(piece.couleur);
 
     switch (piece.type) {
       case 'tour':
@@ -244,8 +249,7 @@ export default class Echiquier {
       }
     }
     if (!posRoi) return false;
-    const adversaire = couleur === 'blanche' ? 'noire' : 'blanche';
-    return this._casesAttaquéesParCouleur(adversaire).has(posRoi);
+    return this._casesAttaquéesParCouleur(getOpponent(couleur)).has(posRoi);
   }
 
   // Simule un coup et retourne vrai si le roi de la couleur donnée se retrouve en échec
@@ -257,8 +261,7 @@ export default class Echiquier {
     let posEnPassant = null;
     let pioncapturéEnPassant = null;
     if (piece.type === 'pion' && to === this.positionEnPassant) {
-      const dir = piece.couleur === 'blanche' ? 1 : -1;
-      posEnPassant = `${to[0]}${parseInt(to[1]) - dir}`;
+      posEnPassant = getEnPassantCaptureSquare({ target: to, color: piece.couleur });
       pioncapturéEnPassant = this.plateau.get(posEnPassant);
     }
 
@@ -289,8 +292,7 @@ export default class Echiquier {
     // Ajouter le roque pour le roi
     if (piece.type === 'roi' && !piece.aBouge && !this.estEnEchec(piece.couleur)) {
       const r = parseInt(position[1]);
-      const adversaire = piece.couleur === 'blanche' ? 'noire' : 'blanche';
-      const attaques = this._casesAttaquéesParCouleur(adversaire);
+      const attaques = this._casesAttaquéesParCouleur(getOpponent(piece.couleur));
 
       // Petit roque (côté roi)
       const tourH = this.plateau.get(`h${r}`);
@@ -392,8 +394,7 @@ export default class Echiquier {
 
     // ── En passant : capture du pion adverse ──
     if (piece.type === 'pion' && to === this.positionEnPassant) {
-      const dir = piece.couleur === 'blanche' ? 1 : -1;
-      posCapturéEnPassant = `${to[0]}${parseInt(to[1]) - dir}`;
+      posCapturéEnPassant = getEnPassantCaptureSquare({ target: to, color: piece.couleur });
       const pionCapturé = this.plateau.get(posCapturéEnPassant);
       if (pionCapturé) {
         this.captures[piece.couleur].push(pionCapturé);
@@ -418,12 +419,12 @@ export default class Echiquier {
     if (capturé) this.captures[piece.couleur].push(capturé);
 
     // ── Promotion ──
-    const promotion = piece.type === 'pion' && (to[1] === '8' || to[1] === '1');
+    const promotion = piece.type === 'pion' && to[1] === PROMOTION_RANKS[piece.couleur];
     if (promotion) {
       this.positionPromotion = to;
       // Le tour passe après la promotion (via promouvoir())
     } else {
-      this.couleurCourante = this.couleurCourante === 'blanche' ? 'noire' : 'blanche';
+      this.couleurCourante = getOpponent(this.couleurCourante);
     }
 
     return { from, to, piece, capturé, coupSpécial, posCapturéEnPassant, promotion };
@@ -447,7 +448,7 @@ export default class Echiquier {
     if (!piece) return false;
     this.plateau.set(position, { ...piece, type });
     this.positionPromotion = null;
-    this.couleurCourante = this.couleurCourante === 'blanche' ? 'noire' : 'blanche';
+    this.couleurCourante = getOpponent(this.couleurCourante);
     return true;
   }
 }

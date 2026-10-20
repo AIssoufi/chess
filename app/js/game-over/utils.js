@@ -1,14 +1,5 @@
+import { getOpponent } from '../colors/utils.js';
 import { GAME_OUTCOMES } from './constants.js';
-
-/**
- * Returns the color that plays against the given one.
- *
- * @param {'blanche' | 'noire'} color The color of a side.
- * @returns {'blanche' | 'noire'} The other color.
- */
-function getOpponent(color) {
-  return color === 'blanche' ? 'noire' : 'blanche';
-}
 
 /**
  * Tells what the last move leaves the side to play in: checkmate, stalemate, check or nothing.
