@@ -140,6 +140,10 @@ the game in another site.
 - pnpm runs no build script of a dependency unless the package is listed in `allowBuilds` of a
   `pnpm-workspace.yaml`. No dependency needs one, so the repository has no such file.
 
+## History
+
+[docs/evolution.md](docs/evolution.md) traces the tools and the architecture since 2018.
+
 ## License
 
 [MIT](LICENSE)
