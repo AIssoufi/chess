@@ -4,13 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-```bash
-pnpm install    # Installer les dépendances (Vite + Vitest)
-pnpm start      # Serveur de développement avec HMR (Vite sur app/)
-pnpm test       # Tests unitaires Vitest (sans DOM)
-pnpm build      # Build de production → dist/
-pnpm deploy     # Build + déploiement GitHub Pages
-```
+- Scripts: see `package.json` and the README. There is no deploy script: `deploy.yml` deploys on push to `master`.
+- pnpm is pinned by `packageManager`; allow a dependency's build scripts in `allowBuilds` of `pnpm-workspace.yaml`, never in `package.json`.
 
 ## Architecture
 
