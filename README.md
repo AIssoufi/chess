@@ -6,7 +6,7 @@ castling, en passant, promotion, check, checkmate and stalemate.
 **Live demo:** https://chess.issoufi.fr
 
 <p align="center">
-  <img src="app/css/img/screen1.png" alt="The chessboard in the browser">
+  <img src="docs/screenshot.webp" alt="A game in progress: the white knight on f3 is selected and its legal moves are highlighted" width="800">
 </p>
 
 ## Tech stack
@@ -64,6 +64,7 @@ app/                 Vite root: the page, its styles and images
     pieces/          Piece configs: Unicode symbol and starting squares
   public/            Files copied as they are to dist/, such as the Cloudflare Pages _headers
 commitlint/          Ticket reference rule, bot commits and the pull request title config
+docs/                README screenshot
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests
 .github/workflows/   CI, commit message checks and the GitHub Pages redirect
