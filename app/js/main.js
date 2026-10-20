@@ -1,6 +1,12 @@
 import Echiquier from './Echiquier.js';
 import PièceFactory from './PièceFactory.js';
 import consoleLog from './console-log.js';
+import {
+  GAME_OUTCOMES,
+  GAME_OVER_ALERTS,
+  GAME_OVER_DIALOG_DELAY_MS,
+} from './game-over/constants.js';
+import { getGameOutcome } from './game-over/utils.js';
 
 const jeu = new Echiquier();
 const factory = new PièceFactory();
@@ -81,22 +87,20 @@ function effacerEchec() {
 // ─── Après chaque coup ──────────────────────────────────────────────────────
 
 function apresDeplacemement() {
-  const couleur = jeu.couleurCourante;
-  if (jeu.estEchecEtMat(couleur)) {
+  const { outcome, color, winner } = getGameOutcome({ game: jeu });
+  if (outcome === GAME_OUTCOMES.checkmate) {
     jeu.termine = true;
-    const gagnant = couleur === 'blanche' ? 'noire' : 'blanche';
-    console.log(`Échec et mat ! ${gagnant} gagne.`);
-    setTimeout(() => {
-      document.querySelector('.couleur-joueur-gagnant').textContent = gagnant;
-      afficherAlerte('fin-de-partie', () => initialiser());
-    }, 200);
-  } else if (jeu.estPat(couleur)) {
+    console.log(`Échec et mat ! ${winner} gagne.`);
+    marquerEchec(color);
+    document.querySelector('.couleur-joueur-gagnant').textContent = winner;
+    setTimeout(() => afficherAlerte(GAME_OVER_ALERTS.checkmate), GAME_OVER_DIALOG_DELAY_MS);
+  } else if (outcome === GAME_OUTCOMES.stalemate) {
     jeu.termine = true;
     console.log('Pat — match nul.');
-    setTimeout(() => afficherAlerte('pat', () => initialiser()), 200);
-  } else if (jeu.estEnEchec(couleur)) {
-    console.log(`${couleur} est en échec !`);
-    marquerEchec(couleur);
+    setTimeout(() => afficherAlerte(GAME_OVER_ALERTS.stalemate), GAME_OVER_DIALOG_DELAY_MS);
+  } else if (outcome === GAME_OUTCOMES.check) {
+    console.log(`${color} est en échec !`);
+    marquerEchec(color);
   }
 }
 
@@ -126,29 +130,22 @@ document.querySelector('.promotion__wrapper').addEventListener('click', (event) 
 
 // ─── Alertes ────────────────────────────────────────────────────────────────
 
-function afficherAlerte(nom, callback) {
-  const wrapper = document.querySelector('.alert__wrapper');
-  const alerte = wrapper.querySelector(`.${nom}`);
-  wrapper.style.display = 'block';
-  document.querySelector('.main__wrapper').classList.add('alert__background');
-  alerte.classList.add('afficher');
-  if (callback) {
-    const btn = alerte.querySelector('button');
-    const handler = () => {
-      btn.removeEventListener('click', handler);
-      supprimerAlerte();
-      callback();
-    };
-    btn.addEventListener('click', handler);
-  }
+const gameOverDialog = document.querySelector('.alert__wrapper');
+
+function afficherAlerte(alertName) {
+  const alertElement = gameOverDialog.querySelector(`.${alertName}`);
+  alertElement.classList.add('afficher');
+  gameOverDialog.setAttribute('aria-labelledby', alertElement.querySelector('h2').id);
+  gameOverDialog.showModal();
+  alertElement.querySelector('button').focus();
 }
 
-function supprimerAlerte() {
-  const wrapper = document.querySelector('.alert__wrapper');
-  wrapper.style.display = 'none';
-  document.querySelector('.main__wrapper').classList.remove('alert__background');
-  wrapper.querySelectorAll('.afficher').forEach((a) => a.classList.remove('afficher'));
-}
+// "Rejouer" and Escape both close the dialog: either way a new game starts, so the finished
+// game never stays on screen without a way to play again.
+gameOverDialog.addEventListener('close', () => {
+  gameOverDialog.querySelectorAll('.afficher').forEach((a) => a.classList.remove('afficher'));
+  initialiser();
+});
 
 // ─── Gestionnaire de clics (délégation sur le plateau) ──────────────────────
 
