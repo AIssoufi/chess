@@ -49,11 +49,12 @@ pnpm preview    # serve dist/ on http://localhost:4173/
 ## Tests
 
 `pnpm test` runs Vitest in Node.js, without a DOM. The tests live in `test/` and are named
-`*.test.js`.
+`*.test.js`. The tests of the `prepare-commit-msg` hook run Git in temporary repositories.
 
 ## Project structure
 
 ```text
+.husky/              Git hooks: lint-staged, the ticket trailer and commitlint
 app/                 Vite root: the page, its styles and images
   css/               Styles and images
   js/                Game code
@@ -62,15 +63,19 @@ app/                 Vite root: the page, its styles and images
     main.js          UI controller: renders the board and handles clicks
     pieces/          Piece configs: Unicode symbol and starting squares
   public/            Files copied as they are to dist/, such as the Cloudflare Pages _headers
+commitlint/          Ticket reference rule, bot commits and the pull request title config
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests
-.github/workflows/   CI and the GitHub Pages redirect
+.github/workflows/   CI, commit message checks and the GitHub Pages redirect
 ```
 
 ## CI and deployment
 
 - **CI** (`ci.yml`): on every pull request and push to `master`, installs with the frozen lockfile,
   then runs `pnpm format:check`, `pnpm test` and `pnpm build`.
+- **Commit messages** (`commit-messages.yml`): on every pull request, and when its title changes,
+  runs commitlint on each commit that the base branch lacks, and on the title with
+  `commitlint/pr-title.config.js`, which needs no ticket reference.
 - **Cloudflare Pages** deploys the game from its Git integration: `master` to
   https://chess.issoufi.fr, and every other branch to a preview URL, linked from its pull request.
   The build is served from the root of the domain, so Vite keeps its default `base` of `/`.
@@ -105,8 +110,10 @@ the game in another site.
 
 ## Conventions
 
-- Commits follow [Conventional Commits](https://www.conventionalcommits.org/), checked by
-  commitlint on each commit.
+- Commits follow [Conventional Commits](https://www.conventionalcommits.org/) and name their
+  ticket in a `Refs: CHESS-<n>` trailer, which the `prepare-commit-msg` hook adds on a `CHESS-<n>`
+  branch. commitlint checks each commit locally and in CI, merge, revert, fixup and bot commits
+  aside, and the CI checks each pull request title like a commit header, without the ticket.
 - Prettier formats the staged files on each commit, and the CI rejects unformatted files.
 - pnpm only runs the build scripts of the packages listed in `allowBuilds` of
   `pnpm-workspace.yaml`.
