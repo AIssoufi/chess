@@ -325,3 +325,204 @@ describe('promouvoir guards', () => {
     expect(jeu.couleurCourante).toBe('blanche');
   });
 });
+
+// ─── Rule edge cases ────────────────────────────────────────────────────────
+
+/**
+ * Empties the board, then puts the given pieces on it and gives the move to a color.
+ *
+ * @param {object} params
+ * @param {Record<string, { type: string, couleur: string, aBouge?: boolean }>} params.pieces
+ *   Pieces by square; `aBouge` defaults to true.
+ * @param {'blanche' | 'noire'} [params.colorToPlay] The color to play, white by default.
+ */
+function setUpBoard({ pieces, colorToPlay = 'blanche' }) {
+  jeu.plateau.clear();
+  for (const [square, piece] of Object.entries(pieces)) {
+    jeu.plateau.set(square, { aBouge: true, ...piece });
+  }
+  jeu.couleurCourante = colorToPlay;
+}
+
+/** The white king and both white rooks on their starting squares, with the black king on e8. */
+const UNMOVED_WHITE_KING_AND_ROOKS = Object.freeze({
+  e1: { type: 'roi', couleur: 'blanche', aBouge: false },
+  a1: { type: 'tour', couleur: 'blanche', aBouge: false },
+  h1: { type: 'tour', couleur: 'blanche', aBouge: false },
+  e8: { type: 'roi', couleur: 'noire' },
+});
+
+describe('castling edge cases', () => {
+  it('is not offered to a king in check', () => {
+    setUpBoard({
+      pieces: { ...UNMOVED_WHITE_KING_AND_ROOKS, e5: { type: 'tour', couleur: 'noire' } },
+    });
+
+    const moves = jeu.getDeplacementsPossibles('e1');
+    expect(moves).not.toContain('g1');
+    expect(moves).not.toContain('c1');
+  });
+
+  it.each(['b1', 'c1', 'd1'])('queenside is blocked by a piece on %s', (square) => {
+    setUpBoard({
+      pieces: {
+        ...UNMOVED_WHITE_KING_AND_ROOKS,
+        [square]: { type: 'cavalier', couleur: 'blanche' },
+      },
+    });
+
+    const moves = jeu.getDeplacementsPossibles('e1');
+    expect(moves).not.toContain('c1');
+    expect(moves).toContain('g1');
+  });
+
+  it.each([
+    ['d1', 'd8'],
+    ['c1', 'c8'],
+  ])('queenside is refused when %s is attacked', (_attackedSquare, rookSquare) => {
+    setUpBoard({
+      pieces: { ...UNMOVED_WHITE_KING_AND_ROOKS, [rookSquare]: { type: 'tour', couleur: 'noire' } },
+    });
+
+    expect(jeu.getDeplacementsPossibles('e1')).not.toContain('c1');
+  });
+
+  it('queenside is allowed when only b1, which the king does not cross, is attacked', () => {
+    setUpBoard({
+      pieces: { ...UNMOVED_WHITE_KING_AND_ROOKS, b8: { type: 'tour', couleur: 'noire' } },
+    });
+
+    expect(jeu.getDeplacementsPossibles('e1')).toContain('c1');
+  });
+
+  it('queenside moves the a1 rook to d1', () => {
+    setUpBoard({ pieces: UNMOVED_WHITE_KING_AND_ROOKS });
+
+    const result = jeu.deplacer('e1', 'c1');
+
+    expect(result.coupSpécial).toBe('grand-roque');
+    expect(jeu.getPièce('c1')).toMatchObject({ type: 'roi', couleur: 'blanche' });
+    expect(jeu.getPièce('d1')).toMatchObject({ type: 'tour', couleur: 'blanche', aBouge: true });
+    expect(jeu.getPièce('a1')).toBeNull();
+  });
+
+  it('is not offered once the rook has been captured on its square', () => {
+    setUpBoard({
+      // From h1, a knight attacks neither e1, f1 nor g1: only the missing rook forbids castling.
+      pieces: { ...UNMOVED_WHITE_KING_AND_ROOKS, g3: { type: 'cavalier', couleur: 'noire' } },
+      colorToPlay: 'noire',
+    });
+    jeu.deplacer('g3', 'h1');
+
+    expect(jeu.getPièce('h1')).toMatchObject({ type: 'cavalier', couleur: 'noire' });
+    expect(jeu.estEnEchec('blanche')).toBe(false);
+    const moves = jeu.getDeplacementsPossibles('e1');
+    expect(moves).not.toContain('g1');
+    expect(moves).toContain('c1');
+  });
+
+  it('is not offered once the rook has moved, even back to its square', () => {
+    setUpBoard({
+      pieces: { ...UNMOVED_WHITE_KING_AND_ROOKS, a7: { type: 'pion', couleur: 'noire' } },
+    });
+    jeu.deplacer('h1', 'h2');
+    jeu.deplacer('a7', 'a6');
+    jeu.deplacer('h2', 'h1');
+
+    const moves = jeu.getDeplacementsPossibles('e1');
+    expect(moves).not.toContain('g1');
+    expect(moves).toContain('c1');
+  });
+});
+
+describe('en passant edge cases', () => {
+  it('expires when it is not taken on the very next move', () => {
+    setUpBoard({
+      pieces: {
+        e1: { type: 'roi', couleur: 'blanche' },
+        e8: { type: 'roi', couleur: 'noire' },
+        e5: { type: 'pion', couleur: 'blanche' },
+        d7: { type: 'pion', couleur: 'noire', aBouge: false },
+      },
+      colorToPlay: 'noire',
+    });
+    jeu.deplacer('d7', 'd5');
+    jeu.deplacer('e1', 'f1');
+    jeu.deplacer('e8', 'f8');
+
+    expect(jeu.positionEnPassant).toBeNull();
+    expect(jeu.getDeplacementsPossibles('e5')).not.toContain('d6');
+    expect(jeu.deplacer('e5', 'd6')).toBeNull();
+  });
+
+  it('is refused when removing both pawns opens the rank to the king', () => {
+    setUpBoard({
+      pieces: {
+        a5: { type: 'roi', couleur: 'blanche' },
+        b5: { type: 'pion', couleur: 'blanche' },
+        h5: { type: 'tour', couleur: 'noire' },
+        e8: { type: 'roi', couleur: 'noire' },
+        c7: { type: 'pion', couleur: 'noire', aBouge: false },
+      },
+      colorToPlay: 'noire',
+    });
+    jeu.deplacer('c7', 'c5');
+
+    expect(jeu.positionEnPassant).toBe('c6');
+    const moves = jeu.getDeplacementsPossibles('b5');
+    expect(moves).not.toContain('c6');
+    expect(moves).toContain('b6');
+  });
+});
+
+describe('promotion edge cases', () => {
+  it('promotes to a knight that then moves like a knight', () => {
+    setUpBoard({
+      pieces: {
+        e1: { type: 'roi', couleur: 'blanche' },
+        h8: { type: 'roi', couleur: 'noire' },
+        a7: { type: 'pion', couleur: 'blanche' },
+      },
+    });
+    jeu.deplacer('a7', 'a8');
+    jeu.promouvoir('a8', 'cavalier');
+    jeu.deplacer('h8', 'h7');
+
+    expect(jeu.getDeplacementsPossibles('a8').sort()).toEqual(['b6', 'c7']);
+  });
+
+  it('promotes by capturing and records the captured piece', () => {
+    setUpBoard({
+      pieces: {
+        e1: { type: 'roi', couleur: 'blanche' },
+        h8: { type: 'roi', couleur: 'noire' },
+        b7: { type: 'pion', couleur: 'blanche' },
+        a8: { type: 'tour', couleur: 'noire' },
+      },
+    });
+
+    const result = jeu.deplacer('b7', 'a8');
+
+    expect(result).toMatchObject({ promotion: true, capturé: { type: 'tour', couleur: 'noire' } });
+    expect(jeu.positionPromotion).toBe('a8');
+    expect(jeu.captures.blanche).toEqual([expect.objectContaining({ type: 'tour' })]);
+    expect(jeu.getPièce('b7')).toBeNull();
+  });
+
+  it('gives check with the promoted piece once the promotion is done', () => {
+    setUpBoard({
+      pieces: {
+        e1: { type: 'roi', couleur: 'blanche' },
+        h8: { type: 'roi', couleur: 'noire' },
+        a7: { type: 'pion', couleur: 'blanche' },
+      },
+    });
+    jeu.deplacer('a7', 'a8');
+
+    expect(jeu.estEnEchec('noire')).toBe(false);
+    jeu.promouvoir('a8', 'dame');
+    expect(jeu.couleurCourante).toBe('noire');
+    expect(jeu.estEnEchec('noire')).toBe(true);
+    expect(jeu.estEchecEtMat('noire')).toBe(false);
+  });
+});
