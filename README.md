@@ -11,15 +11,16 @@ castling, en passant, promotion, check, checkmate and stalemate.
 
 ## Tech stack
 
-| Tool                           | Role                                 |
-| ------------------------------ | ------------------------------------ |
-| JavaScript (ES modules)        | Game model and UI, no framework      |
-| Vite 8                         | Dev server and production build      |
-| Vitest 5, happy-dom 21         | Unit tests, with a DOM for the UI    |
-| Prettier 3                     | Code formatting                      |
-| Husky, lint-staged, commitlint | Git hooks: formatting, commit format |
-| pnpm 12, Node.js 24            | Package manager and runtime          |
-| Cloudflare Pages               | Hosting, with a preview per branch   |
+| Tool                           | Role                                          |
+| ------------------------------ | --------------------------------------------- |
+| JavaScript (ES modules)        | Game model and UI, no framework               |
+| Vite 8                         | Dev server and production build               |
+| Vitest 5, happy-dom 21         | Unit tests, with a DOM for the UI             |
+| Prettier 3                     | Code formatting                               |
+| ESLint 10                      | Linting, with the recommended rules           |
+| Husky, lint-staged, commitlint | Git hooks: formatting, linting, commit format |
+| pnpm 12, Node.js 24            | Package manager and runtime                   |
+| Cloudflare Pages               | Hosting, with a preview per branch            |
 
 ## Getting started
 
@@ -46,6 +47,7 @@ pnpm preview    # serve dist/ on http://localhost:4173/
 | `pnpm test:coverage` | Run the tests once with a coverage report   |
 | `pnpm format`        | Format every file with Prettier             |
 | `pnpm format:check`  | Check the formatting without changing files |
+| `pnpm lint`          | Lint every JavaScript file with ESLint      |
 
 ## Tests
 
@@ -76,7 +78,7 @@ app/                 Vite root: the page, its styles and images
     squares/         Square helpers, such as the square an en passant capture takes
   public/            Files copied as they are to dist/, such as the Cloudflare Pages _headers
 commitlint/          Ticket reference rule, bot commits and the pull request title config
-docs/                README screenshot
+docs/                README screenshot, decisions (ADRs) and the evolution of the stack
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests
 .github/workflows/   CI, commit message checks and the GitHub Pages redirect
@@ -85,7 +87,7 @@ test/                Unit tests
 ## CI and deployment
 
 - **CI** (`ci.yml`): on every pull request and push to `master`, installs with the frozen lockfile,
-  then runs `pnpm format:check`, `pnpm test` and `pnpm build`.
+  then runs `pnpm format:check`, `pnpm lint`, `pnpm test` and `pnpm build`.
 - **Commit messages** (`commit-messages.yml`): on every pull request, and when its title changes,
   runs commitlint on each commit that the base branch lacks, and on the title with
   `commitlint/pr-title.config.js`, which needs no ticket reference.
@@ -132,6 +134,9 @@ the game in another site.
   branch. commitlint checks each commit locally and in CI, merge, revert, fixup and bot commits
   aside, and the CI checks each pull request title like a commit header, without the ticket.
 - Prettier formats the staged files on each commit, and the CI rejects unformatted files.
+- ESLint (`eslint.config.js`) applies its recommended rules, with browser globals for `app/` and
+  `redirect/` and Node.js globals for the configs and the tests. It fixes what it can in the
+  staged JavaScript files on each commit, before Prettier, and the CI rejects any finding.
 - pnpm runs no build script of a dependency unless the package is listed in `allowBuilds` of a
   `pnpm-workspace.yaml`. No dependency needs one, so the repository has no such file.
 

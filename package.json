@@ -16,6 +16,7 @@
     "test:coverage": "vitest run --coverage",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "lint": "eslint .",
     "prepare": "husky"
   },
   "keywords": [
@@ -24,14 +25,21 @@
   "author": "Adam Issoufi",
   "license": "MIT",
   "lint-staged": {
-    "*.{js,json,css,html,md,yml,yaml}": "prettier --write"
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,html,md,yml,yaml}": "prettier --write"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
     "@commitlint/lint": "^21.2.4",
     "@commitlint/load": "^21.2.4",
+    "@eslint/js": "^10.0.1",
     "@vitest/coverage-v8": "^5.0.5",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
     "happy-dom": "^21.0.3",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
