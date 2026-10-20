@@ -14,8 +14,8 @@ castling, en passant, promotion, check, checkmate and stalemate.
 | Tool                           | Role                                 |
 | ------------------------------ | ------------------------------------ |
 | JavaScript (ES modules)        | Game model and UI, no framework      |
-| Vite 5                         | Dev server and production build      |
-| Vitest 2                       | Unit tests                           |
+| Vite 8                         | Dev server and production build      |
+| Vitest 5                       | Unit tests                           |
 | Prettier 3                     | Code formatting                      |
 | Husky, lint-staged, commitlint | Git hooks: formatting, commit format |
 | pnpm 12, Node.js 24            | Package manager and runtime          |
@@ -25,7 +25,7 @@ castling, en passant, promotion, check, checkmate and stalemate.
 
 Prerequisites:
 
-- Node.js 24 or newer (`.nvmrc`);
+- Node.js 24 (`.nvmrc`), or 26 and newer: Vitest 5 does not support Node.js 25;
 - pnpm 12.14.0, pinned by the `packageManager` field of `package.json`.
 
 ```bash
