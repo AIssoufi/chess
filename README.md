@@ -76,7 +76,8 @@ app/                 Vite root: the page, its styles and images
     PièceFactory.js  Creates the DOM node of a piece from its type and colour
     pieces/          Piece configs: Unicode symbol and starting squares
     squares/         Square helpers, such as the square an en passant capture takes
-  public/            Files copied as they are to dist/, such as the Cloudflare Pages _headers
+  public/            Files copied as they are to dist/: the Cloudflare Pages _headers, the
+                     favicon and the 1200x630 social preview image (og-image.jpg)
 commitlint/          Ticket reference rule, bot commits and the pull request title config
 docs/                README screenshot, decisions (ADRs) and the evolution of the stack
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
