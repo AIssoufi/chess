@@ -115,8 +115,8 @@ the game in another site.
   branch. commitlint checks each commit locally and in CI, merge, revert, fixup and bot commits
   aside, and the CI checks each pull request title like a commit header, without the ticket.
 - Prettier formats the staged files on each commit, and the CI rejects unformatted files.
-- pnpm only runs the build scripts of the packages listed in `allowBuilds` of
-  `pnpm-workspace.yaml`.
+- pnpm runs no build script of a dependency unless the package is listed in `allowBuilds` of a
+  `pnpm-workspace.yaml`. No dependency needs one, so the repository has no such file.
 
 ## License
 
