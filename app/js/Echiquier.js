@@ -350,10 +350,9 @@ export default class Echiquier {
   // ─── Exécution d'un coup ──────────────────────────────────────────────────
 
   /**
-   * Déplace une pièce de `from` vers `to`.
-   * Retourne un objet décrivant le coup, ou null si le coup est invalide.
-   * Returns null as well when the game is over, a promotion is pending, or the piece
-   * does not belong to the side to move.
+   * Moves the piece on `from` to `to`.
+   * Returns an object describing the move, or null when the move is illegal, the game is
+   * over, a promotion is pending, or the piece does not belong to the side to move.
    */
   deplacer(from, to) {
     const isPromotionPending = this.positionPromotion !== null;
@@ -431,18 +430,18 @@ export default class Echiquier {
   }
 
   /**
-   * Transforme le pion promu en la pièce choisie.
+   * Turns the promoted pawn into the chosen piece.
    * Ignores a position other than the pending promotion and a type outside
    * PROMOTION_PIECE_TYPES.
-   * @param {string} position
-   * @param {string} type — 'dame' | 'tour' | 'fou' | 'cavalier'
+   * @param {string} position Square of the pawn to promote.
+   * @param {string} type Piece type: 'dame' | 'tour' | 'fou' | 'cavalier'.
    * @returns {boolean} true when the pawn was promoted, false when the call was ignored.
    */
   promouvoir(position, type) {
-    const isPendingPromotion =
+    const isPendingPromotionSquare =
       this.positionPromotion !== null && position === this.positionPromotion;
     const isAllowedType = PROMOTION_PIECE_TYPES.includes(type);
-    if (!isPendingPromotion || !isAllowedType) return false;
+    if (!isPendingPromotionSquare || !isAllowedType) return false;
 
     const piece = this.plateau.get(position);
     if (!piece) return false;
