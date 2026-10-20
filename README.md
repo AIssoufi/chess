@@ -6,7 +6,7 @@ castling, en passant, promotion, check, checkmate and stalemate.
 **Live demo:** https://chess.issoufi.fr
 
 <p align="center">
-  <img src="app/css/img/screen1.png" alt="The chessboard in the browser">
+  <img src="docs/screenshot.webp" alt="A game in progress: the white knight on f3 is selected and its legal moves are highlighted" width="800">
 </p>
 
 ## Tech stack
@@ -66,12 +66,15 @@ HTML report in `coverage/`, which Git and Prettier ignore.
 app/                 Vite root: the page, its styles and images
   css/               Styles and images
   js/                Game code
+    console-log.js   Copies each console.log line to the move log panel of the page
     Echiquier.js     Board model and rules, without DOM
     game-over/       Move outcome (check, mate, stalemate) and game over dialog constants
     main.js          UI controller: renders the board and handles clicks
+    PièceFactory.js  Creates the DOM node of a piece from its type and colour
     pieces/          Piece configs: Unicode symbol and starting squares
   public/            Files copied as they are to dist/, such as the Cloudflare Pages _headers
 commitlint/          Ticket reference rule, bot commits and the pull request title config
+docs/                README screenshot
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests
 .github/workflows/   CI, commit message checks and the GitHub Pages redirect
