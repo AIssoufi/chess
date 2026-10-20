@@ -15,7 +15,7 @@ castling, en passant, promotion, check, checkmate and stalemate.
 | ------------------------------ | ------------------------------------ |
 | JavaScript (ES modules)        | Game model and UI, no framework      |
 | Vite 8                         | Dev server and production build      |
-| Vitest 5                       | Unit tests                           |
+| Vitest 5, happy-dom 21         | Unit tests, with a DOM for the UI    |
 | Prettier 3                     | Code formatting                      |
 | Husky, lint-staged, commitlint | Git hooks: formatting, commit format |
 | pnpm 12, Node.js 24            | Package manager and runtime          |
@@ -37,19 +37,27 @@ pnpm preview    # serve dist/ on http://localhost:4173/
 
 ## Scripts
 
-| Script              | Purpose                                     |
-| ------------------- | ------------------------------------------- |
-| `pnpm start`        | Start the Vite dev server with hot reload   |
-| `pnpm build`        | Build the site into `dist/`                 |
-| `pnpm preview`      | Serve the production build                  |
-| `pnpm test`         | Run the unit tests once                     |
-| `pnpm format`       | Format every file with Prettier             |
-| `pnpm format:check` | Check the formatting without changing files |
+| Script               | Purpose                                     |
+| -------------------- | ------------------------------------------- |
+| `pnpm start`         | Start the Vite dev server with hot reload   |
+| `pnpm build`         | Build the site into `dist/`                 |
+| `pnpm preview`       | Serve the production build                  |
+| `pnpm test`          | Run the unit tests once                     |
+| `pnpm test:coverage` | Run the tests once with a coverage report   |
+| `pnpm format`        | Format every file with Prettier             |
+| `pnpm format:check`  | Check the formatting without changing files |
 
 ## Tests
 
-`pnpm test` runs Vitest in Node.js, without a DOM. The tests live in `test/` and are named
-`*.test.js`. The tests of the `prepare-commit-msg` hook run Git in temporary repositories.
+`pnpm test` runs Vitest. The tests live in `test/` and are named `*.test.js`:
+
+- the model and rule tests run in Node.js, without a DOM;
+- the tests of `PièceFactory.js` and of the UI controller run in happy-dom, chosen by a
+  `// @vitest-environment happy-dom` comment on their first line;
+- the tests of the `prepare-commit-msg` hook run Git in temporary repositories.
+
+`pnpm test:coverage` adds a V8 coverage report of `app/js/`: a summary in the terminal and an
+HTML report in `coverage/`, which Git and Prettier ignore.
 
 ## Project structure
 

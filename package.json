@@ -13,6 +13,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky"
@@ -30,6 +31,8 @@
     "@commitlint/config-conventional": "^21.2.4",
     "@commitlint/lint": "^21.2.4",
     "@commitlint/load": "^21.2.4",
+    "@vitest/coverage-v8": "^5.0.5",
+    "happy-dom": "^21.0.3",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
     "prettier": "^3.9.10",
