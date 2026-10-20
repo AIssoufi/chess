@@ -62,6 +62,7 @@ app/                 Vite root: the page, its styles and images
     main.js          UI controller: renders the board and handles clicks
     pieces/          Piece configs: Unicode symbol and starting squares
   public/            Files copied as they are to dist/, such as the Cloudflare Pages _headers
+commitlint/          Ticket reference rule and bot commits
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests
 .github/workflows/   CI and the GitHub Pages redirect
@@ -105,8 +106,9 @@ the game in another site.
 
 ## Conventions
 
-- Commits follow [Conventional Commits](https://www.conventionalcommits.org/), checked by
-  commitlint on each commit.
+- Commits follow [Conventional Commits](https://www.conventionalcommits.org/) and name their
+  ticket in a `Refs: CHESS-<n>` trailer. commitlint checks each commit, merge, revert, fixup and
+  bot commits aside.
 - Prettier formats the staged files on each commit, and the CI rejects unformatted files.
 - pnpm only runs the build scripts of the packages listed in `allowBuilds` of
   `pnpm-workspace.yaml`.
