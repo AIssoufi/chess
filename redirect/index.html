@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Jeu d'échecs</title>
+    <link rel="canonical" href="https://chess.issoufi.fr/" />
+    <!-- Without JavaScript, the path is lost: fall back to the home page. -->
+    <noscript><meta http-equiv="refresh" content="0; url=https://chess.issoufi.fr/" /></noscript>
+    <script type="module">
+      // An absolute path, since GitHub Pages also serves this page as 404.html at any depth.
+      import { getRedirectUrl } from '/chess/utils.js';
+
+      window.location.replace(getRedirectUrl({ location: window.location }));
+    </script>
+  </head>
+  <body>
+    <p>Le jeu d'échecs a déménagé sur <a href="https://chess.issoufi.fr/">chess.issoufi.fr</a>.</p>
+  </body>
+</html>

@@ -59,6 +59,7 @@ app/                 Vite root: the page, its styles and images
     Echiquier.js     Board model and rules, without DOM
     main.js          UI controller: renders the board and handles clicks
     pieces/          Piece configs: Unicode symbol and starting squares
+redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests
 .github/workflows/   CI and deployment
 ```
