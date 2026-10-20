@@ -84,6 +84,10 @@ test/                Unit tests
   https://aissoufi.github.io/chess/, with a copy of its `index.html` as `404.html`. The page sends
   every URL below `/chess/` to the same path, query and fragment on https://chess.issoufi.fr, and
   falls back to the home page without JavaScript.
+- **Dependabot** (`.github/dependabot.yml`): each week, one pull request bumps the GitHub Actions,
+  one bumps the npm packages within their major, and each new major of a package gets its own.
+  Their titles start with `ci(deps):`, `build(deps):` or `build(deps-dev):`, so they pass the
+  commit message check.
 
 ### Cloudflare Pages settings
 

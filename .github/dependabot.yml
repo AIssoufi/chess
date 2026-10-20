@@ -1,0 +1,28 @@
+# Opens one weekly pull request per group. The prefixes give conventional titles, such as
+# `ci(deps): bump …` or `build(deps-dev): bump …`, which the pull request title check requires.
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      github-actions:
+        patterns: ['*']
+
+  # Covers package.json and pnpm-lock.yaml.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: build
+      include: scope
+    # Majors get a pull request of their own, since they may need code changes.
+    groups:
+      npm-minor-and-patch:
+        update-types: [minor, patch]
