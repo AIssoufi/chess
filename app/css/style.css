@@ -5,22 +5,28 @@
 /*
  * Board sizing: a square is 70px at most, and shrinks so that the board and its coordinates fit
  * the screen width (with a 1rem gutter on each side) and, on short screens, the screen height
- * (leaving 12rem for the title and the padding around the board).
+ * (leaving 12rem for the title and the padding around the board). The height never brings a
+ * square under 40px, a comfortable touch target: a phone held sideways scrolls to the board instead.
  */
 :root {
   --viewport-height: 100vh;
+  --stable-viewport-height: 100vh;
   --coordinates-size: 15px;
   --square: min(
     70px,
     calc((100vw - 2rem - var(--coordinates-size)) / 8),
-    calc((var(--viewport-height) - 12rem) / 8)
+    max(40px, calc((var(--stable-viewport-height) - 12rem) / 8))
   );
 }
 
-/* The dynamic unit follows the mobile browser bars as they show and hide */
+/*
+ * The dynamic unit follows the mobile browser bars as they show and hide, for the page height. The
+ * small unit ignores them, so the board keeps its size while the page scrolls.
+ */
 @supports (height: 100dvh) {
   :root {
     --viewport-height: 100dvh;
+    --stable-viewport-height: 100svh;
   }
 }
 
@@ -333,12 +339,15 @@ h1 {
 
 .promotion__pieces {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1rem;
 }
 
+/* 80px buttons, narrower on phones so that the four of them fit on one line */
 .promotion__pieces button {
   font-size: 3.5rem;
-  width: 80px;
+  width: min(80px, 20vw);
   height: 80px;
   border: none;
   border-radius: 10px;
@@ -353,13 +362,36 @@ h1 {
 }
 
 /*
- * Narrow screens: the player panels go above and below the board, since side by side they need
- * about 820px. The copyright and the social links leave the screen edges, where they would cover
- * the board, and follow the game.
+ * Below 1080px, the game frame (up to 1000px wide) reaches the screen edges: the copyright and the
+ * social links leave them, where they would cover the game, and follow it.
  */
-@media (max-width: 899px) {
+@media (max-width: 1079px) {
   body {
     flex-direction: column;
+  }
+
+  .copyright {
+    position: static;
+    writing-mode: horizontal-tb;
+    transform: none;
+    margin: 1rem 1rem 0;
+    text-align: center;
+  }
+
+  .réseaux-sociaux {
+    position: static;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .réseaux-sociaux svg {
+    margin: 0 0.6rem;
+  }
+}
+
+/* Narrow screens: the player panels go above and below the board, side by side they need 820px */
+@media (max-width: 899px) {
+  body {
     justify-content: flex-start;
   }
 
@@ -382,23 +414,5 @@ h1 {
     margin: 0;
     padding: 0 1rem;
     text-align: center;
-  }
-
-  .copyright {
-    position: static;
-    writing-mode: horizontal-tb;
-    transform: none;
-    margin: 1rem 1rem 0;
-    text-align: center;
-  }
-
-  .réseaux-sociaux {
-    position: static;
-    justify-content: center;
-    margin-bottom: 1rem;
-  }
-
-  .réseaux-sociaux svg {
-    margin: 0 0.6rem;
   }
 }
