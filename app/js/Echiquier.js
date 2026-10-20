@@ -6,6 +6,8 @@ import roi from './pieces/roi.js';
 import tour from './pieces/tour.js';
 
 const COLONNES = 'abcdefgh';
+/** Piece types a pawn may be promoted to. */
+const PROMOTION_PIECE_TYPES = ['dame', 'tour', 'fou', 'cavalier'];
 
 function col(lettre) {
   return COLONNES.indexOf(lettre);
@@ -348,12 +350,18 @@ export default class Echiquier {
   // ─── Exécution d'un coup ──────────────────────────────────────────────────
 
   /**
-   * Déplace une pièce de `from` vers `to`.
-   * Retourne un objet décrivant le coup, ou null si le coup est invalide.
+   * Moves the piece on `from` to `to`.
+   * Returns an object describing the move, or null when the move is illegal, the game is
+   * over, a promotion is pending, or the piece does not belong to the side to move.
    */
   deplacer(from, to) {
+    const isPromotionPending = this.positionPromotion !== null;
+    if (this.termine || isPromotionPending) return null;
+
     const piece = this.plateau.get(from);
     if (!piece) return null;
+    const isSideToMove = piece.couleur === this.couleurCourante;
+    if (!isSideToMove) return null;
 
     const coupsPossibles = this.getDeplacementsPossibles(from);
     if (!coupsPossibles.includes(to)) return null;
@@ -422,15 +430,24 @@ export default class Echiquier {
   }
 
   /**
-   * Transforme le pion promu en la pièce choisie.
-   * @param {string} position
-   * @param {string} type — 'dame' | 'tour' | 'fou' | 'cavalier'
+   * Turns the promoted pawn into the chosen piece.
+   * Ignores a position other than the pending promotion and a type outside
+   * PROMOTION_PIECE_TYPES.
+   * @param {string} position Square of the pawn to promote.
+   * @param {string} type Piece type: 'dame' | 'tour' | 'fou' | 'cavalier'.
+   * @returns {boolean} true when the pawn was promoted, false when the call was ignored.
    */
   promouvoir(position, type) {
+    const isPendingPromotionSquare =
+      this.positionPromotion !== null && position === this.positionPromotion;
+    const isAllowedType = PROMOTION_PIECE_TYPES.includes(type);
+    if (!isPendingPromotionSquare || !isAllowedType) return false;
+
     const piece = this.plateau.get(position);
-    if (!piece) return;
+    if (!piece) return false;
     this.plateau.set(position, { ...piece, type });
     this.positionPromotion = null;
     this.couleurCourante = this.couleurCourante === 'blanche' ? 'noire' : 'blanche';
+    return true;
   }
 }

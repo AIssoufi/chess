@@ -247,3 +247,81 @@ describe('Promotion', () => {
     expect(jeu.getPièce('a8')).toMatchObject({ type: 'dame', couleur: 'blanche' });
   });
 });
+
+// ─── Illegal calls ──────────────────────────────────────────────────────────
+
+/** Puts a white pawn on a7 with both kings, then pushes it to a8 so a promotion is pending. */
+function reachPendingPromotion() {
+  jeu.plateau.clear();
+  jeu.plateau.set('e1', { type: 'roi', couleur: 'blanche', aBouge: true });
+  jeu.plateau.set('e8', { type: 'roi', couleur: 'noire', aBouge: true });
+  jeu.plateau.set('a7', { type: 'pion', couleur: 'blanche', aBouge: true });
+  jeu.deplacer('a7', 'a8');
+}
+
+describe('deplacer guards', () => {
+  it('rejects a move of the side not to move and leaves the board unchanged', () => {
+    expect(jeu.deplacer('e7', 'e5')).toBeNull();
+    expect(jeu.getPièce('e7')).toMatchObject({ type: 'pion', couleur: 'noire' });
+    expect(jeu.getPièce('e5')).toBeNull();
+    expect(jeu.couleurCourante).toBe('blanche');
+  });
+
+  it('accepts a move of the side to move', () => {
+    expect(jeu.deplacer('e2', 'e4')).not.toBeNull();
+    expect(jeu.deplacer('e7', 'e5')).not.toBeNull();
+  });
+
+  it('rejects any move while a promotion is pending', () => {
+    reachPendingPromotion();
+    expect(jeu.deplacer('e1', 'e2')).toBeNull();
+    expect(jeu.deplacer('e8', 'e7')).toBeNull();
+    expect(jeu.getPièce('e1')).toMatchObject({ type: 'roi', couleur: 'blanche' });
+    expect(jeu.getPièce('e8')).toMatchObject({ type: 'roi', couleur: 'noire' });
+  });
+
+  it('rejects any move once the game is over', () => {
+    jeu.termine = true;
+    expect(jeu.deplacer('e2', 'e4')).toBeNull();
+    expect(jeu.getPièce('e2')).toMatchObject({ type: 'pion', couleur: 'blanche' });
+  });
+
+  it('rejects a move from an empty or unknown square', () => {
+    expect(jeu.deplacer('e4', 'e5')).toBeNull();
+    expect(jeu.deplacer('z9', 'e5')).toBeNull();
+    expect(jeu.deplacer(undefined, undefined)).toBeNull();
+  });
+});
+
+describe('promouvoir guards', () => {
+  it.each(['dame', 'tour', 'fou', 'cavalier'])('promotes the pawn to %s', (type) => {
+    reachPendingPromotion();
+    expect(jeu.promouvoir('a8', type)).toBe(true);
+    expect(jeu.getPièce('a8')).toMatchObject({ type, couleur: 'blanche' });
+    expect(jeu.positionPromotion).toBeNull();
+    expect(jeu.couleurCourante).toBe('noire');
+  });
+
+  it.each(['roi', 'pion', '', 'Dame', undefined, null])('ignores the promotion type %s', (type) => {
+    reachPendingPromotion();
+    expect(jeu.promouvoir('a8', type)).toBe(false);
+    expect(jeu.getPièce('a8')).toMatchObject({ type: 'pion', couleur: 'blanche' });
+    expect(jeu.positionPromotion).toBe('a8');
+    expect(jeu.couleurCourante).toBe('blanche');
+  });
+
+  it('ignores a position other than the pending promotion', () => {
+    reachPendingPromotion();
+    expect(jeu.promouvoir('e1', 'dame')).toBe(false);
+    expect(jeu.getPièce('e1')).toMatchObject({ type: 'roi', couleur: 'blanche' });
+    expect(jeu.positionPromotion).toBe('a8');
+    expect(jeu.couleurCourante).toBe('blanche');
+  });
+
+  it('ignores a call when no promotion is pending', () => {
+    expect(jeu.promouvoir('e2', 'dame')).toBe(false);
+    expect(jeu.promouvoir(null, 'dame')).toBe(false);
+    expect(jeu.getPièce('e2')).toMatchObject({ type: 'pion' });
+    expect(jeu.couleurCourante).toBe('blanche');
+  });
+});
