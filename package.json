@@ -2,7 +2,7 @@
   "name": "echiquier",
   "version": "2.0.0",
   "description": "Un jeu d'échecs en JavaScript",
-  "homepage": "https://AIssoufi.github.io/chess",
+  "homepage": "https://chess.issoufi.fr",
   "type": "module",
   "packageManager": "pnpm@12.14.0",
   "engines": {

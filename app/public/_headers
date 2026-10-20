@@ -1,0 +1,13 @@
+# Response headers of Cloudflare Pages, see
+# https://developers.cloudflare.com/pages/configuration/headers/
+# Pages already sends X-Content-Type-Options: nosniff and Referrer-Policy:
+# strict-origin-when-cross-origin on every response.
+
+# Vite puts a content hash in every file name under /assets/, so a new build never reuses a URL.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# frame-ancestors forbids embedding the game in a frame of another site.
+/*
+  Content-Security-Policy: base-uri 'self'; frame-ancestors 'none'; object-src 'none'
+  Permissions-Policy: camera=(), geolocation=(), microphone=()
