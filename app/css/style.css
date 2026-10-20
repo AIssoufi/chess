@@ -3,6 +3,14 @@
 }
 
 /*
+ * Title, dialogs and promotion choice: a book serif, Iowan Old Style on Apple systems, Palatino
+ * Linotype on Windows, and the default serif elsewhere.
+ */
+:root {
+  --display-font: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+}
+
+/*
  * Board sizing: a square is 70px at most, and shrinks so that the board and its coordinates fit
  * the screen width (with a 1rem gutter on each side) and, on short screens, the screen height
  * (leaving 12rem for the title and the padding around the board). The height never brings a
@@ -42,7 +50,7 @@ body {
 h1 {
   text-align: center;
   color: #fff;
-  font-family: fantasy;
+  font-family: var(--display-font);
 }
 .wrapper {
   display: grid;
@@ -221,7 +229,7 @@ h1 {
 
 .alert__wrapper h2 {
   color: #222;
-  font-family: fantasy;
+  font-family: var(--display-font);
   font-size: 2rem;
   margin: 0;
 }
@@ -234,7 +242,7 @@ h1 {
 
 .alert__wrapper p {
   font-size: 1.3rem;
-  font-family: fantasy;
+  font-family: var(--display-font);
   margin: 0;
 }
 
@@ -244,7 +252,7 @@ h1 {
   height: 2rem;
   max-width: 150px;
   padding: 0 1rem;
-  font-family: fantasy;
+  font-family: var(--display-font);
   background-color: #ff9800;
   border-radius: 5px;
   border: none;
@@ -333,7 +341,7 @@ h1 {
 .promotion__wrapper p {
   color: #fff;
   font-size: 1.4rem;
-  font-family: fantasy;
+  font-family: var(--display-font);
   margin: 0;
 }
 

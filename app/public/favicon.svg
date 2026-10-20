@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Four squares in the colors of the board, with a pawn on top -->
+  <clipPath id="rounded">
+    <rect width="32" height="32" rx="6" />
+  </clipPath>
+  <g clip-path="url(#rounded)">
+    <rect width="32" height="32" fill="#ffcf9e" />
+    <rect width="16" height="16" fill="#d18b46" />
+    <rect x="16" y="16" width="16" height="16" fill="#d18b46" />
+  </g>
+  <g fill="#2b1d0e">
+    <circle cx="16" cy="9" r="4.5" />
+    <rect x="11" y="13.5" width="10" height="2.5" rx="1" />
+    <path d="M12.5 16h7l2.5 9h-12z" />
+    <rect x="8" y="25" width="16" height="3.5" rx="1.5" />
+  </g>
+</svg>

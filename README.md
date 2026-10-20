@@ -70,13 +70,15 @@ app/                 Vite root: the page, its styles and images
   js/                Game code
     colors/          Color helpers, such as the opponent of a color
     console-log.js   Copies each console.log line to the move log panel of the page
+    copyright/       Writes the current year at the end of the footer copyright
     Echiquier.js     Board model and rules, without DOM
     game-over/       Move outcome (check, mate, stalemate) and game over dialog constants
     main.js          UI controller: renders the board and handles clicks
     PièceFactory.js  Creates the DOM node of a piece from its type and colour
     pieces/          Piece configs: Unicode symbol and starting squares
     squares/         Square helpers, such as the square an en passant capture takes
-  public/            Files copied as they are to dist/, such as the Cloudflare Pages _headers
+  public/            Files copied as they are to dist/: the Cloudflare Pages _headers, the
+                     favicon and the 1200x630 social preview image (og-image.jpg)
 commitlint/          Ticket reference rule, bot commits and the pull request title config
 docs/                README screenshot, decisions (ADRs) and the evolution of the stack
 redirect/            Page that redirects the old GitHub Pages URL to the new domain

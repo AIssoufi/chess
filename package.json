@@ -22,7 +22,7 @@
   "keywords": [
     "echec"
   ],
-  "author": "Adam Issoufi",
+  "author": "ADAM Issoufi",
   "license": "MIT",
   "lint-staged": {
     "*.js": [

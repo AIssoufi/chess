@@ -101,7 +101,8 @@ function play(moves) {
   }
 }
 
-beforeEach(async () => {
+/** Renders the body of index.html, then runs a fresh copy of main.js on it. */
+async function loadPage() {
   // A template keeps its content inert: happy-dom neither loads the stylesheet nor runs main.js.
   const template = document.createElement('template');
   template.innerHTML = PAGE_BODY;
@@ -111,7 +112,9 @@ beforeEach(async () => {
   console.log = vi.fn();
   vi.resetModules();
   await import('../app/js/main.js');
-});
+}
+
+beforeEach(loadPage);
 
 afterEach(() => {
   console.log = originalConsoleLog;
@@ -124,6 +127,15 @@ describe('main.js start', () => {
     expect(pieceOn('e1')).toEqual({ type: 'roi', couleur: 'blanche' });
     expect(pieceOn('d8')).toEqual({ type: 'dame', couleur: 'noire' });
     expect(currentPlayer()).toBe('blanche');
+  });
+
+  it('ends the copyright range of the footer with the current year', async () => {
+    // A year other than the one written in index.html, so that the test fails without main.js.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2031, 0, 1));
+    await loadPage();
+
+    expect(document.querySelector('.copyright__year').textContent).toBe('2031');
   });
 });
 
