@@ -10,21 +10,25 @@ export default class Plateau {
    */
   affihcerChemin(positionOrigine, tabCheminPossible) {
     const caseSelectioneeNode = this.getCaseSelectionneeNode();
-    const caseCibleNode       = this.getCaseNode(positionOrigine);
+    const caseCibleNode = this.getCaseNode(positionOrigine);
 
-    if (caseCibleNode != caseSelectioneeNode) { return; }
-    
+    if (caseCibleNode != caseSelectioneeNode) {
+      return;
+    }
+
     this.decolorerCase();
 
     let inverser = false;
-    const pièce  = this.getPièceNode(positionOrigine);
-    if (pièce) { inverser = this.getCouleurJoueurCourant() == "blanche"; }
+    const pièce = this.getPièceNode(positionOrigine);
+    if (pièce) {
+      inverser = this.getCouleurJoueurCourant() == 'blanche';
+    }
 
-    for(let uneDirection of tabCheminPossible) {
-        const postions = this.getDeplacementsPossible(positionOrigine, uneDirection, inverser);
-        for(let postion of postions) {
-            this.colorerCase(postion);
-        }
+    for (let uneDirection of tabCheminPossible) {
+      const postions = this.getDeplacementsPossible(positionOrigine, uneDirection, inverser);
+      for (let postion of postions) {
+        this.colorerCase(postion);
+      }
     }
   }
   /**
@@ -33,16 +37,18 @@ export default class Plateau {
    * @param {String} positionOppresseur La position de l'oppresseur | Exemple: a1
    */
   capturer(positionVictime, positionOppresseur) {
-    const victimeNode    = this.getCaseNode(positionVictime);
+    const victimeNode = this.getCaseNode(positionVictime);
     const oppresseurNode = this.getCaseNode(positionOppresseur);
 
-    if (!victimeNode.classList.contains("chemin")) {
-        this.deselectionnerCase();
-        console.log("Opération non possible !");
-        return;
-    } 
+    if (!victimeNode.classList.contains('chemin')) {
+      this.deselectionnerCase();
+      console.log('Opération non possible !');
+      return;
+    }
 
-    document.querySelector(`.joueur-courant [id*="prisoniers"]`).appendChild(victimeNode.childNodes[0]);
+    document
+      .querySelector(`.joueur-courant [id*="prisoniers"]`)
+      .appendChild(victimeNode.childNodes[0]);
     victimeNode.appendChild(oppresseurNode.childNodes[0]);
     console.log(`${positionOppresseur} a capturé ${positionVictime}`);
     this.deselectionnerCase();
@@ -56,10 +62,14 @@ export default class Plateau {
    * @param {object} postion  La position de la case | Exemple: a1
    */
   colorerCase(postion) {
-    if (postion[1] < 1 || postion[1] > 8 || postion[0] < 'a' || postion[0] > 'h') { return; }
+    if (postion[1] < 1 || postion[1] > 8 || postion[0] < 'a' || postion[0] > 'h') {
+      return;
+    }
 
     const caseNode = this.getCaseNode(postion);
-    if (caseNode) { caseNode.classList.add('chemin'); }
+    if (caseNode) {
+      caseNode.classList.add('chemin');
+    }
   }
 
   /**
@@ -67,7 +77,9 @@ export default class Plateau {
    */
   decolorerCase() {
     const casesColorees = [...document.querySelectorAll('.chemin')];
-    for( let caseColoree of casesColorees ) { caseColoree.classList.remove('chemin'); }
+    for (let caseColoree of casesColorees) {
+      caseColoree.classList.remove('chemin');
+    }
   }
 
   /**
@@ -79,11 +91,11 @@ export default class Plateau {
     const destinationNode = this.getCaseNode(postionDestination);
     const origineNode = this.getCaseNode(positionOrigine);
 
-    if (!destinationNode.classList.contains("chemin") || !origineNode.hasChildNodes()) {
-        console.log("Déplacement pas possible !");
+    if (!destinationNode.classList.contains('chemin') || !origineNode.hasChildNodes()) {
+      console.log('Déplacement pas possible !');
     } else {
-        destinationNode.appendChild(origineNode.childNodes[0]);
-        console.log(`Déplacement ${positionOrigine} vers ${postionDestination}`);
+      destinationNode.appendChild(origineNode.childNodes[0]);
+      console.log(`Déplacement ${positionOrigine} vers ${postionDestination}`);
     }
     this.deselectionnerCase();
   }
@@ -92,9 +104,9 @@ export default class Plateau {
    */
   deselectionnerCase() {
     const caseNode = this.getCaseSelectionneeNode();
-    if(caseNode) {
-        caseNode.classList.remove('selectionner');
-        this.decolorerCase();
+    if (caseNode) {
+      caseNode.classList.remove('selectionner');
+      this.decolorerCase();
     }
   }
   /**
@@ -102,22 +114,28 @@ export default class Plateau {
    * @param {String} position La position de la case ciblé | Exemple: a1
    * @returns {Node} Retourne le Node de la case ciblé
    */
-  getCaseNode(position) { return document.querySelector(`.case[data-position="${position}"]`); }
+  getCaseNode(position) {
+    return document.querySelector(`.case[data-position="${position}"]`);
+  }
 
   /**
    * Obtenir la case (Node) actuellement sélectionnée
    * @returns {Node} Retourne le Node de la case actuellement sélectionnée
    */
-  getCaseSelectionneeNode() { return document.querySelector('.selectionner'); }
+  getCaseSelectionneeNode() {
+    return document.querySelector('.selectionner');
+  }
 
   /**
    * Obtenir le couleur de la pièce ciblé
    * @param {String} position La position de la pièce ciblé | Exemple: a1
-   * @returns {String} Retourne la couleur de la pièce ciblé 
+   * @returns {String} Retourne la couleur de la pièce ciblé
    */
   getCouleur(position) {
     const pièce = this.getPièceNode(position);
-    if (pièce) { return pièce.dataset.couleur; }
+    if (pièce) {
+      return pièce.dataset.couleur;
+    }
   }
 
   getCouleurCaseSelectionnee() {
@@ -129,8 +147,10 @@ export default class Plateau {
    * @returns {String} Retourne la couleur du joueur courant
    */
   getCouleurJoueurCourant() {
-    const div = document.querySelector(".joueur-courant");
-    if (div) { return div.dataset.couleur; }
+    const div = document.querySelector('.joueur-courant');
+    if (div) {
+      return div.dataset.couleur;
+    }
   }
 
   /**
@@ -143,104 +163,116 @@ export default class Plateau {
     const positions = [];
     const lettres = [];
     const chiffres = [];
-    switch(tabCheminPossible.type) {
-        case "vecteur":
-            // On determine les lettres
-            if(tabCheminPossible.x) {
-                // On avance sur l'alphabet. Exemple on passe de A vers B
-                if (tabCheminPossible.x > 0) {
-                    const lettreLegnth = positionOrigine[0].charCodeAt() + tabCheminPossible.x;
-                    for(let i = positionOrigine[0].charCodeAt()+1; i <= lettreLegnth; i++ ) {
-                        const l = String.fromCharCode(i);
-                        lettres.push(l);
-                    }
-                // On recule sur l'alphabet. Exemple on passe  de B vers A
-                } else if (tabCheminPossible.x < 0) {
-                    const lettreLegnth = positionOrigine[0].charCodeAt() + tabCheminPossible.x;
-                    for(let i = positionOrigine[0].charCodeAt()-1; i >= lettreLegnth  ; i-- ) {
-                        const l = String.fromCharCode(i);
-                        lettres.push(l);
-                    }
-                }
-            } else {
-                const length = Math.abs(tabCheminPossible.y);
-                for(let i = 0; i < length; i++ ) {
-                    lettres.push(positionOrigine[0]);
-                }
+    switch (tabCheminPossible.type) {
+      case 'vecteur':
+        // On determine les lettres
+        if (tabCheminPossible.x) {
+          // On avance sur l'alphabet. Exemple on passe de A vers B
+          if (tabCheminPossible.x > 0) {
+            const lettreLegnth = positionOrigine[0].charCodeAt() + tabCheminPossible.x;
+            for (let i = positionOrigine[0].charCodeAt() + 1; i <= lettreLegnth; i++) {
+              const l = String.fromCharCode(i);
+              lettres.push(l);
             }
-    
-            // On determine les nombres
-            if(tabCheminPossible.y) {
-                const nvxChemin = inverser ? -1 * tabCheminPossible.y : tabCheminPossible.y;
-               
-                // On incéremnte le nombre.
-                if (nvxChemin > 0) {
-                    const chiffreLegnth = positionOrigine[1]*1 + nvxChemin;
-                    for(let i = positionOrigine[1]*1 + 1; i <= chiffreLegnth; i++ ) {
-                        chiffres.push(i);
-                    }
-                // On décréremnte le nombre.
-                } else if (nvxChemin < 0) {
-                    const chiffreLegnth = positionOrigine[1]*1 + nvxChemin;
-       
-                    for(let i = positionOrigine[1]*1-1; i >= chiffreLegnth; i-- ) { 
-                        chiffres.push(i);
-                    }
-                }
-            } else {
-                const length = Math.abs(tabCheminPossible.x);
-                for(let i = 0; i < length; i++ ) {
-                    chiffres.push(positionOrigine[1]);
-                }
+            // On recule sur l'alphabet. Exemple on passe  de B vers A
+          } else if (tabCheminPossible.x < 0) {
+            const lettreLegnth = positionOrigine[0].charCodeAt() + tabCheminPossible.x;
+            for (let i = positionOrigine[0].charCodeAt() - 1; i >= lettreLegnth; i--) {
+              const l = String.fromCharCode(i);
+              lettres.push(l);
             }
-            break;
-        case "point":
-            lettres.push(String.fromCharCode((positionOrigine[0].charCodeAt() + tabCheminPossible.x)));
-            chiffres.push(positionOrigine[1]*1 + tabCheminPossible.y);
-         break;
+          }
+        } else {
+          const length = Math.abs(tabCheminPossible.y);
+          for (let i = 0; i < length; i++) {
+            lettres.push(positionOrigine[0]);
+          }
+        }
+
+        // On determine les nombres
+        if (tabCheminPossible.y) {
+          const nvxChemin = inverser ? -1 * tabCheminPossible.y : tabCheminPossible.y;
+
+          // On incéremnte le nombre.
+          if (nvxChemin > 0) {
+            const chiffreLegnth = positionOrigine[1] * 1 + nvxChemin;
+            for (let i = positionOrigine[1] * 1 + 1; i <= chiffreLegnth; i++) {
+              chiffres.push(i);
+            }
+            // On décréremnte le nombre.
+          } else if (nvxChemin < 0) {
+            const chiffreLegnth = positionOrigine[1] * 1 + nvxChemin;
+
+            for (let i = positionOrigine[1] * 1 - 1; i >= chiffreLegnth; i--) {
+              chiffres.push(i);
+            }
+          }
+        } else {
+          const length = Math.abs(tabCheminPossible.x);
+          for (let i = 0; i < length; i++) {
+            chiffres.push(positionOrigine[1]);
+          }
+        }
+        break;
+      case 'point':
+        lettres.push(String.fromCharCode(positionOrigine[0].charCodeAt() + tabCheminPossible.x));
+        chiffres.push(positionOrigine[1] * 1 + tabCheminPossible.y);
+        break;
     }
 
     // On forme les positions et on élimine les postions invalide.
-    for(let i=0; i < lettres.length; i++) {
-        const chiffre = chiffres[i];
-        const lettre  = lettres[i];
+    for (let i = 0; i < lettres.length; i++) {
+      const chiffre = chiffres[i];
+      const lettre = lettres[i];
 
-        // On élimine cette position si elle sort de l'échiquier.
-        if (chiffre < 1 || chiffre > 8 || lettre < 'a' || lettre > 'h') { break; }
+      // On élimine cette position si elle sort de l'échiquier.
+      if (chiffre < 1 || chiffre > 8 || lettre < 'a' || lettre > 'h') {
+        break;
+      }
 
-        const pos          = `${lettre}${chiffre}`;
-        const couleurCible = this.getCouleur(pos);
+      const pos = `${lettre}${chiffre}`;
+      const couleurCible = this.getCouleur(pos);
 
-        if (tabCheminPossible.situation) {
-            const couleur = this.getCouleur(positionOrigine);
-            switch(tabCheminPossible.situation) {
-                case 'PRMIER_MOUVEMENT':
-                    if (couleur == "noire" && positionOrigine[1] == 7) { break; } // peut se deplacer de deux 
-                    if (couleur == "blanche" && positionOrigine[1] == 2) { break; } // peut se deplacer de deux 
-                    continue; //  NE peut PAS se deplacer de deux 
-                case 'CAPTURER':
-                    if (couleurCible && couleur != couleurCible) { break; }  // peut capturer
-                    continue; // NE peut PAS capturer
-                case 'NORMAL':
-                    if (!couleurCible) { break; } // peut avancer d'une case à condition qu'il n'y ait pas de pion devant.
-                    continue; // NE peut PAS avancer CAR il y a un pion devant.
-            }
+      if (tabCheminPossible.situation) {
+        const couleur = this.getCouleur(positionOrigine);
+        switch (tabCheminPossible.situation) {
+          case 'PRMIER_MOUVEMENT':
+            if (couleur == 'noire' && positionOrigine[1] == 7) {
+              break;
+            } // peut se deplacer de deux
+            if (couleur == 'blanche' && positionOrigine[1] == 2) {
+              break;
+            } // peut se deplacer de deux
+            continue; //  NE peut PAS se deplacer de deux
+          case 'CAPTURER':
+            if (couleurCible && couleur != couleurCible) {
+              break;
+            } // peut capturer
+            continue; // NE peut PAS capturer
+          case 'NORMAL':
+            if (!couleurCible) {
+              break;
+            } // peut avancer d'une case à condition qu'il n'y ait pas de pion devant.
+            continue; // NE peut PAS avancer CAR il y a un pion devant.
         }
-        
-        // Si cette position à une pièce (donc une couleur) 
-        if (couleurCible) {
-            const couleurCourant = this.getCouleurJoueurCourant();
-            // Et que cette couleur est la même que la couleur du joueur courant 
-            // Alors on élimine cette couleur.
-            if (couleurCible == couleurCourant) { break; }
-            
-            else { 
-                // Sinon...
-                positions.push(pos);
-                break;
-            }
-        } else if(tabCheminPossible.regPion && tabCheminPossible.attaque) { break; } 
-        positions.push(pos);
+      }
+
+      // Si cette position à une pièce (donc une couleur)
+      if (couleurCible) {
+        const couleurCourant = this.getCouleurJoueurCourant();
+        // Et que cette couleur est la même que la couleur du joueur courant
+        // Alors on élimine cette couleur.
+        if (couleurCible == couleurCourant) {
+          break;
+        } else {
+          // Sinon...
+          positions.push(pos);
+          break;
+        }
+      } else if (tabCheminPossible.regPion && tabCheminPossible.attaque) {
+        break;
+      }
+      positions.push(pos);
     }
 
     return positions;
@@ -252,14 +284,18 @@ export default class Plateau {
    */
   getPièceNode(position) {
     const caseNode = this.getCaseNode(position);
-    if (caseNode) { return caseNode.childNodes[0]; }
+    if (caseNode) {
+      return caseNode.childNodes[0];
+    }
   }
 
   /**
    * Obtenir la position actuellement sélectionnée
    * @returns {Qtring} Retourne la position de la case actuellement sélectionnée
    */
-  getPositionSelectionnee() { return this.getCaseSelectionneeNode().dataset.position; }
+  getPositionSelectionnee() {
+    return this.getCaseSelectionneeNode().dataset.position;
+  }
 
   /**
    * Placer une pièce (un Node) sur case (position)
@@ -277,16 +313,16 @@ export default class Plateau {
    */
   selectionnerCase(position) {
     const caseNode = this.getCaseNode(position);
-    if(caseNode && caseNode.hasChildNodes()) {
-        const pièce = this.getPièceNode(position);
-        const couleurJoueurCourant = document.querySelector('.joueur-courant').dataset.couleur;
+    if (caseNode && caseNode.hasChildNodes()) {
+      const pièce = this.getPièceNode(position);
+      const couleurJoueurCourant = document.querySelector('.joueur-courant').dataset.couleur;
 
-        if(couleurJoueurCourant == pièce.dataset.couleur) {
-            this.deselectionnerCase();
-            caseNode.classList.add('selectionner');
-        } else { 
-          console.log("Sélection non autorisée");
-        }
+      if (couleurJoueurCourant == pièce.dataset.couleur) {
+        this.deselectionnerCase();
+        caseNode.classList.add('selectionner');
+      } else {
+        console.log('Sélection non autorisée');
+      }
     }
   }
 }
