@@ -4,6 +4,7 @@ import fou from './pieces/fou.js';
 import pion from './pieces/pion.js';
 import roi from './pieces/roi.js';
 import tour from './pieces/tour.js';
+import { isCastlingRook } from './castling/utils.js';
 import { COLORS } from './colors/constants.js';
 import { getOpponent, getPawnDirection } from './colors/utils.js';
 import { getEnPassantCaptureSquare } from './squares/utils.js';
@@ -289,16 +290,15 @@ export default class Echiquier {
 
     const coups = this._coupsRaw(position, piece);
 
-    // Ajouter le roque pour le roi
+    // Add castling for the king
     if (piece.type === 'roi' && !piece.aBouge && !this.estEnEchec(piece.couleur)) {
       const r = parseInt(position[1]);
       const attaques = this._casesAttaquéesParCouleur(getOpponent(piece.couleur));
 
-      // Petit roque (côté roi)
+      // Kingside castling
       const tourH = this.plateau.get(`h${r}`);
       if (
-        tourH?.type === 'tour' &&
-        !tourH.aBouge &&
+        isCastlingRook({ piece: tourH, couleur: piece.couleur }) &&
         !this.plateau.get(`f${r}`) &&
         !this.plateau.get(`g${r}`) &&
         !attaques.has(`f${r}`) &&
@@ -307,11 +307,10 @@ export default class Echiquier {
         coups.push(`g${r}`);
       }
 
-      // Grand roque (côté dame)
+      // Queenside castling
       const tourA = this.plateau.get(`a${r}`);
       if (
-        tourA?.type === 'tour' &&
-        !tourA.aBouge &&
+        isCastlingRook({ piece: tourA, couleur: piece.couleur }) &&
         !this.plateau.get(`b${r}`) &&
         !this.plateau.get(`c${r}`) &&
         !this.plateau.get(`d${r}`) &&

@@ -68,6 +68,7 @@ HTML report in `coverage/`, which Git and Prettier ignore.
 app/                 Vite root: the page, its styles and images
   css/               Styles and images
   js/                Game code
+    castling/        Castling helpers, such as whether a rook may castle with its king
     colors/          Color helpers, such as the opponent of a color
     console-log.js   Copies each console.log line to the move log panel of the page
     copyright/       Writes the current year at the end of the footer copyright
