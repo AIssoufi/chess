@@ -128,18 +128,22 @@
       </div>
       <div class="console-log"></div>
     </div>
-    <div class="alert__wrapper" style="display: none">
-      <div class="alert fin-de-partie">
-        <h1>Echec et mat !</h1>
-        <p>Le joueur de couleur <span class="couleur-joueur-gagnant"></span> a gagné la partie.</p>
-        <button>Rejouer !</button>
-      </div>
-      <div class="alert pat">
-        <h1>Pat !</h1>
-        <p>Aucun coup possible — match nul.</p>
-        <button>Rejouer !</button>
-      </div>
-    </div>
+    <dialog class="alert__wrapper">
+      <form method="dialog">
+        <div class="alert fin-de-partie">
+          <h2 id="checkmate-title">Echec et mat !</h2>
+          <p>
+            Le joueur de couleur <span class="couleur-joueur-gagnant"></span> a gagné la partie.
+          </p>
+          <button>Rejouer !</button>
+        </div>
+        <div class="alert pat">
+          <h2 id="stalemate-title">Pat !</h2>
+          <p>Aucun coup possible — match nul.</p>
+          <button>Rejouer !</button>
+        </div>
+      </form>
+    </dialog>
 
     <div class="promotion__wrapper" style="display: none">
       <p>Promouvoir le pion en :</p>

@@ -1,0 +1,35 @@
+import { GAME_OUTCOMES } from './constants.js';
+
+/**
+ * Returns the color that plays against the given one.
+ *
+ * @param {'blanche' | 'noire'} color The color of a side.
+ * @returns {'blanche' | 'noire'} The other color.
+ */
+function getOpponent(color) {
+  return color === 'blanche' ? 'noire' : 'blanche';
+}
+
+/**
+ * Tells what the last move leaves the side to play in: checkmate, stalemate, check or nothing.
+ *
+ * @param {object} params
+ * @param {import('../Echiquier.js').default} params.game The game, after the move.
+ * @returns {{ outcome: string, color: string | null, winner: string | null }} The outcome
+ *   (one of `GAME_OUTCOMES`), the color to play and, after a checkmate, the winning color.
+ *   Without a game, the outcome is `ongoing` and both colors are `null`.
+ * @example
+ * // After the fool's mate (f3 e5 g4 Qh4):
+ * getGameOutcome({ game }); // { outcome: 'checkmate', color: 'blanche', winner: 'noire' }
+ */
+export function getGameOutcome({ game } = {}) {
+  if (!game) return { outcome: GAME_OUTCOMES.ongoing, color: null, winner: null };
+
+  const color = game.couleurCourante;
+  if (game.estEchecEtMat(color)) {
+    return { outcome: GAME_OUTCOMES.checkmate, color, winner: getOpponent(color) };
+  }
+  if (game.estPat(color)) return { outcome: GAME_OUTCOMES.stalemate, color, winner: null };
+  if (game.estEnEchec(color)) return { outcome: GAME_OUTCOMES.check, color, winner: null };
+  return { outcome: GAME_OUTCOMES.ongoing, color, winner: null };
+}
