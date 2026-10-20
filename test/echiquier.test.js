@@ -509,6 +509,38 @@ describe('promotion edge cases', () => {
     expect(jeu.getPièce('b7')).toBeNull();
   });
 
+  it('promotes a black pawn on the first rank', () => {
+    setUpBoard({
+      pieces: {
+        e1: { type: 'roi', couleur: 'blanche' },
+        h8: { type: 'roi', couleur: 'noire' },
+        a2: { type: 'pion', couleur: 'noire' },
+      },
+      colorToPlay: 'noire',
+    });
+
+    expect(jeu.deplacer('a2', 'a1')).toMatchObject({ promotion: true });
+    expect(jeu.positionPromotion).toBe('a1');
+    expect(jeu.couleurCourante).toBe('noire');
+  });
+
+  it.each([
+    ['a white pawn on the seventh rank', { from: 'a6', to: 'a7', couleur: 'blanche' }],
+    ['a black pawn on the second rank', { from: 'a3', to: 'a2', couleur: 'noire' }],
+  ])('does not promote %s', (_label, { from, to, couleur }) => {
+    setUpBoard({
+      pieces: {
+        e1: { type: 'roi', couleur: 'blanche' },
+        h8: { type: 'roi', couleur: 'noire' },
+        [from]: { type: 'pion', couleur },
+      },
+      colorToPlay: couleur,
+    });
+
+    expect(jeu.deplacer(from, to)).toMatchObject({ promotion: false });
+    expect(jeu.positionPromotion).toBeNull();
+  });
+
   it('gives check with the promoted piece once the promotion is done', () => {
     setUpBoard({
       pieces: {
