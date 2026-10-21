@@ -192,6 +192,37 @@ describe('Castling', () => {
     expect(game.getPiece('f1')).toMatchObject({ type: 'rook' });
     expect(game.board.get('h1')).toBeUndefined();
   });
+
+  it.each([
+    {
+      side: 'kingside',
+      kingTarget: 'g8',
+      rookFrom: 'h8',
+      rookTo: 'f8',
+      specialMove: 'kingside-castling',
+    },
+    {
+      side: 'queenside',
+      kingTarget: 'c8',
+      rookFrom: 'a8',
+      rookTo: 'd8',
+      specialMove: 'queenside-castling',
+    },
+  ])('castles black $side on the eighth rank', ({ kingTarget, rookFrom, rookTo, specialMove }) => {
+    game.board.clear();
+    game.board.set('e8', { type: 'king', color: 'black', hasMoved: false });
+    game.board.set(rookFrom, { type: 'rook', color: 'black', hasMoved: false });
+    game.board.set('e1', { type: 'king', color: 'white', hasMoved: true });
+    game.currentColor = 'black';
+    expect(game.getMoves('e8')).toContain(kingTarget);
+
+    const result = game.move({ from: 'e8', to: kingTarget });
+
+    expect(result.specialMove).toBe(specialMove);
+    expect(game.getPiece(kingTarget)).toMatchObject({ type: 'king', color: 'black' });
+    expect(game.getPiece(rookTo)).toMatchObject({ type: 'rook', color: 'black', hasMoved: true });
+    expect(game.getPiece(rookFrom)).toBeNull();
+  });
 });
 
 // ─── En passant ─────────────────────────────────────────────────────────────

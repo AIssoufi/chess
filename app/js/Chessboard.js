@@ -11,6 +11,7 @@ import {
   ALL_DIRECTIONS,
   BISHOP_DIRECTIONS,
   CASTLING_KING_FILE_STEP,
+  CASTLING_SIDES,
   KING_STEPS,
   KNIGHT_JUMPS,
   MAX_SLIDE_STEPS,
@@ -264,23 +265,17 @@ export default class Chessboard {
       const r = parseInt(position[1]);
       const attacked = this._squaresAttackedBy(getOpponent(piece.color));
 
-      // Kingside castling
-      const rookH = this.board.get(`h${r}`);
-      const hasKingsideRook = isCastlingRook({ piece: rookH, color: piece.color });
-      const isKingsidePathEmpty = !this.board.get(`f${r}`) && !this.board.get(`g${r}`);
-      const isKingsidePathSafe = !attacked.has(`f${r}`) && !attacked.has(`g${r}`);
-      if (hasKingsideRook && isKingsidePathEmpty && isKingsidePathSafe) {
-        moves.push(`g${r}`);
-      }
+      const isEmptyFile = (file) => !this.board.get(`${file}${r}`);
+      const isSafeFile = (file) => !attacked.has(`${file}${r}`);
 
-      // Queenside castling
-      const rookA = this.board.get(`a${r}`);
-      const hasQueensideRook = isCastlingRook({ piece: rookA, color: piece.color });
-      const isQueensidePathEmpty =
-        !this.board.get(`b${r}`) && !this.board.get(`c${r}`) && !this.board.get(`d${r}`);
-      const isQueensidePathSafe = !attacked.has(`c${r}`) && !attacked.has(`d${r}`);
-      if (hasQueensideRook && isQueensidePathEmpty && isQueensidePathSafe) {
-        moves.push(`c${r}`);
+      for (const side of CASTLING_SIDES) {
+        const rook = this.board.get(`${side.rookFile}${r}`);
+        const hasCastlingRook = isCastlingRook({ piece: rook, color: piece.color });
+        const isPathEmpty = side.emptyFiles.every(isEmptyFile);
+        const isPathSafe = side.safeFiles.every(isSafeFile);
+        if (hasCastlingRook && isPathEmpty && isPathSafe) {
+          moves.push(`${side.kingTargetFile}${r}`);
+        }
       }
     }
 
@@ -346,18 +341,11 @@ export default class Chessboard {
       piece.type === 'king' && Math.abs(fromFile - toFile) === CASTLING_KING_FILE_STEP;
     if (isCastling) {
       const r = parseInt(to[1]);
-      const isKingside = toFile > fromFile;
-      if (isKingside) {
-        const rook = this.board.get(`h${r}`);
-        this.board.set(`f${r}`, { ...rook, hasMoved: true });
-        this.board.delete(`h${r}`);
-        specialMove = SPECIAL_MOVES.kingsideCastling;
-      } else {
-        const rook = this.board.get(`a${r}`);
-        this.board.set(`d${r}`, { ...rook, hasMoved: true });
-        this.board.delete(`a${r}`);
-        specialMove = SPECIAL_MOVES.queensideCastling;
-      }
+      const side = CASTLING_SIDES.find(({ kingTargetFile }) => kingTargetFile === to[0]);
+      const rook = this.board.get(`${side.rookFile}${r}`);
+      this.board.set(`${side.rookTargetFile}${r}`, { ...rook, hasMoved: true });
+      this.board.delete(`${side.rookFile}${r}`);
+      specialMove = side.specialMove;
     }
 
     // ── En passant: capture the opponent's pawn ──

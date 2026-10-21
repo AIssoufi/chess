@@ -26,6 +26,30 @@ export const PAWN_DOUBLE_STEP = 2;
 /** The number of files the king crosses when it castles, on either side. */
 export const CASTLING_KING_FILE_STEP = 2;
 
+/**
+ * The files of each castling side, kingside first, on the rank of the castling king: where the
+ * rook stands and lands, where the king lands, the files that must be empty and the files the
+ * king crosses, which no opponent piece may attack.
+ */
+export const CASTLING_SIDES = Object.freeze([
+  Object.freeze({
+    specialMove: SPECIAL_MOVES.kingsideCastling,
+    rookFile: 'h',
+    rookTargetFile: 'f',
+    kingTargetFile: 'g',
+    emptyFiles: Object.freeze(['f', 'g']),
+    safeFiles: Object.freeze(['f', 'g']),
+  }),
+  Object.freeze({
+    specialMove: SPECIAL_MOVES.queensideCastling,
+    rookFile: 'a',
+    rookTargetFile: 'd',
+    kingTargetFile: 'c',
+    emptyFiles: Object.freeze(['b', 'c', 'd']),
+    safeFiles: Object.freeze(['c', 'd']),
+  }),
+]);
+
 /** The `[file, rank]` steps of a rook: along the files and the ranks. */
 export const ROOK_DIRECTIONS = Object.freeze([
   [1, 0],
