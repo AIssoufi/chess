@@ -3,8 +3,8 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { GAME_OVER_DIALOG_DELAY_MS } from '../app/js/game-over/constants.js';
-import pion from '../app/js/pieces/pion.js';
-import cavalier from '../app/js/pieces/cavalier.js';
+import pion from '../app/js/pieces/pawn.js';
+import cavalier from '../app/js/pieces/knight.js';
 
 const INDEX_PAGE = readFileSync(fileURLToPath(import.meta.resolve('../app/index.html')), 'utf8');
 const PAGE_BODY = INDEX_PAGE.match(/<body>([\s\S]*)<\/body>/)[1];
@@ -139,7 +139,7 @@ describe('main.js start', () => {
   it('skips an unknown piece and still renders the rest of the board and the captures', async () => {
     await loadPage({
       beforeMain: async () => {
-        const { default: Echiquier } = await import('../app/js/Echiquier.js');
+        const { default: Echiquier } = await import('../app/js/Chessboard.js');
         const initialiser = Echiquier.prototype.initialiser;
         vi.spyOn(Echiquier.prototype, 'initialiser').mockImplementation(function () {
           initialiser.call(this);

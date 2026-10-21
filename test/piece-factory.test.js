@@ -1,8 +1,8 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeEach } from 'vitest';
-import PièceFactory from '../app/js/PièceFactory.js';
-import dame from '../app/js/pieces/dame.js';
-import cavalier from '../app/js/pieces/cavalier.js';
+import PièceFactory from '../app/js/PieceFactory.js';
+import dame from '../app/js/pieces/queen.js';
+import cavalier from '../app/js/pieces/knight.js';
 
 const PIECE_TYPES = ['cavalier', 'dame', 'fou', 'pion', 'roi', 'tour'];
 /** Pieces whose type or color is unknown or missing. */

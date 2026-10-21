@@ -5,7 +5,7 @@ import { GAME_OUTCOMES } from './constants.js';
  * Tells what the last move leaves the side to play in: checkmate, stalemate, check or nothing.
  *
  * @param {object} params
- * @param {import('../Echiquier.js').default} params.game The game, after the move.
+ * @param {import('../Chessboard.js').default} params.game The game, after the move.
  * @returns {{ outcome: string, color: string | null, winner: string | null }} The outcome
  *   (one of `GAME_OUTCOMES`), the color to play and, after a checkmate, the winning color.
  *   Without a game, the outcome is `ongoing` and both colors are `null`.

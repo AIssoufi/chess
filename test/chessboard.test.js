@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import Echiquier from '../app/js/Echiquier.js';
+import Echiquier from '../app/js/Chessboard.js';
 
 let jeu;
 

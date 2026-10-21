@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, it, expect, beforeEach } from 'vitest';
-import Echiquier from '../app/js/Echiquier.js';
+import Echiquier from '../app/js/Chessboard.js';
 import { GAME_OUTCOMES, GAME_OVER_ALERTS } from '../app/js/game-over/constants.js';
 import { getGameOutcome } from '../app/js/game-over/utils.js';
 

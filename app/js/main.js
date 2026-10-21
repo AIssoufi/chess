@@ -1,5 +1,5 @@
-import Echiquier from './Echiquier.js';
-import PièceFactory from './PièceFactory.js';
+import Echiquier from './Chessboard.js';
+import PièceFactory from './PieceFactory.js';
 import { COLORS } from './colors/constants.js';
 import consoleLog from './console-log.js';
 import { showCopyrightYear } from './copyright/show-copyright-year.js';

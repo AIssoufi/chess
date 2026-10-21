@@ -1,9 +1,9 @@
-import cavalier from './pieces/cavalier.js';
-import dame from './pieces/dame.js';
-import fou from './pieces/fou.js';
-import pion from './pieces/pion.js';
-import roi from './pieces/roi.js';
-import tour from './pieces/tour.js';
+import cavalier from './pieces/knight.js';
+import dame from './pieces/queen.js';
+import fou from './pieces/bishop.js';
+import pion from './pieces/pawn.js';
+import roi from './pieces/king.js';
+import tour from './pieces/rook.js';
 import { isCastlingRook } from './castling/utils.js';
 import { COLORS } from './colors/constants.js';
 import { getOpponent, getPawnDirection } from './colors/utils.js';

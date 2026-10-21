@@ -1,9 +1,9 @@
-import cavalier from './pieces/cavalier.js';
-import dame from './pieces/dame.js';
-import tour from './pieces/tour.js';
-import pion from './pieces/pion.js';
-import roi from './pieces/roi.js';
-import fou from './pieces/fou.js';
+import cavalier from './pieces/knight.js';
+import dame from './pieces/queen.js';
+import tour from './pieces/rook.js';
+import pion from './pieces/pawn.js';
+import roi from './pieces/king.js';
+import fou from './pieces/bishop.js';
 import { isColor } from './colors/utils.js';
 
 const CONFIGS = { cavalier, dame, fou, pion, roi, tour };
