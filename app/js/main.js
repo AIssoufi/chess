@@ -1,6 +1,6 @@
-import Echiquier from './Echiquier.js';
-import PièceFactory from './PièceFactory.js';
-import { COLORS } from './colors/constants.js';
+import Chessboard from './Chessboard.js';
+import PieceFactory from './PieceFactory.js';
+import { COLOR_LABELS, COLORS } from './colors/constants.js';
 import consoleLog from './console-log.js';
 import { showCopyrightYear } from './copyright/show-copyright-year.js';
 import {
@@ -9,136 +9,137 @@ import {
   GAME_OVER_DIALOG_DELAY_MS,
 } from './game-over/constants.js';
 import { getGameOutcome } from './game-over/utils.js';
+import { SPECIAL_MOVE_LABELS } from './moves/constants.js';
 
-const jeu = new Echiquier();
-const factory = new PièceFactory();
+const game = new Chessboard();
+const factory = new PieceFactory();
 
-let positionSelectionnee = null;
-let coupsPossibles = [];
+let selectedSquare = null;
+let possibleMoves = [];
 
-// ─── Rendu DOM ──────────────────────────────────────────────────────────────
+// ─── DOM rendering ──────────────────────────────────────────────────────────
 
-function rendreBoard() {
+function renderBoard() {
   document.querySelectorAll('.piece').forEach((p) => p.remove());
-  for (const [position, piece] of jeu.plateau) {
-    const caseNode = document.querySelector(`.case[data-position="${position}"]`);
-    const pieceNode = factory.créer({ type: piece.type, couleur: piece.couleur });
-    if (caseNode && pieceNode) caseNode.appendChild(pieceNode);
+  for (const [position, piece] of game.board) {
+    const squareNode = document.querySelector(`.square[data-position="${position}"]`);
+    const pieceNode = factory.create({ type: piece.type, color: piece.color });
+    if (squareNode && pieceNode) squareNode.appendChild(pieceNode);
   }
 }
 
-function rendrePrisonniers() {
-  for (const couleur of COLORS) {
-    const zone = document.getElementById(`${couleur}-prisoniers`);
-    const compteur = document.getElementById(`${couleur}-nb-prisonier`);
+function renderCaptures() {
+  for (const color of COLORS) {
+    const zone = document.getElementById(`${color}-captures`);
+    const counter = document.getElementById(`${color}-capture-count`);
     zone.innerHTML = '';
-    compteur.textContent = jeu.captures[couleur].length;
-    for (const piece of jeu.captures[couleur]) {
-      const pieceNode = factory.créer({ type: piece.type, couleur: piece.couleur });
+    counter.textContent = game.captures[color].length;
+    for (const piece of game.captures[color]) {
+      const pieceNode = factory.create({ type: piece.type, color: piece.color });
       if (pieceNode) zone.appendChild(pieceNode);
     }
   }
 }
 
-function mettreAJourJoueurCourant() {
-  document.querySelectorAll('.control').forEach((c) => c.classList.remove('joueur-courant'));
+function updateCurrentPlayer() {
+  document.querySelectorAll('.control').forEach((c) => c.classList.remove('current-player'));
   document
-    .querySelector(`.control[data-couleur="${jeu.couleurCourante}"]`)
-    ?.classList.add('joueur-courant');
+    .querySelector(`.control[data-color="${game.currentColor}"]`)
+    ?.classList.add('current-player');
 }
 
-// ─── Sélection et mise en valeur ────────────────────────────────────────────
+// ─── Selection and highlighting ─────────────────────────────────────────────
 
-function deselectionner() {
-  document.querySelectorAll('.chemin').forEach((c) => c.classList.remove('chemin'));
-  document.querySelectorAll('.selectionner').forEach((c) => c.classList.remove('selectionner'));
-  positionSelectionnee = null;
-  coupsPossibles = [];
+function deselect() {
+  document.querySelectorAll('.possible-move').forEach((c) => c.classList.remove('possible-move'));
+  document.querySelectorAll('.selected').forEach((c) => c.classList.remove('selected'));
+  selectedSquare = null;
+  possibleMoves = [];
 }
 
-function selectionner(position) {
-  deselectionner();
-  const piece = jeu.getPièce(position);
-  if (!piece || piece.couleur !== jeu.couleurCourante) return;
+function select(position) {
+  deselect();
+  const piece = game.getPiece(position);
+  if (!piece || piece.color !== game.currentColor) return;
 
-  const moves = jeu.getDeplacementsPossibles(position);
+  const moves = game.getMoves(position);
   if (moves.length === 0) return;
 
-  positionSelectionnee = position;
-  coupsPossibles = moves;
-  document.querySelector(`.case[data-position="${position}"]`)?.classList.add('selectionner');
+  selectedSquare = position;
+  possibleMoves = moves;
+  document.querySelector(`.square[data-position="${position}"]`)?.classList.add('selected');
   for (const dest of moves) {
-    document.querySelector(`.case[data-position="${dest}"]`)?.classList.add('chemin');
+    document.querySelector(`.square[data-position="${dest}"]`)?.classList.add('possible-move');
   }
 }
 
-// ─── Indicateur d'échec ─────────────────────────────────────────────────────
+// ─── Check indicator ────────────────────────────────────────────────────────
 
-function marquerEchec(couleur) {
-  effacerEchec();
-  for (const [p, piece] of jeu.plateau) {
-    if (piece.type === 'roi' && piece.couleur === couleur) {
-      document.querySelector(`.case[data-position="${p}"]`)?.classList.add('echec');
+function markCheck(color) {
+  clearCheck();
+  for (const [p, piece] of game.board) {
+    if (piece.type === 'king' && piece.color === color) {
+      document.querySelector(`.square[data-position="${p}"]`)?.classList.add('check');
       break;
     }
   }
 }
 
-function effacerEchec() {
-  document.querySelectorAll('.case.echec').forEach((c) => c.classList.remove('echec'));
+function clearCheck() {
+  document.querySelectorAll('.square.check').forEach((c) => c.classList.remove('check'));
 }
 
-// ─── Après chaque coup ──────────────────────────────────────────────────────
+// ─── After each move ────────────────────────────────────────────────────────
 
-function apresDeplacemement() {
-  const { outcome, color, winner } = getGameOutcome({ game: jeu });
+function afterMove() {
+  const { outcome, color, winner } = getGameOutcome({ game });
   if (outcome === GAME_OUTCOMES.checkmate) {
-    jeu.termine = true;
-    console.log(`Échec et mat ! ${winner} gagne.`);
-    marquerEchec(color);
-    document.querySelector('.couleur-joueur-gagnant').textContent = winner;
-    setTimeout(() => afficherAlerte(GAME_OVER_ALERTS.checkmate), GAME_OVER_DIALOG_DELAY_MS);
+    game.isOver = true;
+    console.log(`Échec et mat ! ${COLOR_LABELS[winner]} gagne.`);
+    markCheck(color);
+    document.querySelector('.winner-color').textContent = COLOR_LABELS[winner];
+    setTimeout(() => showAlert(GAME_OVER_ALERTS.checkmate), GAME_OVER_DIALOG_DELAY_MS);
   } else if (outcome === GAME_OUTCOMES.stalemate) {
-    jeu.termine = true;
+    game.isOver = true;
     console.log('Pat — match nul.');
-    setTimeout(() => afficherAlerte(GAME_OVER_ALERTS.stalemate), GAME_OVER_DIALOG_DELAY_MS);
+    setTimeout(() => showAlert(GAME_OVER_ALERTS.stalemate), GAME_OVER_DIALOG_DELAY_MS);
   } else if (outcome === GAME_OUTCOMES.check) {
-    console.log(`${color} est en échec !`);
-    marquerEchec(color);
+    console.log(`${COLOR_LABELS[color]} est en échec !`);
+    markCheck(color);
   }
 }
 
 // ─── Promotion ──────────────────────────────────────────────────────────────
 
-function afficherPromotion(position) {
-  const piece = jeu.getPièce(position);
+function showPromotion(position) {
+  const piece = game.getPiece(position);
   const wrapper = document.querySelector('.promotion__wrapper');
   wrapper.querySelectorAll('[data-type]').forEach((btn) => {
-    btn.textContent = factory.getSymbole(btn.dataset.type, piece.couleur);
+    btn.textContent = factory.getSymbol(btn.dataset.type, piece.color);
   });
   wrapper.style.display = 'flex';
 }
 
 document.querySelector('.promotion__wrapper').addEventListener('click', (event) => {
   const btn = event.target.closest('[data-type]');
-  if (!btn || !jeu.positionPromotion) return;
+  if (!btn || !game.promotionSquare) return;
 
-  jeu.promouvoir(jeu.positionPromotion, btn.dataset.type);
+  game.promote(game.promotionSquare, btn.dataset.type);
   document.querySelector('.promotion__wrapper').style.display = 'none';
-  rendreBoard();
-  rendrePrisonniers();
-  mettreAJourJoueurCourant();
-  effacerEchec();
-  apresDeplacemement();
+  renderBoard();
+  renderCaptures();
+  updateCurrentPlayer();
+  clearCheck();
+  afterMove();
 });
 
-// ─── Alertes ────────────────────────────────────────────────────────────────
+// ─── Alerts ─────────────────────────────────────────────────────────────────
 
 const gameOverDialog = document.querySelector('.alert__wrapper');
 
-function afficherAlerte(alertName) {
+function showAlert(alertName) {
   const alertElement = gameOverDialog.querySelector(`.${alertName}`);
-  alertElement.classList.add('afficher');
+  alertElement.classList.add('shown');
   gameOverDialog.setAttribute('aria-labelledby', alertElement.querySelector('h2').id);
   gameOverDialog.showModal();
   alertElement.querySelector('button').focus();
@@ -147,66 +148,66 @@ function afficherAlerte(alertName) {
 // "Rejouer" and Escape both close the dialog: either way a new game starts, so the finished
 // game never stays on screen without a way to play again.
 gameOverDialog.addEventListener('close', () => {
-  gameOverDialog.querySelectorAll('.afficher').forEach((a) => a.classList.remove('afficher'));
-  initialiser();
+  gameOverDialog.querySelectorAll('.shown').forEach((a) => a.classList.remove('shown'));
+  initialize();
 });
 
-// ─── Gestionnaire de clics (délégation sur le plateau) ──────────────────────
+// ─── Click handler (delegated to the board) ─────────────────────────────────
 
-document.querySelector('.container-piece').addEventListener('click', (event) => {
-  if (jeu.termine || jeu.positionPromotion) return;
+document.querySelector('.container-squares').addEventListener('click', (event) => {
+  if (game.isOver || game.promotionSquare) return;
 
-  const caseNode = event.target.closest('.case');
-  if (!caseNode) return;
+  const squareNode = event.target.closest('.square');
+  if (!squareNode) return;
 
-  const position = caseNode.dataset.position;
-  const piece = jeu.getPièce(position);
+  const position = squareNode.dataset.position;
+  const piece = game.getPiece(position);
 
-  if (positionSelectionnee) {
-    if (coupsPossibles.includes(position)) {
-      // Exécuter le coup
-      const result = jeu.deplacer(positionSelectionnee, position);
+  if (selectedSquare) {
+    if (possibleMoves.includes(position)) {
+      // Play the move
+      const result = game.move(selectedSquare, position);
       if (!result) return;
 
-      rendreBoard();
-      rendrePrisonniers();
-      deselectionner();
-      effacerEchec();
+      renderBoard();
+      renderCaptures();
+      deselect();
+      clearCheck();
 
-      const log = result.coupSpécial
-        ? `${result.from} → ${result.to} (${result.coupSpécial})`
+      const log = result.specialMove
+        ? `${result.from} → ${result.to} (${SPECIAL_MOVE_LABELS[result.specialMove]})`
         : `${result.from} → ${result.to}`;
       console.log(log);
 
       if (result.promotion) {
-        afficherPromotion(result.to);
+        showPromotion(result.to);
         return;
       }
 
-      mettreAJourJoueurCourant();
-      apresDeplacemement();
-    } else if (piece && piece.couleur === jeu.couleurCourante) {
-      // Resélectionner une autre pièce alliée
-      selectionner(position);
+      updateCurrentPlayer();
+      afterMove();
+    } else if (piece && piece.color === game.currentColor) {
+      // Select another piece of the same side
+      select(position);
     } else {
-      deselectionner();
+      deselect();
     }
-  } else if (piece && piece.couleur === jeu.couleurCourante) {
-    selectionner(position);
+  } else if (piece && piece.color === game.currentColor) {
+    select(position);
   }
 });
 
-// ─── Initialisation ──────────────────────────────────────────────────────────
+// ─── Initialization ─────────────────────────────────────────────────────────
 
-function initialiser() {
-  jeu.initialiser();
-  rendreBoard();
-  rendrePrisonniers();
-  deselectionner();
-  effacerEchec();
-  mettreAJourJoueurCourant();
+function initialize() {
+  game.initialize();
+  renderBoard();
+  renderCaptures();
+  deselect();
+  clearCheck();
+  updateCurrentPlayer();
 }
 
 consoleLog();
 showCopyrightYear();
-initialiser();
+initialize();

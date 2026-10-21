@@ -8,8 +8,8 @@ export const GAME_OUTCOMES = Object.freeze({
 
 /** Class name of the alert of `index.html` shown for each outcome that ends the game. */
 export const GAME_OVER_ALERTS = Object.freeze({
-  [GAME_OUTCOMES.checkmate]: 'fin-de-partie',
-  [GAME_OUTCOMES.stalemate]: 'pat',
+  [GAME_OUTCOMES.checkmate]: 'checkmate',
+  [GAME_OUTCOMES.stalemate]: 'stalemate',
 });
 
 /** Delay before the game over dialog opens, so that the last move shows on the board first. */

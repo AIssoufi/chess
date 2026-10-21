@@ -54,7 +54,7 @@ pnpm preview    # serve dist/ on http://localhost:4173/
 `pnpm test` runs Vitest. The tests live in `test/` and are named `*.test.js`:
 
 - the model and rule tests run in Node.js, without a DOM;
-- the tests of `PièceFactory.js` and of the UI controller run in happy-dom, chosen by a
+- the tests of `PieceFactory.js` and of the UI controller run in happy-dom, chosen by a
   `// @vitest-environment happy-dom` comment on their first line;
 - the tests of the `prepare-commit-msg` hook run Git in temporary repositories.
 
@@ -69,13 +69,14 @@ app/                 Vite root: the page, its styles and images
   css/               Styles and images
   js/                Game code
     castling/        Castling helpers, such as whether a rook may castle with its king
+    Chessboard.js    Board model and rules, without DOM
     colors/          Color helpers, such as the opponent of a color
     console-log.js   Copies each console.log line to the move log panel of the page
     copyright/       Writes the current year at the end of the footer copyright
-    Echiquier.js     Board model and rules, without DOM
     game-over/       Move outcome (check, mate, stalemate) and game over dialog constants
     main.js          UI controller: renders the board and handles clicks
-    PièceFactory.js  Creates the DOM node of a piece from its type and colour
+    moves/           Special move names and their French labels for the move log
+    PieceFactory.js  Creates the DOM node of a piece from its type and color
     pieces/          Piece configs: Unicode symbol and starting squares
     squares/         Square helpers, such as the square an en passant capture takes
   public/            Files copied as they are to dist/: the Cloudflare Pages _headers, the

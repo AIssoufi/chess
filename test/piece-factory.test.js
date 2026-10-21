@@ -1,51 +1,51 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeEach } from 'vitest';
-import PièceFactory from '../app/js/PièceFactory.js';
-import dame from '../app/js/pieces/dame.js';
-import cavalier from '../app/js/pieces/cavalier.js';
+import PieceFactory from '../app/js/PieceFactory.js';
+import queen from '../app/js/pieces/queen.js';
+import knight from '../app/js/pieces/knight.js';
 
-const PIECE_TYPES = ['cavalier', 'dame', 'fou', 'pion', 'roi', 'tour'];
+const PIECE_TYPES = ['knight', 'queen', 'bishop', 'pawn', 'king', 'rook'];
 /** Pieces whose type or color is unknown or missing. */
 const UNKNOWN_PIECES = [
-  ['an unknown type', { type: 'licorne', couleur: 'blanche' }],
-  ['a type in another case', { type: 'Dame', couleur: 'blanche' }],
-  ['a key of Object.prototype as type', { type: 'toString', couleur: 'blanche' }],
-  ['an unknown color', { type: 'dame', couleur: 'rouge' }],
-  ['a key of the piece config as color', { type: 'dame', couleur: 'type' }],
-  ['a missing type', { couleur: 'noire' }],
-  ['a missing color', { type: 'dame' }],
-  ['null values', { type: null, couleur: null }],
+  ['an unknown type', { type: 'unicorn', color: 'white' }],
+  ['a type in another case', { type: 'Queen', color: 'white' }],
+  ['a key of Object.prototype as type', { type: 'toString', color: 'white' }],
+  ['an unknown color', { type: 'queen', color: 'red' }],
+  ['a key of the piece config as color', { type: 'queen', color: 'type' }],
+  ['a missing type', { color: 'black' }],
+  ['a missing color', { type: 'queen' }],
+  ['null values', { type: null, color: null }],
   ['an empty object', {}],
 ];
 
 let factory;
 
 beforeEach(() => {
-  factory = new PièceFactory();
+  factory = new PieceFactory();
 });
 
-describe('PièceFactory.créer', () => {
+describe('PieceFactory.create', () => {
   it('creates a piece node with its symbol, class and dataset', () => {
-    const node = factory.créer({ type: 'dame', couleur: 'noire' });
+    const node = factory.create({ type: 'queen', color: 'black' });
 
     expect(node.tagName).toBe('DIV');
     expect(node.className).toBe('piece');
-    expect(node.textContent).toBe(dame.pièce.noire);
-    expect(node.dataset).toMatchObject({ type: 'dame', couleur: 'noire' });
+    expect(node.textContent).toBe(queen.piece.black);
+    expect(node.dataset).toMatchObject({ type: 'queen', color: 'black' });
   });
 
   it('gives each node its own increasing id', () => {
     const ids = [
-      factory.créer({ type: 'pion', couleur: 'blanche' }).id,
-      factory.créer({ type: 'pion', couleur: 'blanche' }).id,
+      factory.create({ type: 'pawn', color: 'white' }).id,
+      factory.create({ type: 'pawn', color: 'white' }).id,
     ];
 
     expect(ids).toEqual(['1', '2']);
   });
 
   it.each(PIECE_TYPES)('uses a different symbol for each color of %s', (type) => {
-    const white = factory.créer({ type, couleur: 'blanche' }).textContent;
-    const black = factory.créer({ type, couleur: 'noire' }).textContent;
+    const white = factory.create({ type, color: 'white' }).textContent;
+    const black = factory.create({ type, color: 'black' }).textContent;
 
     expect(white).not.toBe('');
     expect(black).not.toBe('');
@@ -53,37 +53,37 @@ describe('PièceFactory.créer', () => {
   });
 
   it.each(UNKNOWN_PIECES)('returns null for %s', (_label, piece) => {
-    expect(factory.créer(piece)).toBeNull();
+    expect(factory.create(piece)).toBeNull();
   });
 
   it.each([
     ['no argument', undefined],
     ['null', null],
   ])('returns null for %s', (_label, params) => {
-    expect(factory.créer(params)).toBeNull();
+    expect(factory.create(params)).toBeNull();
   });
 
   it('does not use an id for a piece it refuses', () => {
-    factory.créer({ type: 'licorne', couleur: 'blanche' });
+    factory.create({ type: 'unicorn', color: 'white' });
 
-    expect(factory.créer({ type: 'pion', couleur: 'blanche' }).id).toBe('1');
+    expect(factory.create({ type: 'pawn', color: 'white' }).id).toBe('1');
   });
 });
 
-describe('PièceFactory.getSymbole', () => {
+describe('PieceFactory.getSymbol', () => {
   it('returns the symbol of a type and a color', () => {
-    expect(factory.getSymbole('cavalier', 'blanche')).toBe(cavalier.pièce.blanche);
+    expect(factory.getSymbol('knight', 'white')).toBe(knight.piece.white);
   });
 
   it('matches the text of the created node', () => {
     for (const type of PIECE_TYPES) {
-      expect(factory.créer({ type, couleur: 'noire' }).textContent).toBe(
-        factory.getSymbole(type, 'noire')
+      expect(factory.create({ type, color: 'black' }).textContent).toBe(
+        factory.getSymbol(type, 'black')
       );
     }
   });
 
-  it.each(UNKNOWN_PIECES)('returns an empty string for %s', (_label, { type, couleur }) => {
-    expect(factory.getSymbole(type, couleur)).toBe('');
+  it.each(UNKNOWN_PIECES)('returns an empty string for %s', (_label, { type, color }) => {
+    expect(factory.getSymbol(type, color)).toBe('');
   });
 });

@@ -1,7 +1,7 @@
 {
-  "name": "echiquier",
+  "name": "chess",
   "version": "2.0.0",
-  "description": "Un jeu d'échecs en JavaScript",
+  "description": "A chess game for two players in the browser, in vanilla JavaScript",
   "homepage": "https://chess.issoufi.fr",
   "type": "module",
   "packageManager": "pnpm@12.14.0",
@@ -20,7 +20,9 @@
     "prepare": "husky"
   },
   "keywords": [
-    "echec"
+    "chess",
+    "game",
+    "vanilla-javascript"
   ],
   "author": "ADAM Issoufi",
   "license": "MIT",

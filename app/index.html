@@ -33,13 +33,13 @@
     <div class="main__wrapper">
       <h1>Échiquier</h1>
       <div class="wrapper">
-        <div data-couleur="noire" class="control">
-          <h2 id="noire-name">Joueur &#9823;</h2>
-          <p>Prisonniers: <span id="noire-nb-prisonier">0</span></p>
-          <div id="noire-prisoniers"></div>
+        <div data-color="black" class="control">
+          <h2 id="black-name">Joueur &#9823;</h2>
+          <p>Prisonniers: <span id="black-capture-count">0</span></p>
+          <div id="black-captures"></div>
         </div>
         <div class="game">
-          <div class="container-lettre">
+          <div class="container-files">
             <div>A</div>
             <div>B</div>
             <div>C</div>
@@ -49,7 +49,7 @@
             <div>G</div>
             <div>H</div>
           </div>
-          <div class="container-numero">
+          <div class="container-ranks">
             <div>1</div>
             <div>2</div>
             <div>3</div>
@@ -59,107 +59,105 @@
             <div>7</div>
             <div>8</div>
           </div>
-          <div class="container-piece">
+          <div class="container-squares">
             <div class="row">
-              <div class="case" data-position="a8"></div>
-              <div class="case" data-position="b8"></div>
-              <div class="case" data-position="c8"></div>
-              <div class="case" data-position="d8"></div>
-              <div class="case" data-position="e8"></div>
-              <div class="case" data-position="f8"></div>
-              <div class="case" data-position="g8"></div>
-              <div class="case" data-position="h8"></div>
+              <div class="square" data-position="a8"></div>
+              <div class="square" data-position="b8"></div>
+              <div class="square" data-position="c8"></div>
+              <div class="square" data-position="d8"></div>
+              <div class="square" data-position="e8"></div>
+              <div class="square" data-position="f8"></div>
+              <div class="square" data-position="g8"></div>
+              <div class="square" data-position="h8"></div>
             </div>
             <div class="row">
-              <div class="case" data-position="a7"></div>
-              <div class="case" data-position="b7"></div>
-              <div class="case" data-position="c7"></div>
-              <div class="case" data-position="d7"></div>
-              <div class="case" data-position="e7"></div>
-              <div class="case" data-position="f7"></div>
-              <div class="case" data-position="g7"></div>
-              <div class="case" data-position="h7"></div>
+              <div class="square" data-position="a7"></div>
+              <div class="square" data-position="b7"></div>
+              <div class="square" data-position="c7"></div>
+              <div class="square" data-position="d7"></div>
+              <div class="square" data-position="e7"></div>
+              <div class="square" data-position="f7"></div>
+              <div class="square" data-position="g7"></div>
+              <div class="square" data-position="h7"></div>
             </div>
             <div class="row">
-              <div class="case" data-position="a6"></div>
-              <div class="case" data-position="b6"></div>
-              <div class="case" data-position="c6"></div>
-              <div class="case" data-position="d6"></div>
-              <div class="case" data-position="e6"></div>
-              <div class="case" data-position="f6"></div>
-              <div class="case" data-position="g6"></div>
-              <div class="case" data-position="h6"></div>
+              <div class="square" data-position="a6"></div>
+              <div class="square" data-position="b6"></div>
+              <div class="square" data-position="c6"></div>
+              <div class="square" data-position="d6"></div>
+              <div class="square" data-position="e6"></div>
+              <div class="square" data-position="f6"></div>
+              <div class="square" data-position="g6"></div>
+              <div class="square" data-position="h6"></div>
             </div>
             <div class="row">
-              <div class="case" data-position="a5"></div>
-              <div class="case" data-position="b5"></div>
-              <div class="case" data-position="c5"></div>
-              <div class="case" data-position="d5"></div>
-              <div class="case" data-position="e5"></div>
-              <div class="case" data-position="f5"></div>
-              <div class="case" data-position="g5"></div>
-              <div class="case" data-position="h5"></div>
+              <div class="square" data-position="a5"></div>
+              <div class="square" data-position="b5"></div>
+              <div class="square" data-position="c5"></div>
+              <div class="square" data-position="d5"></div>
+              <div class="square" data-position="e5"></div>
+              <div class="square" data-position="f5"></div>
+              <div class="square" data-position="g5"></div>
+              <div class="square" data-position="h5"></div>
             </div>
             <div class="row">
-              <div class="case" data-position="a4"></div>
-              <div class="case" data-position="b4"></div>
-              <div class="case" data-position="c4"></div>
-              <div class="case" data-position="d4"></div>
-              <div class="case" data-position="e4"></div>
-              <div class="case" data-position="f4"></div>
-              <div class="case" data-position="g4"></div>
-              <div class="case" data-position="h4"></div>
+              <div class="square" data-position="a4"></div>
+              <div class="square" data-position="b4"></div>
+              <div class="square" data-position="c4"></div>
+              <div class="square" data-position="d4"></div>
+              <div class="square" data-position="e4"></div>
+              <div class="square" data-position="f4"></div>
+              <div class="square" data-position="g4"></div>
+              <div class="square" data-position="h4"></div>
             </div>
             <div class="row">
-              <div class="case" data-position="a3"></div>
-              <div class="case" data-position="b3"></div>
-              <div class="case" data-position="c3"></div>
-              <div class="case" data-position="d3"></div>
-              <div class="case" data-position="e3"></div>
-              <div class="case" data-position="f3"></div>
-              <div class="case" data-position="g3"></div>
-              <div class="case" data-position="h3"></div>
+              <div class="square" data-position="a3"></div>
+              <div class="square" data-position="b3"></div>
+              <div class="square" data-position="c3"></div>
+              <div class="square" data-position="d3"></div>
+              <div class="square" data-position="e3"></div>
+              <div class="square" data-position="f3"></div>
+              <div class="square" data-position="g3"></div>
+              <div class="square" data-position="h3"></div>
             </div>
             <div class="row">
-              <div class="case" data-position="a2"></div>
-              <div class="case" data-position="b2"></div>
-              <div class="case" data-position="c2"></div>
-              <div class="case" data-position="d2"></div>
-              <div class="case" data-position="e2"></div>
-              <div class="case" data-position="f2"></div>
-              <div class="case" data-position="g2"></div>
-              <div class="case" data-position="h2"></div>
+              <div class="square" data-position="a2"></div>
+              <div class="square" data-position="b2"></div>
+              <div class="square" data-position="c2"></div>
+              <div class="square" data-position="d2"></div>
+              <div class="square" data-position="e2"></div>
+              <div class="square" data-position="f2"></div>
+              <div class="square" data-position="g2"></div>
+              <div class="square" data-position="h2"></div>
             </div>
             <div class="row">
-              <div class="case" data-position="a1"></div>
-              <div class="case" data-position="b1"></div>
-              <div class="case" data-position="c1"></div>
-              <div class="case" data-position="d1"></div>
-              <div class="case" data-position="e1"></div>
-              <div class="case" data-position="f1"></div>
-              <div class="case" data-position="g1"></div>
-              <div class="case" data-position="h1"></div>
+              <div class="square" data-position="a1"></div>
+              <div class="square" data-position="b1"></div>
+              <div class="square" data-position="c1"></div>
+              <div class="square" data-position="d1"></div>
+              <div class="square" data-position="e1"></div>
+              <div class="square" data-position="f1"></div>
+              <div class="square" data-position="g1"></div>
+              <div class="square" data-position="h1"></div>
             </div>
           </div>
         </div>
-        <div data-couleur="blanche" class="control joueur-courant">
-          <h2 id="blanche-name">Joueur &#9817;</h2>
-          <p>Prisonniers: <span id="blanche-nb-prisonier">0</span></p>
-          <div id="blanche-prisoniers"></div>
+        <div data-color="white" class="control current-player">
+          <h2 id="white-name">Joueur &#9817;</h2>
+          <p>Prisonniers: <span id="white-capture-count">0</span></p>
+          <div id="white-captures"></div>
         </div>
       </div>
       <div class="console-log"></div>
     </div>
     <dialog class="alert__wrapper">
       <form method="dialog">
-        <div class="alert fin-de-partie">
+        <div class="alert checkmate">
           <h2 id="checkmate-title">Échec et mat !</h2>
-          <p>
-            Le joueur de couleur <span class="couleur-joueur-gagnant"></span> a gagné la partie.
-          </p>
+          <p>Le joueur de couleur <span class="winner-color"></span> a gagné la partie.</p>
           <button>Rejouer !</button>
         </div>
-        <div class="alert pat">
+        <div class="alert stalemate">
           <h2 id="stalemate-title">Pat !</h2>
           <p>Aucun coup possible : match nul.</p>
           <button>Rejouer !</button>
@@ -170,10 +168,10 @@
     <div class="promotion__wrapper" style="display: none">
       <p>Promouvoir le pion en :</p>
       <div class="promotion__pieces">
-        <button data-type="dame">♛</button>
-        <button data-type="tour">♜</button>
-        <button data-type="fou">♝</button>
-        <button data-type="cavalier">♞</button>
+        <button data-type="queen">♛</button>
+        <button data-type="rook">♜</button>
+        <button data-type="bishop">♝</button>
+        <button data-type="knight">♞</button>
       </div>
     </div>
     <div>
@@ -181,7 +179,7 @@
         © 2018-<span class="copyright__year">2026</span>
         <a href="https://www.issoufi.fr">ADAM Issoufi</a>, tous droits réservés
       </p>
-      <div class="réseaux-sociaux">
+      <div class="social-links">
         <a href="https://github.com/AIssoufi/chess">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512">
             <path
