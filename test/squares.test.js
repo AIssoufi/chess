@@ -33,7 +33,7 @@ describe('getEnPassantCaptureSquare', () => {
     ['an empty target', { target: '', color: 'white' }],
     ['a missing target', { color: 'white' }],
     ['a number target', { target: 46, color: 'white' }],
-    ['an unknown color', { target: 'd6', color: 'rouge' }],
+    ['an unknown color', { target: 'd6', color: 'red' }],
     ['a missing color', { target: 'd6' }],
   ])('returns null for %s', (_label, params) => {
     expect(getEnPassantCaptureSquare(params)).toBeNull();

@@ -7,10 +7,10 @@ import knight from '../app/js/pieces/knight.js';
 const PIECE_TYPES = ['knight', 'queen', 'bishop', 'pawn', 'king', 'rook'];
 /** Pieces whose type or color is unknown or missing. */
 const UNKNOWN_PIECES = [
-  ['an unknown type', { type: 'licorne', color: 'white' }],
-  ['a type in another case', { type: 'Dame', color: 'white' }],
+  ['an unknown type', { type: 'unicorn', color: 'white' }],
+  ['a type in another case', { type: 'Queen', color: 'white' }],
   ['a key of Object.prototype as type', { type: 'toString', color: 'white' }],
-  ['an unknown color', { type: 'queen', color: 'rouge' }],
+  ['an unknown color', { type: 'queen', color: 'red' }],
   ['a key of the piece config as color', { type: 'queen', color: 'type' }],
   ['a missing type', { color: 'black' }],
   ['a missing color', { type: 'queen' }],
@@ -24,7 +24,7 @@ beforeEach(() => {
   factory = new PieceFactory();
 });
 
-describe('PieceFactory.créer', () => {
+describe('PieceFactory.create', () => {
   it('creates a piece node with its symbol, class and dataset', () => {
     const node = factory.create({ type: 'queen', color: 'black' });
 
@@ -64,7 +64,7 @@ describe('PieceFactory.créer', () => {
   });
 
   it('does not use an id for a piece it refuses', () => {
-    factory.create({ type: 'licorne', color: 'white' });
+    factory.create({ type: 'unicorn', color: 'white' });
 
     expect(factory.create({ type: 'pawn', color: 'white' }).id).toBe('1');
   });

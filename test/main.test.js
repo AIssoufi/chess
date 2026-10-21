@@ -143,9 +143,9 @@ describe('main.js start', () => {
         const initialize = Chessboard.prototype.initialize;
         vi.spyOn(Chessboard.prototype, 'initialize').mockImplementation(function () {
           initialize.call(this);
-          this.board.set('e4', { type: 'licorne', color: 'white', hasMoved: false });
+          this.board.set('e4', { type: 'unicorn', color: 'white', hasMoved: false });
           this.board.set('d4', { type: 'pawn', color: 'rouge', hasMoved: false });
-          this.captures.white.push({ type: 'licorne', color: 'black' });
+          this.captures.white.push({ type: 'unicorn', color: 'black' });
           this.captures.white.push({ type: 'pawn', color: 'black' });
         });
       },

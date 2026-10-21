@@ -3,8 +3,8 @@ import { getOpponent, getPawnDirection, isColor } from '../app/js/colors/utils.j
 
 /** Values that are not one of the two colors. */
 const NOT_COLORS = [
-  ['an unknown color', 'rouge'],
-  ['a color in another case', 'Blanche'],
+  ['an unknown color', 'red'],
+  ['a color in another case', 'White'],
   ['an empty string', ''],
   ['a key of Object.prototype', 'toString'],
   ['undefined', undefined],

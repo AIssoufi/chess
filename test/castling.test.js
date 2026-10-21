@@ -29,7 +29,7 @@ describe('isCastlingRook', () => {
     ['a missing piece', { color: 'white' }],
     ['a missing color', { piece: UNMOVED_WHITE_ROOK }],
     ['a rook and a king without color', { piece: { type: 'rook', hasMoved: false } }],
-    ['an unknown color', { piece: { ...UNMOVED_WHITE_ROOK, color: 'rouge' }, color: 'rouge' }],
+    ['an unknown color', { piece: { ...UNMOVED_WHITE_ROOK, color: 'red' }, color: 'red' }],
     ['an empty object', {}],
   ])('refuses %s', (_label, params) => {
     expect(isCastlingRook(params)).toBe(false);
