@@ -1,49 +1,49 @@
-import cavalier from './pieces/knight.js';
-import dame from './pieces/queen.js';
-import tour from './pieces/rook.js';
-import pion from './pieces/pawn.js';
-import roi from './pieces/king.js';
-import fou from './pieces/bishop.js';
+import knight from './pieces/knight.js';
+import queen from './pieces/queen.js';
+import rook from './pieces/rook.js';
+import pawn from './pieces/pawn.js';
+import king from './pieces/king.js';
+import bishop from './pieces/bishop.js';
 import { isColor } from './colors/utils.js';
 
-const CONFIGS = { cavalier, dame, fou, pion, roi, tour };
+const CONFIGS = { knight, queen, bishop, pawn, king, rook };
 
-export default class PièceFactory {
+export default class PieceFactory {
   constructor() {
-    this.compteur = 1;
+    this.counter = 1;
   }
 
   /**
    * Builds the DOM node of a piece.
    *
    * @param {object | null} [params]
-   * @param {string} params.type The piece type, such as `'dame'`.
-   * @param {'blanche' | 'noire'} params.couleur The piece color.
+   * @param {string} params.type The piece type, such as `'queen'`.
+   * @param {'white' | 'black'} params.color The piece color.
    * @returns {HTMLDivElement | null} The node, or `null` when the type or the color is unknown.
    */
-  créer(params) {
-    const { type, couleur } = params ?? {};
-    const symbole = this.getSymbole(type, couleur);
-    if (!symbole) return null;
+  create(params) {
+    const { type, color } = params ?? {};
+    const symbol = this.getSymbol(type, color);
+    if (!symbol) return null;
 
     const node = document.createElement('div');
-    node.id = this.compteur++;
-    node.textContent = symbole;
+    node.id = this.counter++;
+    node.textContent = symbol;
     node.className = 'piece';
     node.dataset.type = type;
-    node.dataset.couleur = couleur;
+    node.dataset.color = color;
     return node;
   }
 
   /**
    * Returns the Unicode symbol of a piece.
    *
-   * @param {string} type The piece type, such as `'dame'`.
-   * @param {'blanche' | 'noire'} couleur The piece color.
+   * @param {string} type The piece type, such as `'queen'`.
+   * @param {'white' | 'black'} color The piece color.
    * @returns {string} The symbol, or an empty string when the type or the color is unknown.
    */
-  getSymbole(type, couleur) {
-    const isKnownPiece = Object.hasOwn(CONFIGS, type) && isColor(couleur);
-    return isKnownPiece ? CONFIGS[type].pièce[couleur] : '';
+  getSymbol(type, color) {
+    const isKnownPiece = Object.hasOwn(CONFIGS, type) && isColor(color);
+    return isKnownPiece ? CONFIGS[type].piece[color] : '';
   }
 }

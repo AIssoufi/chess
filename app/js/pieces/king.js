@@ -1,13 +1,13 @@
-const roi = {
-  pièce: {
-    type: 'roi',
-    blanche: '♔',
-    noire: '♚',
-    positionInitiale: {
-      blanche: ['e1'],
-      noire: ['e8'],
+const king = {
+  piece: {
+    type: 'king',
+    white: '♔',
+    black: '♚',
+    startingSquares: {
+      white: ['e1'],
+      black: ['e8'],
     },
   },
 };
 
-export default roi;
+export default king;

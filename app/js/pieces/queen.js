@@ -1,13 +1,13 @@
-const dame = {
-  pièce: {
-    type: 'dame',
-    blanche: '♕',
-    noire: '♛',
-    positionInitiale: {
-      blanche: ['d1'],
-      noire: ['d8'],
+const queen = {
+  piece: {
+    type: 'queen',
+    white: '♕',
+    black: '♛',
+    startingSquares: {
+      white: ['d1'],
+      black: ['d8'],
     },
   },
 };
 
-export default dame;
+export default queen;

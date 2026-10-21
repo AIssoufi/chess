@@ -1,107 +1,108 @@
-import cavalier from './pieces/knight.js';
-import dame from './pieces/queen.js';
-import fou from './pieces/bishop.js';
-import pion from './pieces/pawn.js';
-import roi from './pieces/king.js';
-import tour from './pieces/rook.js';
+import knight from './pieces/knight.js';
+import queen from './pieces/queen.js';
+import bishop from './pieces/bishop.js';
+import pawn from './pieces/pawn.js';
+import king from './pieces/king.js';
+import rook from './pieces/rook.js';
 import { isCastlingRook } from './castling/utils.js';
 import { COLORS } from './colors/constants.js';
 import { getOpponent, getPawnDirection } from './colors/utils.js';
+import { SPECIAL_MOVES } from './moves/constants.js';
 import { getEnPassantCaptureSquare } from './squares/utils.js';
 
-const COLONNES = 'abcdefgh';
+const FILES = 'abcdefgh';
 /** Piece types a pawn may be promoted to. */
-const PROMOTION_PIECE_TYPES = ['dame', 'tour', 'fou', 'cavalier'];
+const PROMOTION_PIECE_TYPES = ['queen', 'rook', 'bishop', 'knight'];
 /** Rank a pawn of each color is promoted on: the last rank in its direction. */
-const PROMOTION_RANKS = Object.freeze({ blanche: '8', noire: '1' });
+const PROMOTION_RANKS = Object.freeze({ white: '8', black: '1' });
 
-function col(lettre) {
-  return COLONNES.indexOf(lettre);
+function fileIndex(letter) {
+  return FILES.indexOf(letter);
 }
-function lettre(c) {
-  return COLONNES[c];
+function fileLetter(c) {
+  return FILES[c];
 }
-function pos(c, r) {
-  return `${lettre(c)}${r}`;
+function toSquare(c, r) {
+  return `${fileLetter(c)}${r}`;
 }
-function valide(c, r) {
+function isOnBoard(c, r) {
   return c >= 0 && c < 8 && r >= 1 && r <= 8;
 }
 
-function construirePositionInitiale() {
-  const configs = [cavalier, dame, fou, pion, roi, tour];
+function buildStartingPosition() {
+  const configs = [knight, queen, bishop, pawn, king, rook];
   const positions = {};
   for (const config of configs) {
-    for (const couleur of COLORS) {
-      for (const p of config.pièce.positionInitiale[couleur]) {
-        positions[p] = { type: config.pièce.type, couleur, aBouge: false };
+    for (const color of COLORS) {
+      for (const p of config.piece.startingSquares[color]) {
+        positions[p] = { type: config.piece.type, color, hasMoved: false };
       }
     }
   }
   return positions;
 }
 
-export default class Echiquier {
+export default class Chessboard {
   constructor() {
-    this.plateau = new Map();
-    this.couleurCourante = 'blanche';
-    this.positionEnPassant = null; // case cible où un pion peut être capturé en passant
-    this.positionPromotion = null; // case où une promotion est en attente
-    this.captures = { blanche: [], noire: [] }; // pièces capturées par chaque couleur
-    this.termine = false;
+    this.board = new Map();
+    this.currentColor = 'white';
+    this.enPassantSquare = null; // target square where a pawn may be captured en passant
+    this.promotionSquare = null; // square where a promotion is pending
+    this.captures = { white: [], black: [] }; // pieces captured by each color
+    this.isOver = false;
   }
 
-  initialiser() {
-    const initial = construirePositionInitiale();
-    this.plateau = new Map(Object.entries(initial).map(([p, piece]) => [p, { ...piece }]));
-    this.couleurCourante = 'blanche';
-    this.positionEnPassant = null;
-    this.positionPromotion = null;
-    this.captures = { blanche: [], noire: [] };
-    this.termine = false;
+  initialize() {
+    const initial = buildStartingPosition();
+    this.board = new Map(Object.entries(initial).map(([p, piece]) => [p, { ...piece }]));
+    this.currentColor = 'white';
+    this.enPassantSquare = null;
+    this.promotionSquare = null;
+    this.captures = { white: [], black: [] };
+    this.isOver = false;
   }
 
-  getPièce(position) {
-    return this.plateau.get(position) ?? null;
+  getPiece(position) {
+    return this.board.get(position) ?? null;
   }
 
-  // ─── Génération de coups bruts (sans validation d'échec) ─────────────────
+  // ─── Raw move generation (without check validation) ──────────────────────
 
-  _coupsSliding(c, r, couleur, directions, maxPas, coups) {
+  _slidingMoves(c, r, color, directions, maxSteps, moves) {
     for (const [dc, dr] of directions) {
-      for (let i = 1; i <= maxPas; i++) {
+      for (let i = 1; i <= maxSteps; i++) {
         const nc = c + dc * i;
         const nr = r + dr * i;
-        if (!valide(nc, nr)) break;
-        const dest = pos(nc, nr);
-        const cible = this.plateau.get(dest);
-        if (cible) {
-          if (cible.couleur !== couleur) coups.push(dest); // capture
-          break; // bloqué
+        if (!isOnBoard(nc, nr)) break;
+        const dest = toSquare(nc, nr);
+        const target = this.board.get(dest);
+        if (target) {
+          if (target.color !== color) moves.push(dest); // capture
+          break; // blocked
         }
-        coups.push(dest);
+        moves.push(dest);
       }
     }
   }
 
   /**
-   * Retourne les coups bruts d'une pièce, sans vérifier si le roi reste en échec.
+   * Returns the raw moves of a piece, without checking whether the king stays in check.
    * @param {string} position
    * @param {object} piece
-   * @param {boolean} pourAttaque — true : les pions attaquent en diagonale sans pièce ennemie requise
+   * @param {boolean} forAttack When true, pawns attack diagonally without an enemy piece there.
    */
-  _coupsRaw(position, piece, pourAttaque = false) {
-    const c = col(position[0]);
+  _rawMoves(position, piece, forAttack = false) {
+    const c = fileIndex(position[0]);
     const r = parseInt(position[1]);
-    const coups = [];
-    const dir = getPawnDirection(piece.couleur);
+    const moves = [];
+    const dir = getPawnDirection(piece.color);
 
     switch (piece.type) {
-      case 'tour':
-        this._coupsSliding(
+      case 'rook':
+        this._slidingMoves(
           c,
           r,
-          piece.couleur,
+          piece.color,
           [
             [1, 0],
             [0, 1],
@@ -109,15 +110,15 @@ export default class Echiquier {
             [0, -1],
           ],
           7,
-          coups
+          moves
         );
         break;
 
-      case 'fou':
-        this._coupsSliding(
+      case 'bishop':
+        this._slidingMoves(
           c,
           r,
-          piece.couleur,
+          piece.color,
           [
             [1, 1],
             [1, -1],
@@ -125,15 +126,15 @@ export default class Echiquier {
             [-1, 1],
           ],
           7,
-          coups
+          moves
         );
         break;
 
-      case 'dame':
-        this._coupsSliding(
+      case 'queen':
+        this._slidingMoves(
           c,
           r,
-          piece.couleur,
+          piece.color,
           [
             [1, 0],
             [0, 1],
@@ -145,15 +146,15 @@ export default class Echiquier {
             [-1, 1],
           ],
           7,
-          coups
+          moves
         );
         break;
 
-      case 'roi':
-        this._coupsSliding(
+      case 'king':
+        this._slidingMoves(
           c,
           r,
-          piece.couleur,
+          piece.color,
           [
             [1, 0],
             [0, 1],
@@ -165,11 +166,11 @@ export default class Echiquier {
             [-1, 1],
           ],
           1,
-          coups
+          moves
         );
         break;
 
-      case 'cavalier':
+      case 'knight':
         for (const [dx, dy] of [
           [1, 2],
           [-1, 2],
@@ -182,251 +183,252 @@ export default class Echiquier {
         ]) {
           const nc = c + dx;
           const nr = r + dy;
-          if (valide(nc, nr)) {
-            const dest = pos(nc, nr);
-            const cible = this.plateau.get(dest);
-            if (!cible || cible.couleur !== piece.couleur) coups.push(dest);
+          if (isOnBoard(nc, nr)) {
+            const dest = toSquare(nc, nr);
+            const target = this.board.get(dest);
+            if (!target || target.color !== piece.color) moves.push(dest);
           }
         }
         break;
 
-      case 'pion':
-        // Avance (non-attaque)
-        if (!pourAttaque) {
-          const devant = pos(c, r + dir);
-          if (valide(c, r + dir) && !this.plateau.get(devant)) {
-            coups.push(devant);
-            // Double avance depuis la position initiale
-            if (!piece.aBouge) {
-              const deuxDevant = pos(c, r + 2 * dir);
-              if (valide(c, r + 2 * dir) && !this.plateau.get(deuxDevant)) {
-                coups.push(deuxDevant);
+      case 'pawn':
+        // Advance (not an attack)
+        if (!forAttack) {
+          const ahead = toSquare(c, r + dir);
+          if (isOnBoard(c, r + dir) && !this.board.get(ahead)) {
+            moves.push(ahead);
+            // Double advance from the starting square
+            if (!piece.hasMoved) {
+              const twoAhead = toSquare(c, r + 2 * dir);
+              if (isOnBoard(c, r + 2 * dir) && !this.board.get(twoAhead)) {
+                moves.push(twoAhead);
               }
             }
           }
         }
-        // Captures diagonales
+        // Diagonal captures
         for (const dx of [-1, 1]) {
           const nc = c + dx;
           const nr = r + dir;
-          if (valide(nc, nr)) {
-            const dest = pos(nc, nr);
-            const cible = this.plateau.get(dest);
-            if (pourAttaque || (cible && cible.couleur !== piece.couleur)) {
-              coups.push(dest);
+          if (isOnBoard(nc, nr)) {
+            const dest = toSquare(nc, nr);
+            const target = this.board.get(dest);
+            if (forAttack || (target && target.color !== piece.color)) {
+              moves.push(dest);
             }
             // En passant
-            if (!pourAttaque && dest === this.positionEnPassant) {
-              coups.push(dest);
+            if (!forAttack && dest === this.enPassantSquare) {
+              moves.push(dest);
             }
           }
         }
         break;
     }
 
-    return coups;
+    return moves;
   }
 
-  // ─── Vérification d'échec ─────────────────────────────────────────────────
+  // ─── Check detection ──────────────────────────────────────────────────────
 
-  _casesAttaquéesParCouleur(couleur) {
-    const attaques = new Set();
-    for (const [p, piece] of this.plateau) {
-      if (piece.couleur === couleur) {
-        for (const dest of this._coupsRaw(p, piece, true)) {
-          attaques.add(dest);
+  _squaresAttackedBy(color) {
+    const attacked = new Set();
+    for (const [p, piece] of this.board) {
+      if (piece.color === color) {
+        for (const dest of this._rawMoves(p, piece, true)) {
+          attacked.add(dest);
         }
       }
     }
-    return attaques;
+    return attacked;
   }
 
-  estEnEchec(couleur) {
-    let posRoi = null;
-    for (const [p, piece] of this.plateau) {
-      if (piece.type === 'roi' && piece.couleur === couleur) {
-        posRoi = p;
+  isInCheck(color) {
+    let kingSquare = null;
+    for (const [p, piece] of this.board) {
+      if (piece.type === 'king' && piece.color === color) {
+        kingSquare = p;
         break;
       }
     }
-    if (!posRoi) return false;
-    return this._casesAttaquéesParCouleur(getOpponent(couleur)).has(posRoi);
+    if (!kingSquare) return false;
+    return this._squaresAttackedBy(getOpponent(color)).has(kingSquare);
   }
 
-  // Simule un coup et retourne vrai si le roi de la couleur donnée se retrouve en échec
-  _laisseRoiEnEchec(from, to) {
-    const piece = this.plateau.get(from);
-    const capturé = this.plateau.get(to);
+  // Simulates a move and returns true when it leaves the king of the moving color in check
+  _leavesKingInCheck(from, to) {
+    const piece = this.board.get(from);
+    const captured = this.board.get(to);
 
-    // En passant : position du pion capturé
-    let posEnPassant = null;
-    let pioncapturéEnPassant = null;
-    if (piece.type === 'pion' && to === this.positionEnPassant) {
-      posEnPassant = getEnPassantCaptureSquare({ target: to, color: piece.couleur });
-      pioncapturéEnPassant = this.plateau.get(posEnPassant);
+    // En passant: square of the captured pawn
+    let enPassantCaptureSquare = null;
+    let enPassantPawn = null;
+    if (piece.type === 'pawn' && to === this.enPassantSquare) {
+      enPassantCaptureSquare = getEnPassantCaptureSquare({ target: to, color: piece.color });
+      enPassantPawn = this.board.get(enPassantCaptureSquare);
     }
 
-    // Effectuer le coup
-    this.plateau.set(to, piece);
-    this.plateau.delete(from);
-    if (posEnPassant) this.plateau.delete(posEnPassant);
+    // Play the move
+    this.board.set(to, piece);
+    this.board.delete(from);
+    if (enPassantCaptureSquare) this.board.delete(enPassantCaptureSquare);
 
-    const enEchec = this.estEnEchec(piece.couleur);
+    const inCheck = this.isInCheck(piece.color);
 
-    // Annuler le coup
-    this.plateau.set(from, piece);
-    if (capturé) this.plateau.set(to, capturé);
-    else this.plateau.delete(to);
-    if (posEnPassant && pioncapturéEnPassant) this.plateau.set(posEnPassant, pioncapturéEnPassant);
+    // Undo the move
+    this.board.set(from, piece);
+    if (captured) this.board.set(to, captured);
+    else this.board.delete(to);
+    if (enPassantCaptureSquare && enPassantPawn) {
+      this.board.set(enPassantCaptureSquare, enPassantPawn);
+    }
 
-    return enEchec;
+    return inCheck;
   }
 
-  // ─── Coups valides (avec validation d'échec + roque) ─────────────────────
+  // ─── Legal moves (with check validation and castling) ────────────────────
 
-  getDeplacementsPossibles(position) {
-    const piece = this.plateau.get(position);
+  getMoves(position) {
+    const piece = this.board.get(position);
     if (!piece) return [];
 
-    const coups = this._coupsRaw(position, piece);
+    const moves = this._rawMoves(position, piece);
 
     // Add castling for the king
-    if (piece.type === 'roi' && !piece.aBouge && !this.estEnEchec(piece.couleur)) {
+    if (piece.type === 'king' && !piece.hasMoved && !this.isInCheck(piece.color)) {
       const r = parseInt(position[1]);
-      const attaques = this._casesAttaquéesParCouleur(getOpponent(piece.couleur));
+      const attacked = this._squaresAttackedBy(getOpponent(piece.color));
 
       // Kingside castling
-      const tourH = this.plateau.get(`h${r}`);
+      const rookH = this.board.get(`h${r}`);
       if (
-        isCastlingRook({ piece: tourH, couleur: piece.couleur }) &&
-        !this.plateau.get(`f${r}`) &&
-        !this.plateau.get(`g${r}`) &&
-        !attaques.has(`f${r}`) &&
-        !attaques.has(`g${r}`)
+        isCastlingRook({ piece: rookH, color: piece.color }) &&
+        !this.board.get(`f${r}`) &&
+        !this.board.get(`g${r}`) &&
+        !attacked.has(`f${r}`) &&
+        !attacked.has(`g${r}`)
       ) {
-        coups.push(`g${r}`);
+        moves.push(`g${r}`);
       }
 
       // Queenside castling
-      const tourA = this.plateau.get(`a${r}`);
+      const rookA = this.board.get(`a${r}`);
       if (
-        isCastlingRook({ piece: tourA, couleur: piece.couleur }) &&
-        !this.plateau.get(`b${r}`) &&
-        !this.plateau.get(`c${r}`) &&
-        !this.plateau.get(`d${r}`) &&
-        !attaques.has(`c${r}`) &&
-        !attaques.has(`d${r}`)
+        isCastlingRook({ piece: rookA, color: piece.color }) &&
+        !this.board.get(`b${r}`) &&
+        !this.board.get(`c${r}`) &&
+        !this.board.get(`d${r}`) &&
+        !attacked.has(`c${r}`) &&
+        !attacked.has(`d${r}`)
       ) {
-        coups.push(`c${r}`);
+        moves.push(`c${r}`);
       }
     }
 
-    // Filtrer les coups qui laissent le roi en échec
-    return coups.filter((dest) => !this._laisseRoiEnEchec(position, dest));
+    // Drop the moves that leave the king in check
+    return moves.filter((dest) => !this._leavesKingInCheck(position, dest));
   }
 
-  // ─── État de la partie ────────────────────────────────────────────────────
+  // ─── Game state ───────────────────────────────────────────────────────────
 
-  _aucunCoupPossible(couleur) {
-    // On prend un snapshot du plateau car _laisseRoiEnEchec modifie et restaure
-    // les entrées de la Map, ce qui peut changer leur ordre d'insertion et provoquer
-    // une boucle infinie si on itère la Map directement.
-    const entrées = [...this.plateau.entries()];
-    for (const [p, piece] of entrées) {
-      if (piece.couleur === couleur && this.getDeplacementsPossibles(p).length > 0) {
+  _hasNoLegalMove(color) {
+    // Iterate over a snapshot of the board: _leavesKingInCheck deletes and restores Map entries,
+    // which can change their insertion order and make a loop over the Map itself never end.
+    const entries = [...this.board.entries()];
+    for (const [p, piece] of entries) {
+      if (piece.color === color && this.getMoves(p).length > 0) {
         return false;
       }
     }
     return true;
   }
 
-  estEchecEtMat(couleur) {
-    return this.estEnEchec(couleur) && this._aucunCoupPossible(couleur);
+  isCheckmate(color) {
+    return this.isInCheck(color) && this._hasNoLegalMove(color);
   }
 
-  estPat(couleur) {
-    return !this.estEnEchec(couleur) && this._aucunCoupPossible(couleur);
+  isStalemate(color) {
+    return !this.isInCheck(color) && this._hasNoLegalMove(color);
   }
 
-  // ─── Exécution d'un coup ──────────────────────────────────────────────────
+  // ─── Playing a move ───────────────────────────────────────────────────────
 
   /**
    * Moves the piece on `from` to `to`.
    * Returns an object describing the move, or null when the move is illegal, the game is
    * over, a promotion is pending, or the piece does not belong to the side to move.
    */
-  deplacer(from, to) {
-    const isPromotionPending = this.positionPromotion !== null;
-    if (this.termine || isPromotionPending) return null;
+  move(from, to) {
+    const isPromotionPending = this.promotionSquare !== null;
+    if (this.isOver || isPromotionPending) return null;
 
-    const piece = this.plateau.get(from);
+    const piece = this.board.get(from);
     if (!piece) return null;
-    const isSideToMove = piece.couleur === this.couleurCourante;
+    const isSideToMove = piece.color === this.currentColor;
     if (!isSideToMove) return null;
 
-    const coupsPossibles = this.getDeplacementsPossibles(from);
-    if (!coupsPossibles.includes(to)) return null;
+    const legalMoves = this.getMoves(from);
+    if (!legalMoves.includes(to)) return null;
 
-    const capturé = this.plateau.get(to) ?? null;
-    let coupSpécial = null;
-    let posCapturéEnPassant = null;
+    const captured = this.board.get(to) ?? null;
+    let specialMove = null;
+    let enPassantCaptureSquare = null;
 
-    // ── Roque ──
-    const colFrom = col(from[0]);
-    const colTo = col(to[0]);
-    if (piece.type === 'roi' && Math.abs(colFrom - colTo) === 2) {
+    // ── Castling ──
+    const fromFile = fileIndex(from[0]);
+    const toFile = fileIndex(to[0]);
+    if (piece.type === 'king' && Math.abs(fromFile - toFile) === 2) {
       const r = parseInt(to[1]);
-      if (colTo > colFrom) {
-        // Petit roque
-        const t = this.plateau.get(`h${r}`);
-        this.plateau.set(`f${r}`, { ...t, aBouge: true });
-        this.plateau.delete(`h${r}`);
-        coupSpécial = 'petit-roque';
+      if (toFile > fromFile) {
+        // Kingside castling
+        const rook = this.board.get(`h${r}`);
+        this.board.set(`f${r}`, { ...rook, hasMoved: true });
+        this.board.delete(`h${r}`);
+        specialMove = SPECIAL_MOVES.kingsideCastling;
       } else {
-        // Grand roque
-        const t = this.plateau.get(`a${r}`);
-        this.plateau.set(`d${r}`, { ...t, aBouge: true });
-        this.plateau.delete(`a${r}`);
-        coupSpécial = 'grand-roque';
+        // Queenside castling
+        const rook = this.board.get(`a${r}`);
+        this.board.set(`d${r}`, { ...rook, hasMoved: true });
+        this.board.delete(`a${r}`);
+        specialMove = SPECIAL_MOVES.queensideCastling;
       }
     }
 
-    // ── En passant : capture du pion adverse ──
-    if (piece.type === 'pion' && to === this.positionEnPassant) {
-      posCapturéEnPassant = getEnPassantCaptureSquare({ target: to, color: piece.couleur });
-      const pionCapturé = this.plateau.get(posCapturéEnPassant);
-      if (pionCapturé) {
-        this.captures[piece.couleur].push(pionCapturé);
-        this.plateau.delete(posCapturéEnPassant);
+    // ── En passant: capture the opponent's pawn ──
+    if (piece.type === 'pawn' && to === this.enPassantSquare) {
+      enPassantCaptureSquare = getEnPassantCaptureSquare({ target: to, color: piece.color });
+      const capturedPawn = this.board.get(enPassantCaptureSquare);
+      if (capturedPawn) {
+        this.captures[piece.color].push(capturedPawn);
+        this.board.delete(enPassantCaptureSquare);
       }
-      coupSpécial = 'en-passant';
+      specialMove = SPECIAL_MOVES.enPassant;
     }
 
-    // ── Mettre à jour la cible en passant ──
-    if (piece.type === 'pion' && Math.abs(parseInt(to[1]) - parseInt(from[1])) === 2) {
-      const milieu = (parseInt(from[1]) + parseInt(to[1])) / 2;
-      this.positionEnPassant = `${from[0]}${milieu}`;
+    // ── Update the en passant target ──
+    if (piece.type === 'pawn' && Math.abs(parseInt(to[1]) - parseInt(from[1])) === 2) {
+      const middleRank = (parseInt(from[1]) + parseInt(to[1])) / 2;
+      this.enPassantSquare = `${from[0]}${middleRank}`;
     } else {
-      this.positionEnPassant = null;
+      this.enPassantSquare = null;
     }
 
-    // ── Déplacer la pièce ──
-    this.plateau.set(to, { ...piece, aBouge: true });
-    this.plateau.delete(from);
+    // ── Move the piece ──
+    this.board.set(to, { ...piece, hasMoved: true });
+    this.board.delete(from);
 
-    // ── Enregistrer la capture ──
-    if (capturé) this.captures[piece.couleur].push(capturé);
+    // ── Record the capture ──
+    if (captured) this.captures[piece.color].push(captured);
 
     // ── Promotion ──
-    const promotion = piece.type === 'pion' && to[1] === PROMOTION_RANKS[piece.couleur];
+    const promotion = piece.type === 'pawn' && to[1] === PROMOTION_RANKS[piece.color];
     if (promotion) {
-      this.positionPromotion = to;
-      // Le tour passe après la promotion (via promouvoir())
+      this.promotionSquare = to;
+      // The turn passes after the promotion (through promote())
     } else {
-      this.couleurCourante = getOpponent(this.couleurCourante);
+      this.currentColor = getOpponent(this.currentColor);
     }
 
-    return { from, to, piece, capturé, coupSpécial, posCapturéEnPassant, promotion };
+    return { from, to, piece, captured, specialMove, enPassantCaptureSquare, promotion };
   }
 
   /**
@@ -434,20 +436,20 @@ export default class Echiquier {
    * Ignores a position other than the pending promotion and a type outside
    * PROMOTION_PIECE_TYPES.
    * @param {string} position Square of the pawn to promote.
-   * @param {string} type Piece type: 'dame' | 'tour' | 'fou' | 'cavalier'.
+   * @param {string} type Piece type: 'queen' | 'rook' | 'bishop' | 'knight'.
    * @returns {boolean} true when the pawn was promoted, false when the call was ignored.
    */
-  promouvoir(position, type) {
+  promote(position, type) {
     const isPendingPromotionSquare =
-      this.positionPromotion !== null && position === this.positionPromotion;
+      this.promotionSquare !== null && position === this.promotionSquare;
     const isAllowedType = PROMOTION_PIECE_TYPES.includes(type);
     if (!isPendingPromotionSquare || !isAllowedType) return false;
 
-    const piece = this.plateau.get(position);
+    const piece = this.board.get(position);
     if (!piece) return false;
-    this.plateau.set(position, { ...piece, type });
-    this.positionPromotion = null;
-    this.couleurCourante = getOpponent(this.couleurCourante);
+    this.board.set(position, { ...piece, type });
+    this.promotionSquare = null;
+    this.currentColor = getOpponent(this.currentColor);
     return true;
   }
 }

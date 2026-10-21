@@ -11,16 +11,16 @@ import { GAME_OUTCOMES } from './constants.js';
  *   Without a game, the outcome is `ongoing` and both colors are `null`.
  * @example
  * // After the fool's mate (f3 e5 g4 Qh4):
- * getGameOutcome({ game }); // { outcome: 'checkmate', color: 'blanche', winner: 'noire' }
+ * getGameOutcome({ game }); // { outcome: 'checkmate', color: 'white', winner: 'black' }
  */
 export function getGameOutcome({ game } = {}) {
   if (!game) return { outcome: GAME_OUTCOMES.ongoing, color: null, winner: null };
 
-  const color = game.couleurCourante;
-  if (game.estEchecEtMat(color)) {
+  const color = game.currentColor;
+  if (game.isCheckmate(color)) {
     return { outcome: GAME_OUTCOMES.checkmate, color, winner: getOpponent(color) };
   }
-  if (game.estPat(color)) return { outcome: GAME_OUTCOMES.stalemate, color, winner: null };
-  if (game.estEnEchec(color)) return { outcome: GAME_OUTCOMES.check, color, winner: null };
+  if (game.isStalemate(color)) return { outcome: GAME_OUTCOMES.stalemate, color, winner: null };
+  if (game.isInCheck(color)) return { outcome: GAME_OUTCOMES.check, color, winner: null };
   return { outcome: GAME_OUTCOMES.ongoing, color, winner: null };
 }

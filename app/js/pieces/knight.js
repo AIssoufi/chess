@@ -1,13 +1,13 @@
-const cavalier = {
-  pièce: {
-    type: 'cavalier',
-    blanche: '♘',
-    noire: '♞',
-    positionInitiale: {
-      blanche: ['b1', 'g1'],
-      noire: ['b8', 'g8'],
+const knight = {
+  piece: {
+    type: 'knight',
+    white: '♘',
+    black: '♞',
+    startingSquares: {
+      white: ['b1', 'g1'],
+      black: ['b8', 'g8'],
     },
   },
 };
 
-export default cavalier;
+export default knight;

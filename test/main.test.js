@@ -3,8 +3,8 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { GAME_OVER_DIALOG_DELAY_MS } from '../app/js/game-over/constants.js';
-import pion from '../app/js/pieces/pawn.js';
-import cavalier from '../app/js/pieces/knight.js';
+import pawn from '../app/js/pieces/pawn.js';
+import knight from '../app/js/pieces/knight.js';
 
 const INDEX_PAGE = readFileSync(fileURLToPath(import.meta.resolve('../app/index.html')), 'utf8');
 const PAGE_BODY = INDEX_PAGE.match(/<body>([\s\S]*)<\/body>/)[1];
@@ -64,12 +64,12 @@ function square(position) {
  * Returns the piece shown on a square.
  *
  * @param {string} position Algebraic position.
- * @returns {{ type: string, couleur: string } | null} The piece's dataset, or null on an empty
+ * @returns {{ type: string, color: string } | null} The piece's dataset, or null on an empty
  *   square.
  */
 function pieceOn(position) {
   const node = square(position).querySelector('.piece');
-  return node ? { type: node.dataset.type, couleur: node.dataset.couleur } : null;
+  return node ? { type: node.dataset.type, color: node.dataset.color } : null;
 }
 
 /**
@@ -86,7 +86,7 @@ function squaresWithClass(className) {
 
 /** @returns {string | undefined} The color whose control panel is marked as the current player. */
 function currentPlayer() {
-  return document.querySelector('.control.joueur-courant')?.dataset.couleur;
+  return document.querySelector('.control.joueur-courant')?.dataset.color;
 }
 
 /**
@@ -131,22 +131,22 @@ afterEach(() => {
 describe('main.js start', () => {
   it('renders the 32 pieces and gives the move to white', () => {
     expect(document.querySelectorAll('.container-piece .piece')).toHaveLength(32);
-    expect(pieceOn('e1')).toEqual({ type: 'roi', couleur: 'blanche' });
-    expect(pieceOn('d8')).toEqual({ type: 'dame', couleur: 'noire' });
-    expect(currentPlayer()).toBe('blanche');
+    expect(pieceOn('e1')).toEqual({ type: 'king', color: 'white' });
+    expect(pieceOn('d8')).toEqual({ type: 'queen', color: 'black' });
+    expect(currentPlayer()).toBe('white');
   });
 
   it('skips an unknown piece and still renders the rest of the board and the captures', async () => {
     await loadPage({
       beforeMain: async () => {
-        const { default: Echiquier } = await import('../app/js/Chessboard.js');
-        const initialiser = Echiquier.prototype.initialiser;
-        vi.spyOn(Echiquier.prototype, 'initialiser').mockImplementation(function () {
-          initialiser.call(this);
-          this.plateau.set('e4', { type: 'licorne', couleur: 'blanche', aBouge: false });
-          this.plateau.set('d4', { type: 'pion', couleur: 'rouge', aBouge: false });
-          this.captures.blanche.push({ type: 'licorne', couleur: 'noire' });
-          this.captures.blanche.push({ type: 'pion', couleur: 'noire' });
+        const { default: Chessboard } = await import('../app/js/Chessboard.js');
+        const initialize = Chessboard.prototype.initialize;
+        vi.spyOn(Chessboard.prototype, 'initialize').mockImplementation(function () {
+          initialize.call(this);
+          this.board.set('e4', { type: 'licorne', color: 'white', hasMoved: false });
+          this.board.set('d4', { type: 'pawn', color: 'rouge', hasMoved: false });
+          this.captures.white.push({ type: 'licorne', color: 'black' });
+          this.captures.white.push({ type: 'pawn', color: 'black' });
         });
       },
     });
@@ -154,10 +154,8 @@ describe('main.js start', () => {
     expect(pieceOn('e4')).toBeNull();
     expect(pieceOn('d4')).toBeNull();
     expect(document.querySelectorAll('.container-piece .piece')).toHaveLength(32);
-    expect(document.getElementById('blanche-prisoniers').children).toHaveLength(1);
-    expect(document.getElementById('blanche-prisoniers').firstElementChild.dataset.type).toBe(
-      'pion'
-    );
+    expect(document.getElementById('white-prisoniers').children).toHaveLength(1);
+    expect(document.getElementById('white-prisoniers').firstElementChild.dataset.type).toBe('pawn');
     expect(document.body.textContent).not.toContain('undefined');
   });
 
@@ -182,11 +180,11 @@ describe('main.js selection and moves', () => {
   it('moves the selected piece to a highlighted square and passes the move', () => {
     play([['e2', 'e4']]);
 
-    expect(pieceOn('e4')).toEqual({ type: 'pion', couleur: 'blanche' });
+    expect(pieceOn('e4')).toEqual({ type: 'pawn', color: 'white' });
     expect(pieceOn('e2')).toBeNull();
     expect(squaresWithClass('selectionner')).toEqual([]);
     expect(squaresWithClass('chemin')).toEqual([]);
-    expect(currentPlayer()).toBe('noire');
+    expect(currentPlayer()).toBe('black');
   });
 
   it('switches the selection to another piece of the same color', () => {
@@ -201,11 +199,11 @@ describe('main.js selection and moves', () => {
     square('e2').click();
     square('e5').click();
 
-    expect(pieceOn('e2')).toEqual({ type: 'pion', couleur: 'blanche' });
+    expect(pieceOn('e2')).toEqual({ type: 'pawn', color: 'white' });
     expect(pieceOn('e5')).toBeNull();
     expect(squaresWithClass('selectionner')).toEqual([]);
     expect(squaresWithClass('chemin')).toEqual([]);
-    expect(currentPlayer()).toBe('blanche');
+    expect(currentPlayer()).toBe('white');
   });
 
   it('ignores a click on a piece of the side not to move', () => {
@@ -213,14 +211,14 @@ describe('main.js selection and moves', () => {
 
     expect(squaresWithClass('selectionner')).toEqual([]);
     expect(squaresWithClass('chemin')).toEqual([]);
-    expect(currentPlayer()).toBe('blanche');
+    expect(currentPlayer()).toBe('white');
   });
 
   it('ignores a click on an empty square without a selection', () => {
     square('e4').click();
 
     expect(squaresWithClass('selectionner')).toEqual([]);
-    expect(currentPlayer()).toBe('blanche');
+    expect(currentPlayer()).toBe('white');
   });
 
   it('does not select a piece without legal moves', () => {
@@ -243,9 +241,9 @@ describe('main.js selection and moves', () => {
       ['e4', 'd5'],
     ]);
 
-    expect(document.getElementById('blanche-nb-prisonier').textContent).toBe('1');
-    const prisoner = document.querySelector('#blanche-prisoniers .piece');
-    expect(prisoner.dataset).toMatchObject({ type: 'pion', couleur: 'noire' });
+    expect(document.getElementById('white-nb-prisonier').textContent).toBe('1');
+    const prisoner = document.querySelector('#white-prisoniers .piece');
+    expect(prisoner.dataset).toMatchObject({ type: 'pawn', color: 'black' });
   });
 
   it('marks the king in check, then clears the mark once the check is parried', () => {
@@ -272,10 +270,10 @@ describe('main.js promotion', () => {
 
   it('opens the promotion choice with the symbols of the promoting color', () => {
     expect(promotionModal().style.display).toBe('flex');
-    const button = promotionModal().querySelector('[data-type="cavalier"]');
-    expect(button.textContent).toBe(cavalier.pièce.blanche);
-    expect(pieceOn('d8')).toEqual({ type: 'pion', couleur: 'blanche' });
-    expect(currentPlayer()).toBe('blanche');
+    const button = promotionModal().querySelector('[data-type="knight"]');
+    expect(button.textContent).toBe(knight.piece.white);
+    expect(pieceOn('d8')).toEqual({ type: 'pawn', color: 'white' });
+    expect(currentPlayer()).toBe('white');
   });
 
   it('ignores clicks on the board while the choice is open', () => {
@@ -288,20 +286,20 @@ describe('main.js promotion', () => {
     promotionModal().querySelector('p').click();
 
     expect(promotionModal().style.display).toBe('flex');
-    expect(pieceOn('d8')).toEqual({ type: 'pion', couleur: 'blanche' });
+    expect(pieceOn('d8')).toEqual({ type: 'pawn', color: 'white' });
   });
 
   it('turns the pawn into the chosen piece, closes the choice and passes the move', () => {
-    promotionModal().querySelector('[data-type="cavalier"]').click();
+    promotionModal().querySelector('[data-type="knight"]').click();
 
-    expect(pieceOn('d8')).toEqual({ type: 'cavalier', couleur: 'blanche' });
+    expect(pieceOn('d8')).toEqual({ type: 'knight', color: 'white' });
     expect(promotionModal().style.display).toBe('none');
-    expect(currentPlayer()).toBe('noire');
-    expect(document.getElementById('blanche-nb-prisonier').textContent).toBe('4');
+    expect(currentPlayer()).toBe('black');
+    expect(document.getElementById('white-nb-prisonier').textContent).toBe('4');
   });
 
   it('marks the check given by the promoted piece', () => {
-    promotionModal().querySelector('[data-type="dame"]').click();
+    promotionModal().querySelector('[data-type="queen"]').click();
 
     expect(squaresWithClass('echec')).toEqual(['e8']);
   });
@@ -344,15 +342,15 @@ describe('main.js end of game', () => {
 
     expect(dialog().open).toBe(false);
     expect(dialog().querySelectorAll('.afficher')).toHaveLength(0);
-    expect(pieceOn('d8')).toEqual({ type: 'dame', couleur: 'noire' });
-    expect(pieceOn('f2')).toEqual({ type: 'pion', couleur: 'blanche' });
+    expect(pieceOn('d8')).toEqual({ type: 'queen', color: 'black' });
+    expect(pieceOn('f2')).toEqual({ type: 'pawn', color: 'white' });
     expect(pieceOn('h4')).toBeNull();
     expect(squaresWithClass('echec')).toEqual([]);
-    expect(currentPlayer()).toBe('blanche');
+    expect(currentPlayer()).toBe('white');
 
     play([['e2', 'e4']]);
-    expect(pieceOn('e4')).toEqual({ type: 'pion', couleur: 'blanche' });
-    expect(square('e4').querySelector('.piece').textContent).toBe(pion.pièce.blanche);
+    expect(pieceOn('e4')).toEqual({ type: 'pawn', color: 'white' });
+    expect(square('e4').querySelector('.piece').textContent).toBe(pawn.piece.white);
   });
 });
 
@@ -382,6 +380,6 @@ describe('main.js stalemate', () => {
 
     expect(dialog().open).toBe(false);
     expect(document.querySelectorAll('.container-piece .piece')).toHaveLength(32);
-    expect(currentPlayer()).toBe('blanche');
+    expect(currentPlayer()).toBe('white');
   });
 });

@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, it, expect, beforeEach } from 'vitest';
-import Echiquier from '../app/js/Chessboard.js';
+import Chessboard from '../app/js/Chessboard.js';
 import { GAME_OUTCOMES, GAME_OVER_ALERTS } from '../app/js/game-over/constants.js';
 import { getGameOutcome } from '../app/js/game-over/utils.js';
 
@@ -18,65 +18,65 @@ let game;
  * Empties the board, then puts the given pieces on it and gives the move to a color.
  *
  * @param {object} params
- * @param {Record<string, { type: string, couleur: string }>} params.pieces Pieces by square.
- * @param {'blanche' | 'noire'} params.colorToPlay The color to play.
+ * @param {Record<string, { type: string, color: string }>} params.pieces Pieces by square.
+ * @param {'white' | 'black'} params.colorToPlay The color to play.
  */
 function setUpBoard({ pieces, colorToPlay }) {
-  game.plateau.clear();
+  game.board.clear();
   for (const [square, piece] of Object.entries(pieces)) {
-    game.plateau.set(square, { ...piece, aBouge: true });
+    game.board.set(square, { ...piece, hasMoved: true });
   }
-  game.couleurCourante = colorToPlay;
+  game.currentColor = colorToPlay;
 }
 
 beforeEach(() => {
-  game = new Echiquier();
-  game.initialiser();
+  game = new Chessboard();
+  game.initialize();
 });
 
 describe('getGameOutcome', () => {
   it('reports a checkmate and its winner after the fool’s mate', () => {
-    for (const [from, to] of FOOLS_MATE) game.deplacer(from, to);
+    for (const [from, to] of FOOLS_MATE) game.move(from, to);
 
     expect(getGameOutcome({ game })).toEqual({
       outcome: GAME_OUTCOMES.checkmate,
-      color: 'blanche',
-      winner: 'noire',
+      color: 'white',
+      winner: 'black',
     });
   });
 
   it('reports white as the winner when black is mated', () => {
     setUpBoard({
       pieces: {
-        h8: { type: 'roi', couleur: 'noire' },
-        g7: { type: 'pion', couleur: 'noire' },
-        h7: { type: 'pion', couleur: 'noire' },
-        a8: { type: 'tour', couleur: 'blanche' },
-        g1: { type: 'roi', couleur: 'blanche' },
+        h8: { type: 'king', color: 'black' },
+        g7: { type: 'pawn', color: 'black' },
+        h7: { type: 'pawn', color: 'black' },
+        a8: { type: 'rook', color: 'white' },
+        g1: { type: 'king', color: 'white' },
       },
-      colorToPlay: 'noire',
+      colorToPlay: 'black',
     });
 
     expect(getGameOutcome({ game })).toEqual({
       outcome: GAME_OUTCOMES.checkmate,
-      color: 'noire',
-      winner: 'blanche',
+      color: 'black',
+      winner: 'white',
     });
   });
 
   it('reports a stalemate without a winner', () => {
     setUpBoard({
       pieces: {
-        a8: { type: 'roi', couleur: 'noire' },
-        b6: { type: 'dame', couleur: 'blanche' },
-        c7: { type: 'roi', couleur: 'blanche' },
+        a8: { type: 'king', color: 'black' },
+        b6: { type: 'queen', color: 'white' },
+        c7: { type: 'king', color: 'white' },
       },
-      colorToPlay: 'noire',
+      colorToPlay: 'black',
     });
 
     expect(getGameOutcome({ game })).toEqual({
       outcome: GAME_OUTCOMES.stalemate,
-      color: 'noire',
+      color: 'black',
       winner: null,
     });
   });
@@ -84,16 +84,16 @@ describe('getGameOutcome', () => {
   it('reports a check that can be escaped', () => {
     setUpBoard({
       pieces: {
-        e1: { type: 'roi', couleur: 'blanche' },
-        e4: { type: 'tour', couleur: 'blanche' },
-        e8: { type: 'roi', couleur: 'noire' },
+        e1: { type: 'king', color: 'white' },
+        e4: { type: 'rook', color: 'white' },
+        e8: { type: 'king', color: 'black' },
       },
-      colorToPlay: 'noire',
+      colorToPlay: 'black',
     });
 
     expect(getGameOutcome({ game })).toEqual({
       outcome: GAME_OUTCOMES.check,
-      color: 'noire',
+      color: 'black',
       winner: null,
     });
   });
@@ -101,7 +101,7 @@ describe('getGameOutcome', () => {
   it('reports an ongoing game at the start', () => {
     expect(getGameOutcome({ game })).toEqual({
       outcome: GAME_OUTCOMES.ongoing,
-      color: 'blanche',
+      color: 'white',
       winner: null,
     });
   });

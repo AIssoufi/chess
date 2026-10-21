@@ -1,6 +1,6 @@
-import Echiquier from './Chessboard.js';
-import PièceFactory from './PieceFactory.js';
-import { COLORS } from './colors/constants.js';
+import Chessboard from './Chessboard.js';
+import PieceFactory from './PieceFactory.js';
+import { COLOR_LABELS, COLORS } from './colors/constants.js';
 import consoleLog from './console-log.js';
 import { showCopyrightYear } from './copyright/show-copyright-year.js';
 import {
@@ -9,9 +9,10 @@ import {
   GAME_OVER_DIALOG_DELAY_MS,
 } from './game-over/constants.js';
 import { getGameOutcome } from './game-over/utils.js';
+import { SPECIAL_MOVE_LABELS } from './moves/constants.js';
 
-const jeu = new Echiquier();
-const factory = new PièceFactory();
+const jeu = new Chessboard();
+const factory = new PieceFactory();
 
 let positionSelectionnee = null;
 let coupsPossibles = [];
@@ -20,9 +21,9 @@ let coupsPossibles = [];
 
 function rendreBoard() {
   document.querySelectorAll('.piece').forEach((p) => p.remove());
-  for (const [position, piece] of jeu.plateau) {
+  for (const [position, piece] of jeu.board) {
     const caseNode = document.querySelector(`.case[data-position="${position}"]`);
-    const pieceNode = factory.créer({ type: piece.type, couleur: piece.couleur });
+    const pieceNode = factory.create({ type: piece.type, color: piece.color });
     if (caseNode && pieceNode) caseNode.appendChild(pieceNode);
   }
 }
@@ -34,7 +35,7 @@ function rendrePrisonniers() {
     zone.innerHTML = '';
     compteur.textContent = jeu.captures[couleur].length;
     for (const piece of jeu.captures[couleur]) {
-      const pieceNode = factory.créer({ type: piece.type, couleur: piece.couleur });
+      const pieceNode = factory.create({ type: piece.type, color: piece.color });
       if (pieceNode) zone.appendChild(pieceNode);
     }
   }
@@ -43,7 +44,7 @@ function rendrePrisonniers() {
 function mettreAJourJoueurCourant() {
   document.querySelectorAll('.control').forEach((c) => c.classList.remove('joueur-courant'));
   document
-    .querySelector(`.control[data-couleur="${jeu.couleurCourante}"]`)
+    .querySelector(`.control[data-color="${jeu.currentColor}"]`)
     ?.classList.add('joueur-courant');
 }
 
@@ -58,10 +59,10 @@ function deselectionner() {
 
 function selectionner(position) {
   deselectionner();
-  const piece = jeu.getPièce(position);
-  if (!piece || piece.couleur !== jeu.couleurCourante) return;
+  const piece = jeu.getPiece(position);
+  if (!piece || piece.color !== jeu.currentColor) return;
 
-  const moves = jeu.getDeplacementsPossibles(position);
+  const moves = jeu.getMoves(position);
   if (moves.length === 0) return;
 
   positionSelectionnee = position;
@@ -76,8 +77,8 @@ function selectionner(position) {
 
 function marquerEchec(couleur) {
   effacerEchec();
-  for (const [p, piece] of jeu.plateau) {
-    if (piece.type === 'roi' && piece.couleur === couleur) {
+  for (const [p, piece] of jeu.board) {
+    if (piece.type === 'king' && piece.color === couleur) {
       document.querySelector(`.case[data-position="${p}"]`)?.classList.add('echec');
       break;
     }
@@ -93,17 +94,17 @@ function effacerEchec() {
 function apresDeplacemement() {
   const { outcome, color, winner } = getGameOutcome({ game: jeu });
   if (outcome === GAME_OUTCOMES.checkmate) {
-    jeu.termine = true;
-    console.log(`Échec et mat ! ${winner} gagne.`);
+    jeu.isOver = true;
+    console.log(`Échec et mat ! ${COLOR_LABELS[winner]} gagne.`);
     marquerEchec(color);
-    document.querySelector('.couleur-joueur-gagnant').textContent = winner;
+    document.querySelector('.couleur-joueur-gagnant').textContent = COLOR_LABELS[winner];
     setTimeout(() => afficherAlerte(GAME_OVER_ALERTS.checkmate), GAME_OVER_DIALOG_DELAY_MS);
   } else if (outcome === GAME_OUTCOMES.stalemate) {
-    jeu.termine = true;
+    jeu.isOver = true;
     console.log('Pat — match nul.');
     setTimeout(() => afficherAlerte(GAME_OVER_ALERTS.stalemate), GAME_OVER_DIALOG_DELAY_MS);
   } else if (outcome === GAME_OUTCOMES.check) {
-    console.log(`${color} est en échec !`);
+    console.log(`${COLOR_LABELS[color]} est en échec !`);
     marquerEchec(color);
   }
 }
@@ -111,19 +112,19 @@ function apresDeplacemement() {
 // ─── Promotion ──────────────────────────────────────────────────────────────
 
 function afficherPromotion(position) {
-  const piece = jeu.getPièce(position);
+  const piece = jeu.getPiece(position);
   const wrapper = document.querySelector('.promotion__wrapper');
   wrapper.querySelectorAll('[data-type]').forEach((btn) => {
-    btn.textContent = factory.getSymbole(btn.dataset.type, piece.couleur);
+    btn.textContent = factory.getSymbol(btn.dataset.type, piece.color);
   });
   wrapper.style.display = 'flex';
 }
 
 document.querySelector('.promotion__wrapper').addEventListener('click', (event) => {
   const btn = event.target.closest('[data-type]');
-  if (!btn || !jeu.positionPromotion) return;
+  if (!btn || !jeu.promotionSquare) return;
 
-  jeu.promouvoir(jeu.positionPromotion, btn.dataset.type);
+  jeu.promote(jeu.promotionSquare, btn.dataset.type);
   document.querySelector('.promotion__wrapper').style.display = 'none';
   rendreBoard();
   rendrePrisonniers();
@@ -154,18 +155,18 @@ gameOverDialog.addEventListener('close', () => {
 // ─── Gestionnaire de clics (délégation sur le plateau) ──────────────────────
 
 document.querySelector('.container-piece').addEventListener('click', (event) => {
-  if (jeu.termine || jeu.positionPromotion) return;
+  if (jeu.isOver || jeu.promotionSquare) return;
 
   const caseNode = event.target.closest('.case');
   if (!caseNode) return;
 
   const position = caseNode.dataset.position;
-  const piece = jeu.getPièce(position);
+  const piece = jeu.getPiece(position);
 
   if (positionSelectionnee) {
     if (coupsPossibles.includes(position)) {
       // Exécuter le coup
-      const result = jeu.deplacer(positionSelectionnee, position);
+      const result = jeu.move(positionSelectionnee, position);
       if (!result) return;
 
       rendreBoard();
@@ -173,8 +174,8 @@ document.querySelector('.container-piece').addEventListener('click', (event) => 
       deselectionner();
       effacerEchec();
 
-      const log = result.coupSpécial
-        ? `${result.from} → ${result.to} (${result.coupSpécial})`
+      const log = result.specialMove
+        ? `${result.from} → ${result.to} (${SPECIAL_MOVE_LABELS[result.specialMove]})`
         : `${result.from} → ${result.to}`;
       console.log(log);
 
@@ -185,13 +186,13 @@ document.querySelector('.container-piece').addEventListener('click', (event) => 
 
       mettreAJourJoueurCourant();
       apresDeplacemement();
-    } else if (piece && piece.couleur === jeu.couleurCourante) {
+    } else if (piece && piece.color === jeu.currentColor) {
       // Resélectionner une autre pièce alliée
       selectionner(position);
     } else {
       deselectionner();
     }
-  } else if (piece && piece.couleur === jeu.couleurCourante) {
+  } else if (piece && piece.color === jeu.currentColor) {
     selectionner(position);
   }
 });
@@ -199,7 +200,7 @@ document.querySelector('.container-piece').addEventListener('click', (event) => 
 // ─── Initialisation ──────────────────────────────────────────────────────────
 
 function initialiser() {
-  jeu.initialiser();
+  jeu.initialize();
   rendreBoard();
   rendrePrisonniers();
   deselectionner();
