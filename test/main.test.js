@@ -54,10 +54,10 @@ const originalConsoleLog = console.log;
  * Returns the square of the board at a position.
  *
  * @param {string} position Algebraic position, such as `'e4'`.
- * @returns {HTMLElement | null} The `.case` element.
+ * @returns {HTMLElement | null} The `.square` element.
  */
 function square(position) {
-  return document.querySelector(`.case[data-position="${position}"]`);
+  return document.querySelector(`.square[data-position="${position}"]`);
 }
 
 /**
@@ -75,18 +75,18 @@ function pieceOn(position) {
 /**
  * Lists the positions of the squares that carry a class.
  *
- * @param {string} className Class of the squares, such as `'chemin'`.
+ * @param {string} className Class of the squares, such as `'possible-move'`.
  * @returns {string[]} Their positions, sorted.
  */
 function squaresWithClass(className) {
-  return [...document.querySelectorAll(`.case.${className}`)]
+  return [...document.querySelectorAll(`.square.${className}`)]
     .map((node) => node.dataset.position)
     .sort();
 }
 
 /** @returns {string | undefined} The color whose control panel is marked as the current player. */
 function currentPlayer() {
-  return document.querySelector('.control.joueur-courant')?.dataset.color;
+  return document.querySelector('.control.current-player')?.dataset.color;
 }
 
 /**
@@ -130,7 +130,7 @@ afterEach(() => {
 
 describe('main.js start', () => {
   it('renders the 32 pieces and gives the move to white', () => {
-    expect(document.querySelectorAll('.container-piece .piece')).toHaveLength(32);
+    expect(document.querySelectorAll('.container-squares .piece')).toHaveLength(32);
     expect(pieceOn('e1')).toEqual({ type: 'king', color: 'white' });
     expect(pieceOn('d8')).toEqual({ type: 'queen', color: 'black' });
     expect(currentPlayer()).toBe('white');
@@ -153,9 +153,9 @@ describe('main.js start', () => {
 
     expect(pieceOn('e4')).toBeNull();
     expect(pieceOn('d4')).toBeNull();
-    expect(document.querySelectorAll('.container-piece .piece')).toHaveLength(32);
-    expect(document.getElementById('white-prisoniers').children).toHaveLength(1);
-    expect(document.getElementById('white-prisoniers').firstElementChild.dataset.type).toBe('pawn');
+    expect(document.querySelectorAll('.container-squares .piece')).toHaveLength(32);
+    expect(document.getElementById('white-captures').children).toHaveLength(1);
+    expect(document.getElementById('white-captures').firstElementChild.dataset.type).toBe('pawn');
     expect(document.body.textContent).not.toContain('undefined');
   });
 
@@ -173,8 +173,8 @@ describe('main.js selection and moves', () => {
   it('highlights the selected piece and its moves', () => {
     square('e2').click();
 
-    expect(squaresWithClass('selectionner')).toEqual(['e2']);
-    expect(squaresWithClass('chemin')).toEqual(['e3', 'e4']);
+    expect(squaresWithClass('selected')).toEqual(['e2']);
+    expect(squaresWithClass('possible-move')).toEqual(['e3', 'e4']);
   });
 
   it('moves the selected piece to a highlighted square and passes the move', () => {
@@ -182,8 +182,8 @@ describe('main.js selection and moves', () => {
 
     expect(pieceOn('e4')).toEqual({ type: 'pawn', color: 'white' });
     expect(pieceOn('e2')).toBeNull();
-    expect(squaresWithClass('selectionner')).toEqual([]);
-    expect(squaresWithClass('chemin')).toEqual([]);
+    expect(squaresWithClass('selected')).toEqual([]);
+    expect(squaresWithClass('possible-move')).toEqual([]);
     expect(currentPlayer()).toBe('black');
   });
 
@@ -191,8 +191,8 @@ describe('main.js selection and moves', () => {
     square('e2').click();
     square('g1').click();
 
-    expect(squaresWithClass('selectionner')).toEqual(['g1']);
-    expect(squaresWithClass('chemin')).toEqual(['f3', 'h3']);
+    expect(squaresWithClass('selected')).toEqual(['g1']);
+    expect(squaresWithClass('possible-move')).toEqual(['f3', 'h3']);
   });
 
   it('clears the selection on a click outside the highlighted squares, without moving', () => {
@@ -201,37 +201,37 @@ describe('main.js selection and moves', () => {
 
     expect(pieceOn('e2')).toEqual({ type: 'pawn', color: 'white' });
     expect(pieceOn('e5')).toBeNull();
-    expect(squaresWithClass('selectionner')).toEqual([]);
-    expect(squaresWithClass('chemin')).toEqual([]);
+    expect(squaresWithClass('selected')).toEqual([]);
+    expect(squaresWithClass('possible-move')).toEqual([]);
     expect(currentPlayer()).toBe('white');
   });
 
   it('ignores a click on a piece of the side not to move', () => {
     square('e7').click();
 
-    expect(squaresWithClass('selectionner')).toEqual([]);
-    expect(squaresWithClass('chemin')).toEqual([]);
+    expect(squaresWithClass('selected')).toEqual([]);
+    expect(squaresWithClass('possible-move')).toEqual([]);
     expect(currentPlayer()).toBe('white');
   });
 
   it('ignores a click on an empty square without a selection', () => {
     square('e4').click();
 
-    expect(squaresWithClass('selectionner')).toEqual([]);
+    expect(squaresWithClass('selected')).toEqual([]);
     expect(currentPlayer()).toBe('white');
   });
 
   it('does not select a piece without legal moves', () => {
     square('a1').click();
 
-    expect(squaresWithClass('selectionner')).toEqual([]);
-    expect(squaresWithClass('chemin')).toEqual([]);
+    expect(squaresWithClass('selected')).toEqual([]);
+    expect(squaresWithClass('possible-move')).toEqual([]);
   });
 
   it('ignores a click outside the squares', () => {
-    document.querySelector('.container-piece .row').click();
+    document.querySelector('.container-squares .row').click();
 
-    expect(squaresWithClass('selectionner')).toEqual([]);
+    expect(squaresWithClass('selected')).toEqual([]);
   });
 
   it('shows the captured pieces next to the capturing side', () => {
@@ -241,8 +241,8 @@ describe('main.js selection and moves', () => {
       ['e4', 'd5'],
     ]);
 
-    expect(document.getElementById('white-nb-prisonier').textContent).toBe('1');
-    const prisoner = document.querySelector('#white-prisoniers .piece');
+    expect(document.getElementById('white-capture-count').textContent).toBe('1');
+    const prisoner = document.querySelector('#white-captures .piece');
     expect(prisoner.dataset).toMatchObject({ type: 'pawn', color: 'black' });
   });
 
@@ -253,10 +253,10 @@ describe('main.js selection and moves', () => {
       ['d1', 'h5'],
     ]);
 
-    expect(squaresWithClass('echec')).toEqual(['e8']);
+    expect(squaresWithClass('check')).toEqual(['e8']);
 
     play([['g7', 'g6']]);
-    expect(squaresWithClass('echec')).toEqual([]);
+    expect(squaresWithClass('check')).toEqual([]);
   });
 });
 
@@ -279,7 +279,7 @@ describe('main.js promotion', () => {
   it('ignores clicks on the board while the choice is open', () => {
     square('e8').click();
 
-    expect(squaresWithClass('selectionner')).toEqual([]);
+    expect(squaresWithClass('selected')).toEqual([]);
   });
 
   it('ignores a click on the modal outside the piece buttons', () => {
@@ -295,13 +295,13 @@ describe('main.js promotion', () => {
     expect(pieceOn('d8')).toEqual({ type: 'knight', color: 'white' });
     expect(promotionModal().style.display).toBe('none');
     expect(currentPlayer()).toBe('black');
-    expect(document.getElementById('white-nb-prisonier').textContent).toBe('4');
+    expect(document.getElementById('white-capture-count').textContent).toBe('4');
   });
 
   it('marks the check given by the promoted piece', () => {
     promotionModal().querySelector('[data-type="queen"]').click();
 
-    expect(squaresWithClass('echec')).toEqual(['e8']);
+    expect(squaresWithClass('check')).toEqual(['e8']);
   });
 });
 
@@ -314,8 +314,8 @@ describe('main.js end of game', () => {
   });
 
   it('marks the mated king and names the winner', () => {
-    expect(squaresWithClass('echec')).toEqual(['e1']);
-    expect(document.querySelector('.couleur-joueur-gagnant').textContent).toBe('noire');
+    expect(squaresWithClass('check')).toEqual(['e1']);
+    expect(document.querySelector('.winner-color').textContent).toBe('noire');
   });
 
   it('opens the checkmate dialog after the delay, not before', () => {
@@ -325,27 +325,27 @@ describe('main.js end of game', () => {
     vi.advanceTimersByTime(1);
 
     expect(dialog().open).toBe(true);
-    expect(dialog().querySelector('.fin-de-partie').classList).toContain('afficher');
+    expect(dialog().querySelector('.checkmate').classList).toContain('shown');
     expect(dialog().getAttribute('aria-labelledby')).toBe('checkmate-title');
   });
 
   it('ignores clicks on the board once the game is over', () => {
     square('a2').click();
 
-    expect(squaresWithClass('selectionner')).toEqual([]);
+    expect(squaresWithClass('selected')).toEqual([]);
   });
 
   it('starts a new game when "Rejouer" closes the dialog', () => {
     vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
 
-    dialog().querySelector('.fin-de-partie button').click();
+    dialog().querySelector('.checkmate button').click();
 
     expect(dialog().open).toBe(false);
-    expect(dialog().querySelectorAll('.afficher')).toHaveLength(0);
+    expect(dialog().querySelectorAll('.shown')).toHaveLength(0);
     expect(pieceOn('d8')).toEqual({ type: 'queen', color: 'black' });
     expect(pieceOn('f2')).toEqual({ type: 'pawn', color: 'white' });
     expect(pieceOn('h4')).toBeNull();
-    expect(squaresWithClass('echec')).toEqual([]);
+    expect(squaresWithClass('check')).toEqual([]);
     expect(currentPlayer()).toBe('white');
 
     play([['e2', 'e4']]);
@@ -363,23 +363,23 @@ describe('main.js stalemate', () => {
   });
 
   it('opens the stalemate dialog after the delay, without marking a king', () => {
-    expect(squaresWithClass('echec')).toEqual([]);
+    expect(squaresWithClass('check')).toEqual([]);
 
     vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
 
     expect(dialog().open).toBe(true);
-    expect(dialog().querySelector('.pat').classList).toContain('afficher');
-    expect(dialog().querySelector('.fin-de-partie').classList).not.toContain('afficher');
+    expect(dialog().querySelector('.stalemate').classList).toContain('shown');
+    expect(dialog().querySelector('.checkmate').classList).not.toContain('shown');
     expect(dialog().getAttribute('aria-labelledby')).toBe('stalemate-title');
   });
 
   it('starts a new game when "Rejouer" closes the dialog', () => {
     vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
 
-    dialog().querySelector('.pat button').click();
+    dialog().querySelector('.stalemate button').click();
 
     expect(dialog().open).toBe(false);
-    expect(document.querySelectorAll('.container-piece .piece')).toHaveLength(32);
+    expect(document.querySelectorAll('.container-squares .piece')).toHaveLength(32);
     expect(currentPlayer()).toBe('white');
   });
 });

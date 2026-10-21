@@ -78,32 +78,32 @@ h1 {
 
 .game {
   display: grid;
-  grid-template-areas: '. lettre' 'numero piece';
+  grid-template-areas: '. files' 'ranks squares';
   grid-template-columns: var(--coordinates-size) 1fr;
   grid-template-rows: var(--coordinates-size) 1fr;
 }
 
-.container-lettre {
-  grid-area: lettre;
+.container-files {
+  grid-area: files;
   display: flex;
   flex-direction: row;
   justify-content: space-around;
   flex: 1 1 0;
 }
 
-.container-numero {
-  grid-area: numero;
+.container-ranks {
+  grid-area: ranks;
   display: flex;
   flex-direction: column-reverse;
   justify-content: space-around;
   flex: 1 1 0;
 }
 
-.container-piece {
+.container-squares {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  grid-area: piece;
+  grid-area: squares;
   width: calc(var(--square) * 8);
 }
 
@@ -124,7 +124,7 @@ h1 {
   text-align: left;
 }
 
-.case {
+.square {
   height: var(--square);
   width: var(--square);
   display: flex;
@@ -132,30 +132,30 @@ h1 {
   align-items: center;
 }
 
-.row:nth-of-type(odd) .case:nth-of-type(even) {
+.row:nth-of-type(odd) .square:nth-of-type(even) {
   background-color: #d18b46;
 }
 
-.row:nth-of-type(odd) .case:nth-of-type(odd) {
+.row:nth-of-type(odd) .square:nth-of-type(odd) {
   background-color: #ffcf9e;
 }
 
-.row:nth-of-type(even) .case:nth-of-type(even) {
+.row:nth-of-type(even) .square:nth-of-type(even) {
   background-color: #ffcf9e;
 }
 
-.row:nth-of-type(even) .case:nth-of-type(odd) {
+.row:nth-of-type(even) .square:nth-of-type(odd) {
   background-color: #d18b46;
 }
 
 /* Only on devices with a real pointer: a touch screen would keep the last tapped square dark */
 @media (hover: hover) {
-  .case:hover {
+  .square:hover {
     background-color: rgba(0, 0, 0, 0.5) !important;
   }
 }
 
-/* Les pieces */
+/* Pieces */
 
 .piece {
   /* 3rem in a 70px square, scaled down with smaller squares */
@@ -165,20 +165,20 @@ h1 {
   height: 100%;
 }
 
-.case.chemin {
+.square.possible-move {
   background-color: rgba(139, 195, 74, 1) !important;
-  animation: clignoter 0.5s linear 1s infinite alternate;
+  animation: blink 0.5s linear 1s infinite alternate;
 }
 
-.case.chemin:hover {
+.square.possible-move:hover {
   cursor: crosshair;
 }
 
-.case {
+.square {
   cursor: not-allowed;
 }
 
-.case.selectionner {
+.square.selected {
   background-color: rgba(76, 255, 76, 1) !important;
 }
 
@@ -223,7 +223,7 @@ h1 {
   gap: 1.5rem;
 }
 
-.alert__wrapper .alert:not(.afficher) {
+.alert__wrapper .alert:not(.shown) {
   display: none;
 }
 
@@ -262,12 +262,12 @@ h1 {
   cursor: pointer;
 }
 
-.joueur-courant h2 {
+.current-player h2 {
   border-radius: 10px;
-  animation: clignoter 0.5s linear 1s infinite alternate;
+  animation: blink 0.5s linear 1s infinite alternate;
 }
 
-@keyframes clignoter {
+@keyframes blink {
   from {
     background-color: rgba(139, 195, 74, 0.5);
   }
@@ -291,7 +291,7 @@ h1 {
   color: #ff9800;
 }
 
-.réseaux-sociaux {
+.social-links {
   position: fixed;
   bottom: 20px;
   right: 20px;
@@ -299,24 +299,24 @@ h1 {
   align-items: center;
 }
 
-.réseaux-sociaux svg {
+.social-links svg {
   fill: #ffffff70;
   height: 3rem;
   width: 3rem;
   margin-right: 1.2rem;
 }
 
-.réseaux-sociaux svg:hover {
+.social-links svg:hover {
   fill: #d18b46;
 }
 
-/* Roi en échec */
-.case.echec {
+/* King in check */
+.square.check {
   background-color: rgba(220, 50, 50, 0.7) !important;
-  animation: clignoter-echec 0.5s linear infinite alternate;
+  animation: blink-check 0.5s linear infinite alternate;
 }
 
-@keyframes clignoter-echec {
+@keyframes blink-check {
   from {
     background-color: rgba(220, 50, 50, 0.8);
   }
@@ -325,7 +325,7 @@ h1 {
   }
 }
 
-/* Modal de promotion */
+/* Promotion dialog */
 .promotion__wrapper {
   position: fixed;
   inset: 0;
@@ -386,13 +386,13 @@ h1 {
     text-align: center;
   }
 
-  .réseaux-sociaux {
+  .social-links {
     position: static;
     justify-content: center;
     margin-bottom: 1rem;
   }
 
-  .réseaux-sociaux svg {
+  .social-links svg {
     margin: 0 0.6rem;
   }
 }
