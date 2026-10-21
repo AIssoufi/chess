@@ -124,7 +124,7 @@ document.querySelector('.promotion__wrapper').addEventListener('click', (event) 
   const btn = event.target.closest('[data-type]');
   if (!btn || !game.promotionSquare) return;
 
-  game.promote(game.promotionSquare, btn.dataset.type);
+  game.promote({ position: game.promotionSquare, type: btn.dataset.type });
   document.querySelector('.promotion__wrapper').style.display = 'none';
   renderBoard();
   renderCaptures();
@@ -166,7 +166,7 @@ document.querySelector('.container-squares').addEventListener('click', (event) =
   if (selectedSquare) {
     if (possibleMoves.includes(position)) {
       // Play the move
-      const result = game.move(selectedSquare, position);
+      const result = game.move({ from: selectedSquare, to: position });
       if (!result) return;
 
       renderBoard();

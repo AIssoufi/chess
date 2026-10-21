@@ -7,8 +7,20 @@ import rook from './pieces/rook.js';
 import { isCastlingRook } from './castling/utils.js';
 import { COLORS } from './colors/constants.js';
 import { getOpponent, getPawnDirection } from './colors/utils.js';
-import { SPECIAL_MOVES } from './moves/constants.js';
-import { getEnPassantCaptureSquare } from './squares/utils.js';
+import {
+  ALL_DIRECTIONS,
+  BISHOP_DIRECTIONS,
+  CASTLING_KING_FILE_STEP,
+  KING_STEPS,
+  KNIGHT_JUMPS,
+  MAX_SLIDE_STEPS,
+  PAWN_CAPTURE_FILE_STEPS,
+  PAWN_DOUBLE_STEP,
+  ROOK_DIRECTIONS,
+  SPECIAL_MOVES,
+} from './moves/constants.js';
+import { isOpponentPiece } from './moves/utils.js';
+import { areCoordinatesOnBoard, getEnPassantCaptureSquare } from './squares/utils.js';
 
 const FILES = 'abcdefgh';
 /** Piece types a pawn may be promoted to. */
@@ -22,11 +34,8 @@ function fileIndex(letter) {
 function fileLetter(c) {
   return FILES[c];
 }
-function toSquare(c, r) {
-  return `${fileLetter(c)}${r}`;
-}
-function isOnBoard(c, r) {
-  return c >= 0 && c < 8 && r >= 1 && r <= 8;
+function toSquare({ file, rank }) {
+  return `${fileLetter(file)}${rank}`;
 }
 
 function buildStartingPosition() {
@@ -68,16 +77,26 @@ export default class Chessboard {
 
   // ─── Raw move generation (without check validation) ──────────────────────
 
-  _slidingMoves(c, r, color, directions, maxSteps, moves) {
+  /**
+   * Adds to `moves` the squares a piece reaches by sliding from its square, stopping before a
+   * piece of its color and on a piece of the other color.
+   * @param {object} params
+   * @param {number} params.file File index of the piece, from 0 for `a`.
+   * @param {number} params.rank Rank number of the piece.
+   * @param {string} params.color Color of the piece.
+   * @param {ReadonlyArray<number[]>} params.directions `[file, rank]` steps to slide along.
+   * @param {number} params.maxSteps Farthest number of squares the piece slides.
+   * @param {string[]} params.moves Squares found so far, extended in place.
+   */
+  _slidingMoves({ file, rank, color, directions, maxSteps, moves }) {
     for (const [dc, dr] of directions) {
       for (let i = 1; i <= maxSteps; i++) {
-        const nc = c + dc * i;
-        const nr = r + dr * i;
-        if (!isOnBoard(nc, nr)) break;
-        const dest = toSquare(nc, nr);
+        const next = { file: file + dc * i, rank: rank + dr * i };
+        if (!areCoordinatesOnBoard(next)) break;
+        const dest = toSquare(next);
         const target = this.board.get(dest);
         if (target) {
-          if (target.color !== color) moves.push(dest); // capture
+          if (isOpponentPiece({ piece: target, color })) moves.push(dest); // capture
           break; // blocked
         }
         moves.push(dest);
@@ -85,108 +104,50 @@ export default class Chessboard {
     }
   }
 
+  _isEnPassantCapture({ piece, to }) {
+    return piece.type === 'pawn' && to === this.enPassantSquare;
+  }
+
   /**
    * Returns the raw moves of a piece, without checking whether the king stays in check.
-   * @param {string} position
-   * @param {object} piece
-   * @param {boolean} forAttack When true, pawns attack diagonally without an enemy piece there.
+   * @param {object} params
+   * @param {string} params.position Square of the piece.
+   * @param {object} params.piece The piece on that square.
+   * @param {boolean} [params.forAttack] When true, pawns attack diagonally without an enemy
+   *   piece there.
    */
-  _rawMoves(position, piece, forAttack = false) {
+  _rawMoves({ position, piece, forAttack = false }) {
     const c = fileIndex(position[0]);
     const r = parseInt(position[1]);
     const moves = [];
     const dir = getPawnDirection(piece.color);
+    const slide = { file: c, rank: r, color: piece.color, moves };
 
     switch (piece.type) {
       case 'rook':
-        this._slidingMoves(
-          c,
-          r,
-          piece.color,
-          [
-            [1, 0],
-            [0, 1],
-            [-1, 0],
-            [0, -1],
-          ],
-          7,
-          moves
-        );
+        this._slidingMoves({ ...slide, directions: ROOK_DIRECTIONS, maxSteps: MAX_SLIDE_STEPS });
         break;
 
       case 'bishop':
-        this._slidingMoves(
-          c,
-          r,
-          piece.color,
-          [
-            [1, 1],
-            [1, -1],
-            [-1, -1],
-            [-1, 1],
-          ],
-          7,
-          moves
-        );
+        this._slidingMoves({ ...slide, directions: BISHOP_DIRECTIONS, maxSteps: MAX_SLIDE_STEPS });
         break;
 
       case 'queen':
-        this._slidingMoves(
-          c,
-          r,
-          piece.color,
-          [
-            [1, 0],
-            [0, 1],
-            [-1, 0],
-            [0, -1],
-            [1, 1],
-            [1, -1],
-            [-1, -1],
-            [-1, 1],
-          ],
-          7,
-          moves
-        );
+        this._slidingMoves({ ...slide, directions: ALL_DIRECTIONS, maxSteps: MAX_SLIDE_STEPS });
         break;
 
       case 'king':
-        this._slidingMoves(
-          c,
-          r,
-          piece.color,
-          [
-            [1, 0],
-            [0, 1],
-            [-1, 0],
-            [0, -1],
-            [1, 1],
-            [1, -1],
-            [-1, -1],
-            [-1, 1],
-          ],
-          1,
-          moves
-        );
+        this._slidingMoves({ ...slide, directions: ALL_DIRECTIONS, maxSteps: KING_STEPS });
         break;
 
       case 'knight':
-        for (const [dx, dy] of [
-          [1, 2],
-          [-1, 2],
-          [2, 1],
-          [2, -1],
-          [-2, 1],
-          [-2, -1],
-          [1, -2],
-          [-1, -2],
-        ]) {
-          const nc = c + dx;
-          const nr = r + dy;
-          if (isOnBoard(nc, nr)) {
-            const dest = toSquare(nc, nr);
+        for (const [dx, dy] of KNIGHT_JUMPS) {
+          const next = { file: c + dx, rank: r + dy };
+          if (areCoordinatesOnBoard(next)) {
+            const dest = toSquare(next);
             const target = this.board.get(dest);
-            if (!target || target.color !== piece.color) moves.push(dest);
+            const canLand = !target || isOpponentPiece({ piece: target, color: piece.color });
+            if (canLand) moves.push(dest);
           }
         }
         break;
@@ -194,30 +155,32 @@ export default class Chessboard {
       case 'pawn':
         // Advance (not an attack)
         if (!forAttack) {
-          const ahead = toSquare(c, r + dir);
-          if (isOnBoard(c, r + dir) && !this.board.get(ahead)) {
-            moves.push(ahead);
+          const ahead = { file: c, rank: r + dir };
+          const isAheadFree = areCoordinatesOnBoard(ahead) && !this.board.get(toSquare(ahead));
+          if (isAheadFree) {
+            moves.push(toSquare(ahead));
             // Double advance from the starting square
             if (!piece.hasMoved) {
-              const twoAhead = toSquare(c, r + 2 * dir);
-              if (isOnBoard(c, r + 2 * dir) && !this.board.get(twoAhead)) {
-                moves.push(twoAhead);
-              }
+              const twoAhead = { file: c, rank: r + PAWN_DOUBLE_STEP * dir };
+              const isTwoAheadFree =
+                areCoordinatesOnBoard(twoAhead) && !this.board.get(toSquare(twoAhead));
+              if (isTwoAheadFree) moves.push(toSquare(twoAhead));
             }
           }
         }
         // Diagonal captures
-        for (const dx of [-1, 1]) {
-          const nc = c + dx;
-          const nr = r + dir;
-          if (isOnBoard(nc, nr)) {
-            const dest = toSquare(nc, nr);
+        for (const dx of PAWN_CAPTURE_FILE_STEPS) {
+          const next = { file: c + dx, rank: r + dir };
+          if (areCoordinatesOnBoard(next)) {
+            const dest = toSquare(next);
             const target = this.board.get(dest);
-            if (forAttack || (target && target.color !== piece.color)) {
+            const isCapture = isOpponentPiece({ piece: target, color: piece.color });
+            if (forAttack || isCapture) {
               moves.push(dest);
             }
             // En passant
-            if (!forAttack && dest === this.enPassantSquare) {
+            const isEnPassantTarget = !forAttack && dest === this.enPassantSquare;
+            if (isEnPassantTarget) {
               moves.push(dest);
             }
           }
@@ -234,7 +197,7 @@ export default class Chessboard {
     const attacked = new Set();
     for (const [p, piece] of this.board) {
       if (piece.color === color) {
-        for (const dest of this._rawMoves(p, piece, true)) {
+        for (const dest of this._rawMoves({ position: p, piece, forAttack: true })) {
           attacked.add(dest);
         }
       }
@@ -245,7 +208,8 @@ export default class Chessboard {
   isInCheck(color) {
     let kingSquare = null;
     for (const [p, piece] of this.board) {
-      if (piece.type === 'king' && piece.color === color) {
+      const isOwnKing = piece.type === 'king' && piece.color === color;
+      if (isOwnKing) {
         kingSquare = p;
         break;
       }
@@ -255,14 +219,14 @@ export default class Chessboard {
   }
 
   // Simulates a move and returns true when it leaves the king of the moving color in check
-  _leavesKingInCheck(from, to) {
+  _leavesKingInCheck({ from, to }) {
     const piece = this.board.get(from);
     const captured = this.board.get(to);
 
     // En passant: square of the captured pawn
     let enPassantCaptureSquare = null;
     let enPassantPawn = null;
-    if (piece.type === 'pawn' && to === this.enPassantSquare) {
+    if (this._isEnPassantCapture({ piece, to })) {
       enPassantCaptureSquare = getEnPassantCaptureSquare({ target: to, color: piece.color });
       enPassantPawn = this.board.get(enPassantCaptureSquare);
     }
@@ -278,7 +242,8 @@ export default class Chessboard {
     this.board.set(from, piece);
     if (captured) this.board.set(to, captured);
     else this.board.delete(to);
-    if (enPassantCaptureSquare && enPassantPawn) {
+    const hasRemovedEnPassantPawn = Boolean(enPassantCaptureSquare && enPassantPawn);
+    if (hasRemovedEnPassantPawn) {
       this.board.set(enPassantCaptureSquare, enPassantPawn);
     }
 
@@ -291,41 +256,36 @@ export default class Chessboard {
     const piece = this.board.get(position);
     if (!piece) return [];
 
-    const moves = this._rawMoves(position, piece);
+    const moves = this._rawMoves({ position, piece });
 
     // Add castling for the king
-    if (piece.type === 'king' && !piece.hasMoved && !this.isInCheck(piece.color)) {
+    const canKingCastle = piece.type === 'king' && !piece.hasMoved && !this.isInCheck(piece.color);
+    if (canKingCastle) {
       const r = parseInt(position[1]);
       const attacked = this._squaresAttackedBy(getOpponent(piece.color));
 
       // Kingside castling
       const rookH = this.board.get(`h${r}`);
-      if (
-        isCastlingRook({ piece: rookH, color: piece.color }) &&
-        !this.board.get(`f${r}`) &&
-        !this.board.get(`g${r}`) &&
-        !attacked.has(`f${r}`) &&
-        !attacked.has(`g${r}`)
-      ) {
+      const hasKingsideRook = isCastlingRook({ piece: rookH, color: piece.color });
+      const isKingsidePathEmpty = !this.board.get(`f${r}`) && !this.board.get(`g${r}`);
+      const isKingsidePathSafe = !attacked.has(`f${r}`) && !attacked.has(`g${r}`);
+      if (hasKingsideRook && isKingsidePathEmpty && isKingsidePathSafe) {
         moves.push(`g${r}`);
       }
 
       // Queenside castling
       const rookA = this.board.get(`a${r}`);
-      if (
-        isCastlingRook({ piece: rookA, color: piece.color }) &&
-        !this.board.get(`b${r}`) &&
-        !this.board.get(`c${r}`) &&
-        !this.board.get(`d${r}`) &&
-        !attacked.has(`c${r}`) &&
-        !attacked.has(`d${r}`)
-      ) {
+      const hasQueensideRook = isCastlingRook({ piece: rookA, color: piece.color });
+      const isQueensidePathEmpty =
+        !this.board.get(`b${r}`) && !this.board.get(`c${r}`) && !this.board.get(`d${r}`);
+      const isQueensidePathSafe = !attacked.has(`c${r}`) && !attacked.has(`d${r}`);
+      if (hasQueensideRook && isQueensidePathEmpty && isQueensidePathSafe) {
         moves.push(`c${r}`);
       }
     }
 
     // Drop the moves that leave the king in check
-    return moves.filter((dest) => !this._leavesKingInCheck(position, dest));
+    return moves.filter((dest) => !this._leavesKingInCheck({ from: position, to: dest }));
   }
 
   // ─── Game state ───────────────────────────────────────────────────────────
@@ -335,7 +295,8 @@ export default class Chessboard {
     // which can change their insertion order and make a loop over the Map itself never end.
     const entries = [...this.board.entries()];
     for (const [p, piece] of entries) {
-      if (piece.color === color && this.getMoves(p).length > 0) {
+      const hasLegalMove = piece.color === color && this.getMoves(p).length > 0;
+      if (hasLegalMove) {
         return false;
       }
     }
@@ -356,8 +317,12 @@ export default class Chessboard {
    * Moves the piece on `from` to `to`.
    * Returns an object describing the move, or null when the move is illegal, the game is
    * over, a promotion is pending, or the piece does not belong to the side to move.
+   * @param {object | null} [params]
+   * @param {string} params.from Square of the piece to move.
+   * @param {string} params.to Square the piece moves to.
    */
-  move(from, to) {
+  move(params) {
+    const { from, to } = params ?? {};
     const isPromotionPending = this.promotionSquare !== null;
     if (this.isOver || isPromotionPending) return null;
 
@@ -367,7 +332,8 @@ export default class Chessboard {
     if (!isSideToMove) return null;
 
     const legalMoves = this.getMoves(from);
-    if (!legalMoves.includes(to)) return null;
+    const isLegalMove = legalMoves.includes(to);
+    if (!isLegalMove) return null;
 
     const captured = this.board.get(to) ?? null;
     let specialMove = null;
@@ -376,16 +342,17 @@ export default class Chessboard {
     // ── Castling ──
     const fromFile = fileIndex(from[0]);
     const toFile = fileIndex(to[0]);
-    if (piece.type === 'king' && Math.abs(fromFile - toFile) === 2) {
+    const isCastling =
+      piece.type === 'king' && Math.abs(fromFile - toFile) === CASTLING_KING_FILE_STEP;
+    if (isCastling) {
       const r = parseInt(to[1]);
-      if (toFile > fromFile) {
-        // Kingside castling
+      const isKingside = toFile > fromFile;
+      if (isKingside) {
         const rook = this.board.get(`h${r}`);
         this.board.set(`f${r}`, { ...rook, hasMoved: true });
         this.board.delete(`h${r}`);
         specialMove = SPECIAL_MOVES.kingsideCastling;
       } else {
-        // Queenside castling
         const rook = this.board.get(`a${r}`);
         this.board.set(`d${r}`, { ...rook, hasMoved: true });
         this.board.delete(`a${r}`);
@@ -394,7 +361,7 @@ export default class Chessboard {
     }
 
     // ── En passant: capture the opponent's pawn ──
-    if (piece.type === 'pawn' && to === this.enPassantSquare) {
+    if (this._isEnPassantCapture({ piece, to })) {
       enPassantCaptureSquare = getEnPassantCaptureSquare({ target: to, color: piece.color });
       const capturedPawn = this.board.get(enPassantCaptureSquare);
       if (capturedPawn) {
@@ -405,8 +372,12 @@ export default class Chessboard {
     }
 
     // ── Update the en passant target ──
-    if (piece.type === 'pawn' && Math.abs(parseInt(to[1]) - parseInt(from[1])) === 2) {
-      const middleRank = (parseInt(from[1]) + parseInt(to[1])) / 2;
+    const fromRank = parseInt(from[1]);
+    const toRank = parseInt(to[1]);
+    const isPawnDoubleStep =
+      piece.type === 'pawn' && Math.abs(toRank - fromRank) === PAWN_DOUBLE_STEP;
+    if (isPawnDoubleStep) {
+      const middleRank = (fromRank + toRank) / 2;
       this.enPassantSquare = `${from[0]}${middleRank}`;
     } else {
       this.enPassantSquare = null;
@@ -435,11 +406,13 @@ export default class Chessboard {
    * Turns the promoted pawn into the chosen piece.
    * Ignores a position other than the pending promotion and a type outside
    * PROMOTION_PIECE_TYPES.
-   * @param {string} position Square of the pawn to promote.
-   * @param {string} type Piece type: 'queen' | 'rook' | 'bishop' | 'knight'.
+   * @param {object | null} [params]
+   * @param {string} params.position Square of the pawn to promote.
+   * @param {string} params.type Piece type: 'queen' | 'rook' | 'bishop' | 'knight'.
    * @returns {boolean} true when the pawn was promoted, false when the call was ignored.
    */
-  promote(position, type) {
+  promote(params) {
+    const { position, type } = params ?? {};
     const isPendingPromotionSquare =
       this.promotionSquare !== null && position === this.promotionSquare;
     const isAllowedType = PROMOTION_PIECE_TYPES.includes(type);

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getEnPassantCaptureSquare } from '../app/js/squares/utils.js';
+import { areCoordinatesOnBoard, getEnPassantCaptureSquare } from '../app/js/squares/utils.js';
 
 describe('getEnPassantCaptureSquare', () => {
   it('returns the square below the target for a white pawn', () => {
@@ -41,5 +41,32 @@ describe('getEnPassantCaptureSquare', () => {
 
   it('returns null without parameters', () => {
     expect(getEnPassantCaptureSquare()).toBeNull();
+  });
+});
+
+describe('areCoordinatesOnBoard', () => {
+  it.each([
+    ['a1', { file: 0, rank: 1 }],
+    ['h8', { file: 7, rank: 8 }],
+    ['e4', { file: 4, rank: 4 }],
+  ])('returns true for %s', (_label, params) => {
+    expect(areCoordinatesOnBoard(params)).toBe(true);
+  });
+
+  it.each([
+    ['a file left of a', { file: -1, rank: 4 }],
+    ['a file right of h', { file: 8, rank: 4 }],
+    ['rank 0', { file: 4, rank: 0 }],
+    ['rank 9', { file: 4, rank: 9 }],
+    ['a missing file', { rank: 4 }],
+    ['a missing rank', { file: 4 }],
+    ['non-numeric coordinates', { file: 'e', rank: 'x' }],
+    ['NaN coordinates', { file: NaN, rank: NaN }],
+    ['numeric strings', { file: '4', rank: '4' }],
+    ['decimals', { file: 0.5, rank: 1 }],
+    ['null params', null],
+    ['missing params', undefined],
+  ])('returns false for %s', (_label, params) => {
+    expect(areCoordinatesOnBoard(params)).toBe(false);
   });
 });

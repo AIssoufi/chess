@@ -36,7 +36,7 @@ beforeEach(() => {
 
 describe('getGameOutcome', () => {
   it('reports a checkmate and its winner after the fool’s mate', () => {
-    for (const [from, to] of FOOLS_MATE) game.move(from, to);
+    for (const [from, to] of FOOLS_MATE) game.move({ from, to });
 
     expect(getGameOutcome({ game })).toEqual({
       outcome: GAME_OUTCOMES.checkmate,
