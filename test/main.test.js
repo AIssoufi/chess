@@ -144,7 +144,7 @@ describe('main.js start', () => {
         vi.spyOn(Chessboard.prototype, 'initialize').mockImplementation(function () {
           initialize.call(this);
           this.board.set('e4', { type: 'unicorn', color: 'white', hasMoved: false });
-          this.board.set('d4', { type: 'pawn', color: 'rouge', hasMoved: false });
+          this.board.set('d4', { type: 'pawn', color: 'red', hasMoved: false });
           this.captures.white.push({ type: 'unicorn', color: 'black' });
           this.captures.white.push({ type: 'pawn', color: 'black' });
         });
@@ -246,6 +246,21 @@ describe('main.js selection and moves', () => {
     expect(prisoner.dataset).toMatchObject({ type: 'pawn', color: 'black' });
   });
 
+  it('writes the special move in French in the move log', () => {
+    play([
+      ['e2', 'e4'],
+      ['e7', 'e5'],
+      ['g1', 'f3'],
+      ['b8', 'c6'],
+      ['f1', 'c4'],
+      ['g8', 'f6'],
+      ['e1', 'g1'],
+    ]);
+
+    const lastLine = document.querySelector('.console-log').lastElementChild.textContent;
+    expect(lastLine).toMatch(/> e1 → g1 \(petit-roque\)$/);
+  });
+
   it('marks the king in check, then clears the mark once the check is parried', () => {
     play([
       ['e2', 'e4'],
@@ -316,6 +331,8 @@ describe('main.js end of game', () => {
   it('marks the mated king and names the winner', () => {
     expect(squaresWithClass('check')).toEqual(['e1']);
     expect(document.querySelector('.winner-color').textContent).toBe('noire');
+    const lastLine = document.querySelector('.console-log').lastElementChild.textContent;
+    expect(lastLine).toMatch(/> Échec et mat ! noire gagne\.$/);
   });
 
   it('opens the checkmate dialog after the delay, not before', () => {
