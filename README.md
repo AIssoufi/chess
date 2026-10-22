@@ -75,10 +75,10 @@ app/                 Vite root: the page, its styles and images
     copyright/       Writes the current year at the end of the footer copyright
     game-over/       Move outcome (check, mate, stalemate) and game over dialog constants
     main.js          UI controller: renders the board and handles clicks
-    moves/           Special move names and their French labels for the move log
+    moves/           Piece steps, special move names and labels, and the capture helper
     PieceFactory.js  Creates the DOM node of a piece from its type and color
     pieces/          Piece configs: Unicode symbol and starting squares
-    squares/         Square helpers, such as the square an en passant capture takes
+    squares/         Board size and square helpers, such as the square an en passant capture takes
   public/            Files copied as they are to dist/: the Cloudflare Pages _headers, the
                      favicon and the 1200x630 social preview image (og-image.jpg)
 commitlint/          Ticket reference rule, bot commits and the pull request title config

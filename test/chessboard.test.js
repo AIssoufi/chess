@@ -187,10 +187,41 @@ describe('Castling', () => {
     game.board.set('e1', { type: 'king', color: 'white', hasMoved: false });
     game.board.set('h1', { type: 'rook', color: 'white', hasMoved: false });
     game.board.set('e8', { type: 'king', color: 'black', hasMoved: true });
-    game.move('e1', 'g1');
+    game.move({ from: 'e1', to: 'g1' });
     expect(game.getPiece('g1')).toMatchObject({ type: 'king' });
     expect(game.getPiece('f1')).toMatchObject({ type: 'rook' });
     expect(game.board.get('h1')).toBeUndefined();
+  });
+
+  it.each([
+    {
+      side: 'kingside',
+      kingTarget: 'g8',
+      rookFrom: 'h8',
+      rookTo: 'f8',
+      specialMove: 'kingside-castling',
+    },
+    {
+      side: 'queenside',
+      kingTarget: 'c8',
+      rookFrom: 'a8',
+      rookTo: 'd8',
+      specialMove: 'queenside-castling',
+    },
+  ])('castles black $side on the eighth rank', ({ kingTarget, rookFrom, rookTo, specialMove }) => {
+    game.board.clear();
+    game.board.set('e8', { type: 'king', color: 'black', hasMoved: false });
+    game.board.set(rookFrom, { type: 'rook', color: 'black', hasMoved: false });
+    game.board.set('e1', { type: 'king', color: 'white', hasMoved: true });
+    game.currentColor = 'black';
+    expect(game.getMoves('e8')).toContain(kingTarget);
+
+    const result = game.move({ from: 'e8', to: kingTarget });
+
+    expect(result.specialMove).toBe(specialMove);
+    expect(game.getPiece(kingTarget)).toMatchObject({ type: 'king', color: 'black' });
+    expect(game.getPiece(rookTo)).toMatchObject({ type: 'rook', color: 'black', hasMoved: true });
+    expect(game.getPiece(rookFrom)).toBeNull();
   });
 });
 
@@ -204,7 +235,7 @@ describe('En passant', () => {
     game.board.set('e5', { type: 'pawn', color: 'white', hasMoved: true });
     game.board.set('d7', { type: 'pawn', color: 'black', hasMoved: false });
     game.currentColor = 'black';
-    game.move('d7', 'd5'); // two-square advance
+    game.move({ from: 'd7', to: 'd5' }); // two-square advance
     game.currentColor = 'white';
     expect(game.enPassantSquare).toBe('d6');
     expect(game.getMoves('e5')).toContain('d6');
@@ -218,7 +249,7 @@ describe('En passant', () => {
     game.board.set('d5', { type: 'pawn', color: 'black', hasMoved: true });
     game.enPassantSquare = 'd6';
     game.currentColor = 'white';
-    game.move('e5', 'd6');
+    game.move({ from: 'e5', to: 'd6' });
     expect(game.getPiece('d5')).toBeNull(); // black pawn removed
     expect(game.getPiece('d6')).toMatchObject({ type: 'pawn', color: 'white' });
   });
@@ -232,7 +263,7 @@ describe('Promotion', () => {
     game.board.set('e1', { type: 'king', color: 'white', hasMoved: true });
     game.board.set('e8', { type: 'king', color: 'black', hasMoved: true });
     game.board.set('a7', { type: 'pawn', color: 'white', hasMoved: true });
-    const result = game.move('a7', 'a8');
+    const result = game.move({ from: 'a7', to: 'a8' });
     expect(result.promotion).toBe(true);
     expect(game.promotionSquare).toBe('a8');
   });
@@ -242,8 +273,8 @@ describe('Promotion', () => {
     game.board.set('e1', { type: 'king', color: 'white', hasMoved: true });
     game.board.set('e8', { type: 'king', color: 'black', hasMoved: true });
     game.board.set('a7', { type: 'pawn', color: 'white', hasMoved: true });
-    game.move('a7', 'a8');
-    game.promote('a8', 'queen');
+    game.move({ from: 'a7', to: 'a8' });
+    game.promote({ position: 'a8', type: 'queen' });
     expect(game.getPiece('a8')).toMatchObject({ type: 'queen', color: 'white' });
   });
 });
@@ -256,47 +287,51 @@ function reachPendingPromotion() {
   game.board.set('e1', { type: 'king', color: 'white', hasMoved: true });
   game.board.set('e8', { type: 'king', color: 'black', hasMoved: true });
   game.board.set('a7', { type: 'pawn', color: 'white', hasMoved: true });
-  game.move('a7', 'a8');
+  game.move({ from: 'a7', to: 'a8' });
 }
 
 describe('move guards', () => {
   it('rejects a move of the side not to move and leaves the board unchanged', () => {
-    expect(game.move('e7', 'e5')).toBeNull();
+    expect(game.move({ from: 'e7', to: 'e5' })).toBeNull();
     expect(game.getPiece('e7')).toMatchObject({ type: 'pawn', color: 'black' });
     expect(game.getPiece('e5')).toBeNull();
     expect(game.currentColor).toBe('white');
   });
 
   it('accepts a move of the side to move', () => {
-    expect(game.move('e2', 'e4')).not.toBeNull();
-    expect(game.move('e7', 'e5')).not.toBeNull();
+    expect(game.move({ from: 'e2', to: 'e4' })).not.toBeNull();
+    expect(game.move({ from: 'e7', to: 'e5' })).not.toBeNull();
   });
 
   it('rejects any move while a promotion is pending', () => {
     reachPendingPromotion();
-    expect(game.move('e1', 'e2')).toBeNull();
-    expect(game.move('e8', 'e7')).toBeNull();
+    expect(game.move({ from: 'e1', to: 'e2' })).toBeNull();
+    expect(game.move({ from: 'e8', to: 'e7' })).toBeNull();
     expect(game.getPiece('e1')).toMatchObject({ type: 'king', color: 'white' });
     expect(game.getPiece('e8')).toMatchObject({ type: 'king', color: 'black' });
   });
 
   it('rejects any move once the game is over', () => {
     game.isOver = true;
-    expect(game.move('e2', 'e4')).toBeNull();
+    expect(game.move({ from: 'e2', to: 'e4' })).toBeNull();
     expect(game.getPiece('e2')).toMatchObject({ type: 'pawn', color: 'white' });
   });
 
   it('rejects a move from an empty or unknown square', () => {
-    expect(game.move('e4', 'e5')).toBeNull();
-    expect(game.move('z9', 'e5')).toBeNull();
-    expect(game.move(undefined, undefined)).toBeNull();
+    expect(game.move({ from: 'e4', to: 'e5' })).toBeNull();
+    expect(game.move({ from: 'z9', to: 'e5' })).toBeNull();
+    expect(game.move({ from: undefined, to: undefined })).toBeNull();
+    expect(game.move({})).toBeNull();
+    expect(game.move()).toBeNull();
+    expect(game.move(null)).toBeNull();
+    expect(game.move('e2', 'e4')).toBeNull(); // a caller of the old positional signature
   });
 });
 
 describe('promote guards', () => {
   it.each(['queen', 'rook', 'bishop', 'knight'])('promotes the pawn to %s', (type) => {
     reachPendingPromotion();
-    expect(game.promote('a8', type)).toBe(true);
+    expect(game.promote({ position: 'a8', type })).toBe(true);
     expect(game.getPiece('a8')).toMatchObject({ type, color: 'white' });
     expect(game.promotionSquare).toBeNull();
     expect(game.currentColor).toBe('black');
@@ -306,7 +341,7 @@ describe('promote guards', () => {
     'ignores the promotion type %s',
     (type) => {
       reachPendingPromotion();
-      expect(game.promote('a8', type)).toBe(false);
+      expect(game.promote({ position: 'a8', type })).toBe(false);
       expect(game.getPiece('a8')).toMatchObject({ type: 'pawn', color: 'white' });
       expect(game.promotionSquare).toBe('a8');
       expect(game.currentColor).toBe('white');
@@ -315,15 +350,17 @@ describe('promote guards', () => {
 
   it('ignores a position other than the pending promotion', () => {
     reachPendingPromotion();
-    expect(game.promote('e1', 'queen')).toBe(false);
+    expect(game.promote({ position: 'e1', type: 'queen' })).toBe(false);
     expect(game.getPiece('e1')).toMatchObject({ type: 'king', color: 'white' });
     expect(game.promotionSquare).toBe('a8');
     expect(game.currentColor).toBe('white');
   });
 
   it('ignores a call when no promotion is pending', () => {
-    expect(game.promote('e2', 'queen')).toBe(false);
-    expect(game.promote(null, 'queen')).toBe(false);
+    expect(game.promote({ position: 'e2', type: 'queen' })).toBe(false);
+    expect(game.promote({ position: null, type: 'queen' })).toBe(false);
+    expect(game.promote()).toBe(false);
+    expect(game.promote(null)).toBe(false);
     expect(game.getPiece('e2')).toMatchObject({ type: 'pawn' });
     expect(game.currentColor).toBe('white');
   });
@@ -401,7 +438,7 @@ describe('castling edge cases', () => {
   it('queenside moves the a1 rook to d1', () => {
     setUpBoard({ pieces: UNMOVED_WHITE_KING_AND_ROOKS });
 
-    const result = game.move('e1', 'c1');
+    const result = game.move({ from: 'e1', to: 'c1' });
 
     expect(result.specialMove).toBe('queenside-castling');
     expect(game.getPiece('c1')).toMatchObject({ type: 'king', color: 'white' });
@@ -415,7 +452,7 @@ describe('castling edge cases', () => {
       pieces: { ...UNMOVED_WHITE_KING_AND_ROOKS, g3: { type: 'knight', color: 'black' } },
       colorToPlay: 'black',
     });
-    game.move('g3', 'h1');
+    game.move({ from: 'g3', to: 'h1' });
 
     expect(game.getPiece('h1')).toMatchObject({ type: 'knight', color: 'black' });
     expect(game.isInCheck('white')).toBe(false);
@@ -428,9 +465,9 @@ describe('castling edge cases', () => {
     setUpBoard({
       pieces: { ...UNMOVED_WHITE_KING_AND_ROOKS, a7: { type: 'pawn', color: 'black' } },
     });
-    game.move('h1', 'h2');
-    game.move('a7', 'a6');
-    game.move('h2', 'h1');
+    game.move({ from: 'h1', to: 'h2' });
+    game.move({ from: 'a7', to: 'a6' });
+    game.move({ from: 'h2', to: 'h1' });
 
     const moves = game.getMoves('e1');
     expect(moves).not.toContain('g1');
@@ -465,13 +502,13 @@ describe('en passant edge cases', () => {
       },
       colorToPlay: 'black',
     });
-    game.move('d7', 'd5');
-    game.move('e1', 'f1');
-    game.move('e8', 'f8');
+    game.move({ from: 'd7', to: 'd5' });
+    game.move({ from: 'e1', to: 'f1' });
+    game.move({ from: 'e8', to: 'f8' });
 
     expect(game.enPassantSquare).toBeNull();
     expect(game.getMoves('e5')).not.toContain('d6');
-    expect(game.move('e5', 'd6')).toBeNull();
+    expect(game.move({ from: 'e5', to: 'd6' })).toBeNull();
   });
 
   it('is refused when removing both pawns opens the rank to the king', () => {
@@ -485,7 +522,7 @@ describe('en passant edge cases', () => {
       },
       colorToPlay: 'black',
     });
-    game.move('c7', 'c5');
+    game.move({ from: 'c7', to: 'c5' });
 
     expect(game.enPassantSquare).toBe('c6');
     const moves = game.getMoves('b5');
@@ -503,9 +540,9 @@ describe('promotion edge cases', () => {
         a7: { type: 'pawn', color: 'white' },
       },
     });
-    game.move('a7', 'a8');
-    game.promote('a8', 'knight');
-    game.move('h8', 'h7');
+    game.move({ from: 'a7', to: 'a8' });
+    game.promote({ position: 'a8', type: 'knight' });
+    game.move({ from: 'h8', to: 'h7' });
 
     expect(game.getMoves('a8').sort()).toEqual(['b6', 'c7']);
   });
@@ -520,7 +557,7 @@ describe('promotion edge cases', () => {
       },
     });
 
-    const result = game.move('b7', 'a8');
+    const result = game.move({ from: 'b7', to: 'a8' });
 
     expect(result).toMatchObject({ promotion: true, captured: { type: 'rook', color: 'black' } });
     expect(game.promotionSquare).toBe('a8');
@@ -538,7 +575,7 @@ describe('promotion edge cases', () => {
       colorToPlay: 'black',
     });
 
-    expect(game.move('a2', 'a1')).toMatchObject({ promotion: true });
+    expect(game.move({ from: 'a2', to: 'a1' })).toMatchObject({ promotion: true });
     expect(game.promotionSquare).toBe('a1');
     expect(game.currentColor).toBe('black');
   });
@@ -556,7 +593,7 @@ describe('promotion edge cases', () => {
       colorToPlay: color,
     });
 
-    expect(game.move(from, to)).toMatchObject({ promotion: false });
+    expect(game.move({ from, to })).toMatchObject({ promotion: false });
     expect(game.promotionSquare).toBeNull();
   });
 
@@ -568,10 +605,10 @@ describe('promotion edge cases', () => {
         a7: { type: 'pawn', color: 'white' },
       },
     });
-    game.move('a7', 'a8');
+    game.move({ from: 'a7', to: 'a8' });
 
     expect(game.isInCheck('black')).toBe(false);
-    game.promote('a8', 'queen');
+    game.promote({ position: 'a8', type: 'queen' });
     expect(game.currentColor).toBe('black');
     expect(game.isInCheck('black')).toBe(true);
     expect(game.isCheckmate('black')).toBe(false);

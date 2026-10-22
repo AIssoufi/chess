@@ -1,5 +1,5 @@
 import { getPawnDirection } from '../colors/utils.js';
-import { SQUARE_PATTERN } from './constants.js';
+import { BOARD_SIZE, FIRST_RANK, SQUARE_PATTERN } from './constants.js';
 
 /**
  * Returns the square of the pawn that an en passant capture takes: one rank behind the target
@@ -22,4 +22,22 @@ export function getEnPassantCaptureSquare({ target, color } = {}) {
   const capturedSquare = `${target[0]}${Number(target[1]) - direction}`;
   const isOnBoard = SQUARE_PATTERN.test(capturedSquare);
   return isOnBoard ? capturedSquare : null;
+}
+
+/**
+ * Tells whether board coordinates fall inside the board.
+ *
+ * @param {object | null} [params]
+ * @param {number} params.file The file index, from `0` for `a` to `BOARD_SIZE - 1` for `h`.
+ * @param {number} params.rank The rank number, from `FIRST_RANK` to `BOARD_SIZE`.
+ * @returns {boolean} true when both coordinates are on the board, false otherwise, including for
+ *   missing coordinates and values that are not integers.
+ * @example
+ * areCoordinatesOnBoard({ file: 7, rank: 8 }); // true, h8
+ */
+export function areCoordinatesOnBoard(params) {
+  const { file, rank } = params ?? {};
+  const isFileOnBoard = Number.isInteger(file) && file >= 0 && file < BOARD_SIZE;
+  const isRankOnBoard = Number.isInteger(rank) && rank >= FIRST_RANK && rank <= BOARD_SIZE;
+  return isFileOnBoard && isRankOnBoard;
 }
