@@ -2,9 +2,25 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { describe, it, expect } from 'vitest';
+import { afterEach, beforeEach, describe, it, expect } from 'vitest';
 
 const INDEX_PAGE = readFileSync(fileURLToPath(import.meta.resolve('../app/index.html')), 'utf8');
+const STYLESHEET = readFileSync(fileURLToPath(import.meta.resolve('../app/css/style.css')), 'utf8');
+/** The body of the page without its script, so that happy-dom does not start the game. */
+const PAGE_BODY = INDEX_PAGE.match(/<body>([\s\S]*)<\/body>/)[1].replace(
+  /<script[\s\S]*?<\/script>/g,
+  ''
+);
+/** An id selector (`#black-captures`) or an attribute selector on the id (`[id*='captures']`). */
+const ID_SELECTOR = /#[\w-]+|\[id[^\]]*\]/g;
+/** An attribute selector on another attribute than the id, whose value may hold a `#`. */
+const OTHER_ATTRIBUTE_SELECTOR = /\[(?!id\b)[^\]]*\]/g;
+/** Text before each `{` of a stylesheet: a selector list or the prelude of an at-rule. */
+const RULE_PRELUDE = /[^{};]+(?=\{)/g;
+/** A CSS comment, which may hold braces and `#`. */
+const CSS_COMMENT = /\/\*[\s\S]*?\*\//g;
+/** Ids of the areas that list the pieces captured by each player. */
+const CAPTURE_AREA_IDS = ['black-captures', 'white-captures'];
 /** The head of the page, in a template so that happy-dom does not try to load the stylesheet. */
 const HEAD = document.createElement('template');
 HEAD.innerHTML = INDEX_PAGE.match(/<head>([\s\S]*)<\/head>/)[1];
@@ -64,6 +80,30 @@ function jpegSize(bytes) {
   return null;
 }
 
+/**
+ * Lists the selectors of a stylesheet that target an id, by `#id` or by an attribute selector on
+ * `id`, leaving out comments, declarations (such as `#fff` colors) and at-rule preludes.
+ *
+ * @param {string} css Content of the stylesheet.
+ * @returns {string[]} Each id selector, once per occurrence.
+ */
+function idSelectors(css) {
+  const preludes = css.replace(CSS_COMMENT, '').match(RULE_PRELUDE) ?? [];
+  return preludes
+    .filter((prelude) => !isAtRulePrelude(prelude))
+    .flatMap((prelude) => prelude.replace(OTHER_ATTRIBUTE_SELECTOR, '').match(ID_SELECTOR) ?? []);
+}
+
+/**
+ * Tells whether the text before a `{` opens an at-rule, such as `@media`, rather than a rule.
+ *
+ * @param {string} prelude Text before the `{`.
+ * @returns {boolean} True for an at-rule prelude.
+ */
+function isAtRulePrelude(prelude) {
+  return prelude.trim().startsWith('@');
+}
+
 describe('index.html head', () => {
   it('describes the game', () => {
     expect(meta('[name="description"]')).toMatch(/^Jeu d'échecs/);
@@ -100,6 +140,59 @@ describe('index.html head', () => {
     expect(Number(meta('[property="og:image:width"]'))).toBe(SOCIAL_IMAGE_SIZE.width);
     expect(Number(meta('[property="og:image:height"]'))).toBe(SOCIAL_IMAGE_SIZE.height);
     expect(meta('[property="og:image:alt"]')).toBeTruthy();
+  });
+});
+
+describe('style.css on index.html', () => {
+  beforeEach(() => {
+    document.body.innerHTML = PAGE_BODY;
+    const style = document.createElement('style');
+    style.textContent = STYLESHEET;
+    document.head.append(style);
+  });
+
+  afterEach(() => {
+    document.head.querySelector('style').remove();
+    document.body.innerHTML = '';
+  });
+
+  it('only targets ids that the page has', () => {
+    const selectors = idSelectors(STYLESHEET);
+
+    expect(selectors).not.toHaveLength(0);
+    for (const selector of selectors) {
+      expect(document.querySelector(selector), selector).not.toBeNull();
+    }
+  });
+
+  it('lays out the captured pieces of both players in a grid', () => {
+    for (const id of CAPTURE_AREA_IDS) {
+      expect(getComputedStyle(document.getElementById(id)).display, id).toBe('grid');
+    }
+  });
+});
+
+describe('idSelectors', () => {
+  it('finds id selectors and attribute selectors on the id, in selector lists', () => {
+    expect(idSelectors("#a,\n.b #c:hover, [id*='d'] {}")).toEqual(['#a', '#c', "[id*='d']"]);
+  });
+
+  it('finds the selectors of the rules nested in an at-rule', () => {
+    expect(idSelectors('@media (hover: hover) { #a { color: red; } }')).toEqual(['#a']);
+  });
+
+  it('ignores hex colors, comments and class selectors', () => {
+    const css = '/* #comment { } */ .a { color: #fff; background: #000 }\n.b { fill: #ffffff70 }';
+
+    expect(idSelectors(css)).toEqual([]);
+  });
+
+  it('ignores a # in the value of another attribute selector', () => {
+    expect(idSelectors("a[href='#top'], [data-id='#x'], [idx='#y'] {}")).toEqual([]);
+  });
+
+  it('returns no selector for an empty stylesheet', () => {
+    expect(idSelectors('')).toEqual([]);
   });
 });
 
