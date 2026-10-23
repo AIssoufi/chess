@@ -182,7 +182,8 @@ h1 {
   background-color: rgba(76, 255, 76, 1) !important;
 }
 
-[id*='prisoniers'] {
+#black-captures,
+#white-captures {
   display: grid;
   grid-auto-flow: row;
   grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
@@ -232,12 +233,6 @@ h1 {
   font-family: var(--display-font);
   font-size: 2rem;
   margin: 0;
-}
-
-.alert__wrapper .logo {
-  font-size: 5rem;
-  margin: 0;
-  color: #000;
 }
 
 .alert__wrapper p {
