@@ -7,7 +7,9 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
-# frame-ancestors forbids embedding the game in a frame of another site.
+# frame-ancestors forbids embedding the game in a frame of another site. HSTS covers this host
+# only: no includeSubDomains or preload, since this repository does not serve the parent issoufi.fr.
 /*
   Content-Security-Policy: base-uri 'self'; frame-ancestors 'none'; object-src 'none'
   Permissions-Policy: camera=(), geolocation=(), microphone=()
+  Strict-Transport-Security: max-age=31536000
