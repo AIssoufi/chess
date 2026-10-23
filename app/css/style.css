@@ -210,7 +210,8 @@ h1 {
   background-color: rgba(76, 255, 76, 1) !important;
 }
 
-[id*='prisoniers'] {
+#black-captures,
+#white-captures {
   display: grid;
   grid-auto-flow: row;
   grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
