@@ -1,5 +1,6 @@
 import {
   BOT_SIGN_OFF,
+  DEPENDABOT_TITLE,
   RELEASE_COMMIT_HEADER,
   TICKET_REFERENCE_ERROR,
   TICKET_REFERENCE_LINE,
@@ -52,4 +53,20 @@ export function isBotCommit(message) {
   const isRelease = RELEASE_COMMIT_HEADER.test(header);
   const isSignedOffByBot = BOT_SIGN_OFF.test(message);
   return isRelease || isSignedOffByBot;
+}
+
+/**
+ * Tells whether a pull request title is one of Dependabot, which capitalizes its subject. The
+ * title check ignores these titles, as the commit check ignores the commits of bots.
+ *
+ * @param {string} title The title of the pull request.
+ * @returns {boolean} `true` for a title of Dependabot, `false` otherwise or without a title.
+ * @example
+ * isDependabotTitle('build(deps): Bump vite from 8.0.1 to 8.0.2'); // true
+ * isDependabotTitle('fix: Bump the board size'); // false
+ */
+export function isDependabotTitle(title) {
+  if (typeof title !== 'string') return false;
+
+  return DEPENDABOT_TITLE.test(title);
 }

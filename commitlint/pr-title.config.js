@@ -1,10 +1,12 @@
 import config from '../commitlint.config.js';
 import { RULE_SEVERITY, TICKET_REFERENCE_RULE } from './constants.js';
+import { isDependabotTitle } from './utils.js';
 
 /**
  * Pull request titles follow the rules of commit headers, but need no ticket reference: a title
  * is a header alone, and the merge commit names the branch, which is the ticket. They keep the
- * ignores of commits too, so the `Revert "…"` title of a GitHub revert passes.
+ * ignores of commits too, so the `Revert "…"` title of a GitHub revert passes, and ignore the
+ * titles of Dependabot, which have no sign-off and capitalize their subject.
  */
 export default {
   ...config,
@@ -12,4 +14,5 @@ export default {
     ...config.rules,
     [TICKET_REFERENCE_RULE]: [RULE_SEVERITY.disabled],
   },
+  ignores: [...config.ignores, isDependabotTitle],
 };
