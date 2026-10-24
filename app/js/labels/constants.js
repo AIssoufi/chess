@@ -8,6 +8,16 @@ export const PIECE_LABELS = Object.freeze({
   pawn: Object.freeze({ white: 'pion blanc', black: 'pion noir' }),
 });
 
+/** The name of each piece type without its color, such as in `promu en dame`, in French. */
+export const PIECE_TYPE_LABELS = Object.freeze({
+  king: 'roi',
+  queen: 'dame',
+  rook: 'tour',
+  bishop: 'fou',
+  knight: 'cavalier',
+  pawn: 'pion',
+});
+
 /** What a screen reader says for a square that holds no piece. */
 export const EMPTY_SQUARE_LABEL = 'vide';
 
