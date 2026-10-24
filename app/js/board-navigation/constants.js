@@ -17,3 +17,18 @@ export const NAVIGATION_STEPS = Object.freeze({
   PageUp: Object.freeze({ fileStep: 0, rankStep: BOARD_SIZE }),
   PageDown: Object.freeze({ fileStep: 0, rankStep: -BOARD_SIZE }),
 });
+
+/** The selector of the squares of the board. */
+export const SQUARE_SELECTOR = '.square';
+
+/** The `tabIndex` of the one square that the Tab key reaches. */
+export const TABBABLE_INDEX = 0;
+
+/** The `tabIndex` of the other squares, which only the navigation keys and a click reach. */
+export const UNTABBABLE_INDEX = -1;
+
+/**
+ * The modifiers of a keyboard event that make a key a shortcut of the browser or the system, such
+ * as Alt+Left to go back, which the board leaves alone.
+ */
+export const SHORTCUT_MODIFIERS = Object.freeze(['altKey', 'ctrlKey', 'metaKey']);
