@@ -28,10 +28,21 @@ describe('PieceFactory.create', () => {
   it('creates a piece node with its symbol, class and dataset', () => {
     const node = factory.create({ type: 'queen', color: 'black' });
 
-    expect(node.tagName).toBe('DIV');
+    expect(node.tagName).toBe('SPAN');
     expect(node.className).toBe('piece');
     expect(node.textContent).toBe(queen.piece.black);
     expect(node.dataset).toMatchObject({ type: 'queen', color: 'black' });
+  });
+
+  it.each([
+    ['queen', 'black', 'dame noire'],
+    ['pawn', 'white', 'pion blanc'],
+    ['knight', 'white', 'cavalier blanc'],
+  ])('names the %s %s as an image for screen readers', (type, color, label) => {
+    const node = factory.create({ type, color });
+
+    expect(node.getAttribute('role')).toBe('img');
+    expect(node.getAttribute('aria-label')).toBe(label);
   });
 
   it('gives each node its own increasing id', () => {
