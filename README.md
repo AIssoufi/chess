@@ -85,7 +85,7 @@ commitlint/          Ticket reference rule, bot commits and the pull request tit
 docs/                README screenshot, decisions (ADRs) and the evolution of the stack
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests
-.github/workflows/   CI, commit message checks and the GitHub Pages redirect
+.github/workflows/   CI, commit message checks, actionlint and the GitHub Pages redirect
 ```
 
 ## CI and deployment
@@ -95,6 +95,9 @@ test/                Unit tests
 - **Commit messages** (`commit-messages.yml`): on every pull request, and when its title changes,
   runs commitlint on each commit that the base branch lacks, and on the title with
   `commitlint/pr-title.config.js`, which needs no ticket reference.
+- **Actionlint** (`actionlint.yml`): on every pull request that changes a file of
+  `.github/workflows/`, lints the workflows, and the scripts of their `run` steps with shellcheck,
+  using the official actionlint binary checked against its SHA-256.
 - **Cloudflare Pages** deploys the game from its Git integration: `master` to
   https://chess.issoufi.fr, and every other branch to a preview URL, linked from its pull request.
   The build is served from the root of the domain, so Vite keeps its default `base` of `/`.
