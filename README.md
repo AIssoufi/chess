@@ -103,6 +103,11 @@ test/                Unit tests
   https://aissoufi.github.io/chess/, with a copy of its `index.html` as `404.html`. The page sends
   every URL below `/chess/` to the same path, query and fragment on https://chess.issoufi.fr, and
   falls back to the home page without JavaScript.
+- **Live check** (`live-check.yml`): every hour on https://chess.issoufi.fr, or by hand on any
+  host, checks that the site serves its home page, the scripts and styles it links, the social
+  preview image and the favicon, and that the old GitHub Pages URL still redirects to it. GitHub
+  emails a failed scheduled run to the last person who changed its `cron` line. GitHub pauses
+  the schedule after 60 days without repository activity; re-enable it from the Actions tab.
 - **Dependabot** (`.github/dependabot.yml`): each week, one pull request bumps the GitHub Actions,
   one bumps the npm packages within their major, and each new major of a package gets its own.
   Their titles start with `ci(deps):`, `build(deps):` or `build(deps-dev):`, so they pass the
