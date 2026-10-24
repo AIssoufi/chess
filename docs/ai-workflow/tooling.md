@@ -34,15 +34,16 @@ Three Husky hooks run on each commit:
 
 ## Checks on a pull request
 
-| Check            | Workflow              | Checks                                         |
-| ---------------- | --------------------- | ---------------------------------------------- |
-| `check`          | `ci.yml`              | Formatting, lint, tests and build              |
-| `commitlint`     | `commit-messages.yml` | Each commit the base lacks, and the title      |
-| Cloudflare Pages | Git integration       | Builds the branch and comments its preview URL |
+| Check            | Workflow              | Checks                                             |
+| ---------------- | --------------------- | -------------------------------------------------- |
+| `check`          | `ci.yml`              | Formatting, lint, tests and build on `.nvmrc` (24) |
+| `test (node 26)` | `ci.yml`              | Tests on Node.js 26                                |
+| `commitlint`     | `commit-messages.yml` | Each commit the base lacks, and the title          |
+| Cloudflare Pages | Git integration       | Builds the branch and comments its preview URL     |
 
-[#45](https://github.com/AIssoufi/chess/pull/45) shows the three. The CI also runs on each push to
-`master`; the [README](../../README.md#ci-and-deployment) lists the steps
-of each workflow.
+[#45](https://github.com/AIssoufi/chess/pull/45) shows the three other checks, from before the
+Node.js 26 job. The CI also runs on each push to `master`; the
+[README](../../README.md#ci-and-deployment) lists the steps of each workflow.
 
 ## Deployment
 

@@ -91,7 +91,8 @@ test/                Unit tests
 ## CI and deployment
 
 - **CI** (`ci.yml`): on every pull request and push to `master`, installs with the frozen lockfile,
-  then runs `pnpm format:check`, `pnpm lint`, `pnpm test` and `pnpm build`.
+  then runs `pnpm format:check`, `pnpm lint`, `pnpm test` and `pnpm build` on the Node.js version
+  of `.nvmrc` (24), and `pnpm test` again on Node.js 26 in the `test (node 26)` job.
 - **Commit messages** (`commit-messages.yml`): on every pull request, and when its title changes,
   runs commitlint on each commit that the base branch lacks, and on the title with
   `commitlint/pr-title.config.js`, which needs no ticket reference.
