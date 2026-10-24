@@ -69,6 +69,7 @@ HTML report in `coverage/`, which Git and Prettier ignore.
 app/                 Vite root: the page, its styles and images
   css/               Styles and images
   js/                Game code
+    board-navigation/ Keyboard navigation of the board: the key moves and the roving focus
     castling/        Castling helpers, such as whether a rook may castle with its king
     Chessboard.js    Board model and rules, without DOM
     colors/          Color helpers, such as the opponent of a color
