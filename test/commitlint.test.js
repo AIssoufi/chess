@@ -3,7 +3,12 @@ import lint from '@commitlint/lint';
 import load from '@commitlint/load';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { TICKET_REFERENCE_ERROR, TICKET_REFERENCE_RULE } from '../commitlint/constants.js';
-import { hasTicketReference, isBotCommit, ticketReference } from '../commitlint/utils.js';
+import {
+  hasTicketReference,
+  isBotCommit,
+  isDependabotTitle,
+  ticketReference,
+} from '../commitlint/utils.js';
 
 const COMMIT_CONFIG_FILE = fileURLToPath(new URL('../commitlint.config.js', import.meta.url));
 const PR_TITLE_CONFIG_FILE = fileURLToPath(
@@ -12,7 +17,7 @@ const PR_TITLE_CONFIG_FILE = fileURLToPath(
 const CO_AUTHOR = 'Co-Authored-By: Claude <noreply@anthropic.com>';
 /** `header-max-length` of `@commitlint/config-conventional`. */
 const HEADER_MAX_LENGTH = 100;
-const DEPENDABOT_COMMIT = `build(deps-dev): bump @commitlint/config-conventional from 20.5.0 to 21.2.4
+const DEPENDABOT_COMMIT = `build(deps-dev): Bump @commitlint/config-conventional from 20.5.0 to 21.2.4
 
 Bumps [@commitlint/config-conventional](https://github.com/conventional-changelog/commitlint/tree/HEAD/@commitlint/config-conventional) from 20.5.0 to 21.2.4.
 - [Release notes](https://github.com/conventional-changelog/commitlint/releases)
@@ -27,6 +32,28 @@ updated-dependencies:
 ...
 
 Signed-off-by: dependabot[bot] <support@github.com>`;
+/** Titles that Dependabot gives its pull requests, with each prefix of `.github/dependabot.yml`. */
+const DEPENDABOT_TITLES = [
+  'build(deps-dev): Bump happy-dom from 21.0.3 to 21.0.4 in the npm-minor-and-patch group',
+  'build(deps-dev): Bump the npm-minor-and-patch group with 3 updates',
+  'build(deps-dev): Bump @commitlint/config-conventional from 20.5.0 to 21.2.4 in the npm-minor-and-patch group',
+  'build(deps): Bump vite from 8.0.1 to 9.0.0',
+  'ci(deps): Bump the github-actions group with 2 updates',
+  'ci(deps): Bump actions/checkout from 6 to 7 in the github-actions group',
+];
+/** Conventional titles with a capitalized `Bump` but not the shape of a Dependabot title. */
+const HUMAN_BUMP_TITLES = [
+  'fix: Bump the board size',
+  'build: Bump vite from 8.0.1 to 9.0.0',
+  'feat(deps): Bump vite from 8.0.1 to 9.0.0',
+  'chore(deps): Bump vite from 8.0.1 to 9.0.0',
+  'build(deps): Bump',
+];
+/** Titles with a capitalized `Bump` from which commitlint parses no type nor subject. */
+const UNPARSED_BUMP_TITLES = [
+  'build(deps):Bump vite from 8.0.1 to 9.0.0',
+  'Bump vite from 8.0.1 to 9.0.0',
+];
 
 /**
  * Lints a message as the commitlint CLI does with the given configuration.
@@ -102,6 +129,26 @@ describe('isBotCommit', () => {
 
   it.each([undefined, null, 42, {}])('returns false for the non-string %j', (message) => {
     expect(isBotCommit(message)).toBe(false);
+  });
+});
+
+describe('isDependabotTitle', () => {
+  it.each(DEPENDABOT_TITLES)('recognizes the title of Dependabot %j', (title) => {
+    expect(isDependabotTitle(title)).toBe(true);
+  });
+
+  it.each([
+    ...HUMAN_BUMP_TITLES,
+    ...UNPARSED_BUMP_TITLES,
+    'build(deps): bump vite from 8.0.1 to 9.0.0',
+    'fix: x\n\nbuild(deps): Bump vite from 8.0.1 to 9.0.0',
+    '',
+  ])('does not take a human title for a Dependabot one: %j', (title) => {
+    expect(isDependabotTitle(title)).toBe(false);
+  });
+
+  it.each([undefined, null, 42, {}])('returns false for the non-string %j', (title) => {
+    expect(isDependabotTitle(title)).toBe(false);
   });
 });
 
@@ -196,5 +243,26 @@ describe('pull request titles', () => {
     const { errors } = await lintMessage({ config, message });
 
     expect(errors).toContain('header-max-length');
+  });
+
+  it.each(DEPENDABOT_TITLES)('ignores the title of Dependabot %j', async (message) => {
+    expect(await lintMessage({ config, message })).toEqual({ valid: true, errors: [] });
+  });
+
+  it.each(HUMAN_BUMP_TITLES)(
+    'refuses the sentence-case subject of the human title %j',
+    async (message) => {
+      const { valid, errors } = await lintMessage({ config, message });
+
+      expect(valid).toBe(false);
+      expect(errors).toContain('subject-case');
+    }
+  );
+
+  it.each(UNPARSED_BUMP_TITLES)('still refuses the human title %j', async (message) => {
+    const { valid, errors } = await lintMessage({ config, message });
+
+    expect(valid).toBe(false);
+    expect(errors).toEqual(expect.arrayContaining(['type-empty', 'subject-empty']));
   });
 });
