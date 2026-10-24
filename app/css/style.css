@@ -195,6 +195,13 @@ h1 {
   cursor: crosshair;
 }
 
+/* Only for the keyboard: a dark ring lined with white shows on every color of square */
+.square:focus-visible {
+  outline: 3px solid #0d47a1;
+  outline-offset: -3px;
+  box-shadow: inset 0 0 0 5px #fff;
+}
+
 .square {
   cursor: not-allowed;
 }
@@ -343,6 +350,23 @@ h1 {
   }
   to {
     background-color: rgba(220, 50, 50, 0.4);
+  }
+}
+
+/* Without motion, the highlights keep their color and the side to play its first background */
+@media (prefers-reduced-motion: reduce) {
+  .square.possible-move,
+  .square.check,
+  .current-player h2 {
+    animation: none;
+  }
+
+  .current-player h2 {
+    background-color: rgba(139, 195, 74, 0.5);
+  }
+
+  .promotion__pieces button {
+    transition: none;
   }
 }
 
