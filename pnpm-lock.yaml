@@ -191,8 +191,8 @@ importers:
         specifier: ^17.13.0
         version: 17.13.0
       happy-dom:
-        specifier: ^21.0.3
-        version: 21.0.3
+        specifier: ^21.0.4
+        version: 21.0.4
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -207,7 +207,7 @@ importers:
         version: 8.3.4(@types/node@25.5.0)(jiti@2.6.1)(yaml@2.9.1)
       vitest:
         specifier: ^5.0.5
-        version: 5.0.5(@types/node@25.5.0)(@vitest/coverage-v8@5.0.5)(happy-dom@21.0.3)(vite@8.3.4(@types/node@25.5.0)(jiti@2.6.1)(yaml@2.9.1))
+        version: 5.0.5(@types/node@25.5.0)(@vitest/coverage-v8@5.0.5)(happy-dom@21.0.4)(vite@8.3.4(@types/node@25.5.0)(jiti@2.6.1)(yaml@2.9.1))
 
 packages:
 
@@ -820,8 +820,8 @@ packages:
     resolution: {integrity: sha512-RwMTC61u7hrG3ZJMkZQOK4JLJrKS8QtoTii63EmWvFXHqycY9FObBJQCbsLxSO8kjKhWE5kV1GC+Vb1g3RI0Zg==}
     engines: {node: '>=18'}
 
-  happy-dom@21.0.3:
-    resolution: {integrity: sha512-PesNgu5BnIEmAwzKGewB3K1ORFeznFZJ4JrRz89ea1wkHnxskdpzX9sN/+zb4KO6k8oSMhyJSj/cwXAFrYBBNA==}
+  happy-dom@21.0.4:
+    resolution: {integrity: sha512-tFm+GaLBgo6o0awHnvHaNoraVo27qJ+2tZEtZ+cIa08hXbeitrxAJajLI05hsUy/2/YTKcUjQYzHe5mCcraLBw==}
     engines: {node: '>=20.0.0'}
 
   hashery@1.5.1:
@@ -1615,7 +1615,7 @@ snapshots:
       obug: 3.0.0
       std-env: 4.3.0
       tinyrainbow: 3.2.0
-      vitest: 5.0.5(@types/node@25.5.0)(@vitest/coverage-v8@5.0.5)(happy-dom@21.0.3)(vite@8.3.4(@types/node@25.5.0)(jiti@2.6.1)(yaml@2.9.1))
+      vitest: 5.0.5(@types/node@25.5.0)(@vitest/coverage-v8@5.0.5)(happy-dom@21.0.4)(vite@8.3.4(@types/node@25.5.0)(jiti@2.6.1)(yaml@2.9.1))
 
   '@vitest/istanbul-lib-coverage@1.0.2': {}
 
@@ -1870,7 +1870,7 @@ snapshots:
 
   globals@17.13.0: {}
 
-  happy-dom@21.0.3:
+  happy-dom@21.0.4:
     dependencies:
       '@types/node': 25.5.0
       '@types/whatwg-mimetype': 3.0.2
@@ -2177,7 +2177,7 @@ snapshots:
       jiti: 2.6.1
       yaml: 2.9.1
 
-  vitest@5.0.5(@types/node@25.5.0)(@vitest/coverage-v8@5.0.5)(happy-dom@21.0.3)(vite@8.3.4(@types/node@25.5.0)(jiti@2.6.1)(yaml@2.9.1)):
+  vitest@5.0.5(@types/node@25.5.0)(@vitest/coverage-v8@5.0.5)(happy-dom@21.0.4)(vite@8.3.4(@types/node@25.5.0)(jiti@2.6.1)(yaml@2.9.1)):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/mocker': 5.0.5(vite@8.3.4(@types/node@25.5.0)(jiti@2.6.1)(yaml@2.9.1))
@@ -2196,7 +2196,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 25.5.0
       '@vitest/coverage-v8': 5.0.5(vitest@5.0.5)
-      happy-dom: 21.0.3
+      happy-dom: 21.0.4
     transitivePeerDependencies:
       - msw
 
