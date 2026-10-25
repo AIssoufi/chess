@@ -49,4 +49,5 @@ Measured on 59bf255 (DOM state) and c65212a (model), with the method of
   happy-dom later (`aa7b79d`).
 - Simulating a move to find check deletes and re-inserts `Map` keys, which moves them to the end
   of the `Map`: a loop that simulates moves must iterate over a snapshot of the entries.
-- The model's identifiers are still French until #26 renames them.
+- The model's identifiers were French until #26 renamed them to English (`0a54a18` renamed
+  `Echiquier.js` to `Chessboard.js`, `8f03185` the model API).
