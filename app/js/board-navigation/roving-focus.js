@@ -1,10 +1,6 @@
+import { SQUARE_SELECTOR } from '../squares/constants.js';
 import { isSquare } from '../squares/utils.js';
-import {
-  SHORTCUT_MODIFIERS,
-  SQUARE_SELECTOR,
-  TABBABLE_INDEX,
-  UNTABBABLE_INDEX,
-} from './constants.js';
+import { SHORTCUT_MODIFIERS, TABBABLE_INDEX, UNTABBABLE_INDEX } from './constants.js';
 import { getNextSquare } from './utils.js';
 
 /**

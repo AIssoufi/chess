@@ -15,9 +15,6 @@ export const NAVIGATION_STEPS = Object.freeze({
   PageDown: Object.freeze({ fileStep: 0, rankStep: -BOARD_SIZE }),
 });
 
-/** The selector of the squares of the board. */
-export const SQUARE_SELECTOR = '.square';
-
 /** The `tabIndex` of the one square that the Tab key reaches. */
 export const TABBABLE_INDEX = 0;
 

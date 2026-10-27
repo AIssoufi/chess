@@ -1,6 +1,6 @@
-import { SQUARE_SELECTOR } from '../board-navigation/constants.js';
 import { COLORS } from '../colors/constants.js';
 import { getSquareLabel } from '../labels/utils.js';
+import { SQUARE_SELECTOR } from '../squares/constants.js';
 import { isSquare } from '../squares/utils.js';
 import { getStatusMessage } from '../status/utils.js';
 import {

@@ -1,8 +1,10 @@
+import { BOARD_SELECTOR, SQUARE_SELECTOR } from '../squares/constants.js';
+
 /** The selector of the pieces shown on the page, on the board and among the captures. */
 export const PIECE_SELECTOR = '.piece';
 
 /** The selector of the squares of the board, which hold its pieces. */
-export const BOARD_SQUARE_SELECTOR = '.container-squares .square';
+export const BOARD_SQUARE_SELECTOR = `${BOARD_SELECTOR} ${SQUARE_SELECTOR}`;
 
 /** The selector of the live region that announces each move to screen readers. */
 export const STATUS_SELECTOR = '.game-status';

@@ -1,11 +1,11 @@
 import Chessboard from './Chessboard.js';
 import PieceFactory from './PieceFactory.js';
+import { GAME_OVER_DIALOG_SELECTOR } from './alerts/constants.js';
 import {
   hideGameOverAlerts,
   showGameOverAlert,
   writeAlertDetails,
 } from './alerts/game-over-dialog.js';
-import { SQUARE_SELECTOR } from './board-navigation/constants.js';
 import { enableBoardNavigation, focusSquare } from './board-navigation/roving-focus.js';
 import consoleLog from './console-log.js';
 import { showCopyrightYear } from './copyright/show-copyright-year.js';
@@ -17,6 +17,7 @@ import {
   isKingInCheck,
 } from './game-over/utils.js';
 import { getMoveLog } from './moves/utils.js';
+import { PROMOTION_CHOICE_SELECTOR } from './promotion/constants.js';
 import {
   getChosenPieceType,
   hidePromotionChoice,
@@ -34,11 +35,12 @@ import {
 import { CLICK_ACTIONS, NO_SELECTION } from './selection/constants.js';
 import { highlightSelection } from './selection/highlight.js';
 import { getClickAction, getSelection } from './selection/utils.js';
+import { BOARD_SELECTOR, SQUARE_SELECTOR } from './squares/constants.js';
 
 const game = new Chessboard();
 const factory = new PieceFactory();
-const boardNode = document.querySelector('.container-squares');
-const gameOverDialog = document.querySelector('.alert__wrapper');
+const boardNode = document.querySelector(BOARD_SELECTOR);
+const gameOverDialog = document.querySelector(GAME_OVER_DIALOG_SELECTOR);
 
 // The selected square and the squares it can move to
 let selection = NO_SELECTION;
@@ -96,7 +98,7 @@ function afterMove() {
 
 // ─── Promotion ──────────────────────────────────────────────────────────────
 
-const promotionWrapper = document.querySelector('.promotion__wrapper');
+const promotionWrapper = document.querySelector(PROMOTION_CHOICE_SELECTOR);
 
 promotionWrapper.addEventListener('click', (event) => {
   const type = getChosenPieceType(event);

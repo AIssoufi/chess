@@ -1,3 +1,6 @@
+/** The selector of the promotion choice, shown while a pawn waits for its new piece. */
+export const PROMOTION_CHOICE_SELECTOR = '.promotion__wrapper';
+
 /** The selector of the buttons of the promotion choice, one per piece type in `data-type`. */
 export const PIECE_BUTTON_SELECTOR = '[data-type]';
 

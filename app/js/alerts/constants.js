@@ -1,3 +1,6 @@
+/** The selector of the game over dialog, which holds one alert per end of game. */
+export const GAME_OVER_DIALOG_SELECTOR = '.alert__wrapper';
+
 /** The class of the alert shown in the game over dialog. */
 export const SHOWN_ALERT_CLASS = 'shown';
 
