@@ -56,7 +56,17 @@ pnpm preview    # serve dist/ on http://localhost:4173/
 
 `pnpm test` runs Vitest. The tests live in `test/` and are named `*.test.js`:
 
-- the model and rule tests run in Node.js, without a DOM;
+- the tests that need no DOM run in Node.js:
+  - `chessboard.test.js`, `fen.test.js` and `perft.test.js`: the board model and its rules, the
+    FEN loader of the tests, and the move counts of reference positions;
+  - `board-navigation.test.js`, `castling.test.js`, `colors.test.js`, `draws.test.js`,
+    `game-over.test.js`, `labels.test.js`, `moves.test.js`, `squares.test.js` and
+    `status.test.js`: the helpers of the game modules of `app/js/`;
+  - `accessibility-style.test.js`: the reduced motion and the square focus of the stylesheet;
+  - `redirect.test.js`: the page that redirects the old GitHub Pages URL;
+  - `commitlint.test.js`: the ticket reference rule, the bot commits and the pull
+    request titles of commitlint;
+  - `e2e-helpers.test.js`: the helpers of the browser tests;
 - the tests that need a DOM run in happy-dom, chosen by a `// @vitest-environment happy-dom`
   comment on their first line:
   - `index-page.test.js`: the head of the page and its social preview image;
@@ -70,7 +80,8 @@ pnpm preview    # serve dist/ on http://localhost:4173/
   - `roving-focus.test.js`: the keyboard focus of the board;
   - `promotion.test.js`: the promotion choice;
   - `alerts.test.js`: the game over dialog;
-- the tests of the `prepare-commit-msg` hook run Git in temporary repositories.
+- `prepare-commit-msg.test.js` runs Git in temporary repositories to test the hook that adds the
+  ticket trailer.
 
 `pnpm test:coverage` adds a V8 coverage report of `app/js/`: a summary in the terminal and an
 HTML report in `coverage/`, which Git and Prettier ignore.
