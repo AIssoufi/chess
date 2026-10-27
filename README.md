@@ -145,11 +145,16 @@ test/                Unit tests
 
 ## CI and deployment
 
-- **CI** (`ci.yml`): on every pull request and push to `master`, installs with the frozen lockfile,
-  then runs `pnpm audit --audit-level high` (which fails on an advisory of high or critical
-  severity), `pnpm format:check`, `pnpm lint`, `pnpm test`, `pnpm build` and `pnpm test:e2e`, with
-  the browsers cached per Playwright version, on the Node.js version of `.nvmrc` (24), and
-  `pnpm test` again on Node.js 26 in the `test (node 26)` job.
+- **CI** (`ci.yml`): on every pull request and push to `master`, runs four jobs; `check`,
+  `test (node 26)` and `e2e` install with the frozen lockfile first:
+  - `check`: `pnpm audit --audit-level high` (which fails on an advisory of high or critical
+    severity), `pnpm format:check`, `pnpm lint`, `pnpm test` and `pnpm build`, on the Node.js
+    version of `.nvmrc` (24);
+  - `test (node 26)`: `pnpm test` again on Node.js 26;
+  - `playwright-version`: reads the exact `@playwright/test` version of the lockfile;
+  - `e2e`: `pnpm test:e2e` in the official Playwright image of that version, which ships the
+    browsers and their system libraries. A bump of the package moves the image with it, and the
+    job fails while no image exists for the new version.
 - **Commit messages** (`commit-messages.yml`): on every pull request, and when its title changes,
   runs commitlint on each commit that the base branch lacks, and on the title with
   `commitlint/pr-title.config.js`, which needs no ticket reference.

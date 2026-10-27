@@ -26,6 +26,10 @@ In the pull request that closes #78:
   (#49). The pull request that fixes the issue turns it into a plain test.
 - `pnpm test:e2e` runs the suite, and the CI runs it after the build, with the browsers cached
   per Playwright version.
+- Update of 2026-10-27 (#110): the CI now runs the suite in an `e2e` job of its own, in the
+  official `mcr.microsoft.com/playwright` image of the exact `@playwright/test` version that the
+  `playwright-version` job reads from the lockfile. The image ships the browsers and their system
+  libraries, so nothing is cached or installed from apt any more.
 
 ## Alternatives considered
 
@@ -59,5 +63,7 @@ Measured on 2026-10-27 on the same machine with Node.js 24.22.0 and pnpm 12.14.0
   it. The browsers are not packages: `pnpm exec playwright install chromium webkit` downloads them
   once per Playwright version.
 - The CI installs the system libraries of the browsers from apt on every run, since the cache holds
-  only the browsers.
+  only the browsers. Update of 2026-10-27 (#110): a slow apt mirror stalled or timed out the
+  `check` job, so the suite moved to the official Playwright image, which needs no apt step, and a
+  bump of the package moves the image with it.
 - The page is not compared pixel by pixel, so a change of colors or fonts goes unseen.

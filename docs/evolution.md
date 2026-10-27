@@ -134,6 +134,17 @@ Measured on 2026-10-27.
 | `pnpm test:e2e` run time (median, built) | no script | 6.0 s                                |
 | Duration of the CI `check` job (median)  | 32 s      | see the pull request that closes #78 |
 
+The CI then installed the system libraries of the browsers from apt on every run, and a slow apt
+mirror stalled or timed out the `check` job. #110 moved the browser tests to an `e2e` job in the
+official Playwright image of the lockfile's version, with no apt step.
+
+| Figure (CI, 2026-10-27)       | Before #110                  | After #110                            |
+| ----------------------------- | ---------------------------- | ------------------------------------- |
+| `check` job                   | 70 s (median of 3, `master`) | 22 s and 32 s (2 runs)                |
+| Playwright system libraries   | 28 s to 47 s from apt        | none, in the image                    |
+| `e2e` job (image pull, tests) | inside `check`               | 70 s (39 s pull, 15 s tests), 1 run   |
+| Longest path of the CI run    | `check`, 70 s                | `playwright-version` then `e2e`, 77 s |
+
 Decision: [0007. Test the layout and a game in a browser
 with Playwright](decisions/0007-test-in-a-browser-with-playwright.md)
 
@@ -160,4 +171,7 @@ with Playwright](decisions/0007-test-in-a-browser-with-playwright.md)
   [0005](decisions/0005-host-on-cloudflare-pages.md)).
 - The figures of the ESLint section come from #41 and its decision record.
 - The CI durations of the Playwright section are the median of the `check` job over three runs of
-  one tree, pushed as separate commits to a throwaway branch.
+  one tree, pushed as separate commits to a throwaway branch. Those of #110 come from the jobs of
+  the GitHub API: before, three green runs of `master` (69bfeda, 42fcbe7, de5bc7b); after, the
+  two runs of its pull request, never rerun. The first one failed on the lockfile query before
+  the e2e job, after a green `check` job (the 32 s).

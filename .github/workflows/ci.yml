@@ -42,25 +42,51 @@ jobs:
 
       - run: pnpm build
 
-      # The browsers are cached per Playwright version, since each version needs its own builds;
-      # their system libraries come from apt and are installed on every run.
-      - name: Read the Playwright version
-        id: playwright
-        run: echo "version=$(pnpm exec playwright --version | cut -d ' ' -f 2)" >> "$GITHUB_OUTPUT"
+  # Reads the Playwright version of the lockfile, so the e2e job runs in the image of that exact
+  # version: a bump of @playwright/test moves the image with it, and fails the job if the image
+  # does not exist yet.
+  playwright-version:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      version: ${{ steps.lockfile.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        id: playwright-cache
+      # pnpm-lock.yaml holds two YAML documents, the pnpm version first and the project second, so
+      # yq answers once per document: keep the answer that is not null.
+      - id: lockfile
+        run: |
+          query='.importers.".".devDependencies."@playwright/test".version | select(. != null)'
+          version=$(yq "$query" pnpm-lock.yaml)
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::No exact @playwright/test version in pnpm-lock.yaml: $version"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  # The official Playwright image ships the browsers and their system libraries, so nothing comes
+  # from apt, whose mirror sometimes stalls the runs.
+  e2e:
+    needs: playwright-version
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v${{ needs.playwright-version.outputs.version }}-noble
+      # Shares the host's IPC namespace, as Playwright advises, so Chromium does not run out of
+      # the small default shared memory of a container.
+      options: --ipc=host
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+          node-version-file: .nvmrc
+          cache: pnpm
 
-      - if: steps.playwright-cache.outputs.cache-hit != 'true'
-        timeout-minutes: 10
-        run: pnpm exec playwright install --with-deps chromium webkit
-
-      - if: steps.playwright-cache.outputs.cache-hit == 'true'
-        timeout-minutes: 10
-        run: pnpm exec playwright install-deps chromium webkit
+      - run: pnpm install --frozen-lockfile
 
       - run: pnpm test:e2e
 
