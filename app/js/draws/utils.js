@@ -1,5 +1,4 @@
-import { BOARD_FILES } from '../board-navigation/constants.js';
-import { SQUARE_PATTERN } from '../squares/constants.js';
+import { BOARD_FILES, SQUARE_PATTERN } from '../squares/constants.js';
 import {
   MAX_LONE_MINOR_PIECES,
   MINOR_PIECE_TYPES,

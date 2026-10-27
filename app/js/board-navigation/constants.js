@@ -1,8 +1,5 @@
 import { BOARD_SIZE } from '../squares/constants.js';
 
-/** The files of the board, from left to right as white sees it. */
-export const BOARD_FILES = 'abcdefgh';
-
 /**
  * How each navigation key of the board moves the focus, in files and ranks. A step that leaves
  * the board stops at its edge, so the arrows move one square and the other keys reach an edge.

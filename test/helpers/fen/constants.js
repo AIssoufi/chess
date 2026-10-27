@@ -1,12 +1,6 @@
 /** The starting position, with its halfmove clock and move number. */
 export const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
-/** The files of the board, from left to right as white sees it. */
-export const FILES = 'abcdefgh';
-
-/** The number of ranks of the board, and of squares on each rank. */
-export const BOARD_SIZE = 8;
-
 /** The fewest fields of a FEN: placement, side to move, castling rights and en passant. */
 export const MIN_FIELD_COUNT = 4;
 

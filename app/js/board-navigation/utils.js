@@ -1,5 +1,5 @@
-import { BOARD_SIZE, FIRST_RANK, SQUARE_PATTERN } from '../squares/constants.js';
-import { BOARD_FILES, NAVIGATION_STEPS } from './constants.js';
+import { BOARD_FILES, BOARD_SIZE, FIRST_RANK, SQUARE_PATTERN } from '../squares/constants.js';
+import { NAVIGATION_STEPS } from './constants.js';
 
 /**
  * Keeps a file index or a rank inside the board.
