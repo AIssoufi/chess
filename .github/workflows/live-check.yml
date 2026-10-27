@@ -1,0 +1,62 @@
+name: Live check
+
+on:
+  schedule:
+    # Every hour at minute 17, away from the top of the hour when GitHub delays scheduled runs.
+    - cron: '17 * * * *'
+  workflow_dispatch:
+    inputs:
+      host:
+        description: Origin of the site to check, without a trailing slash
+        default: https://chess.issoufi.fr
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-check
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      # A schedule has no inputs, so it checks the production host.
+      HOST: ${{ inputs.host || 'https://chess.issoufi.fr' }}
+      REDIRECT_URL: https://aissoufi.github.io/chess/
+    steps:
+      - name: Check the site and the GitHub Pages redirect
+        run: |
+          fetch() {
+            curl --fail --silent --show-error --location --retry 3 --retry-all-errors \
+              --max-time 30 "$@"
+          }
+
+          # Answers 200 with a content type holding the expected text.
+          check_type() {
+            local url="$1" expected="$2" type
+            type=$(fetch --output /dev/null --write-out '%{content_type}' "$url")
+            echo "$url: $type"
+            [[ "$type" == *"$expected"* ]]
+          }
+
+          echo "Home page: $HOST/"
+          fetch --output home.html "$HOST/"
+          grep --quiet "<title>Jeu d'échecs</title>" home.html
+
+          js=$(grep --only-matching --max-count=1 '/assets/index-[A-Za-z0-9_-]*\.js' home.html)
+          css=$(grep --only-matching --max-count=1 '/assets/index-[A-Za-z0-9_-]*\.css' home.html)
+          check_type "$HOST$js" javascript
+          check_type "$HOST$css" text/css
+
+          check_type "$HOST/og-image.jpg" image/jpeg
+          check_type "$HOST/favicon.svg" image/svg+xml
+
+          echo "Redirect: $REDIRECT_URL"
+          fetch --output redirect.html "$REDIRECT_URL"
+          grep --quiet --fixed-strings "<link rel=\"canonical\" href=\"$HOST/\" />" redirect.html
+          # The modules that the redirect page imports to keep the path, query and fragment.
+          check_type "${REDIRECT_URL}utils.js" javascript
+          check_type "${REDIRECT_URL}constants.js" javascript
