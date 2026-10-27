@@ -19,7 +19,7 @@ castling, en passant, promotion, check, checkmate and stalemate.
 | Prettier 3                     | Code formatting                               |
 | ESLint 10                      | Linting, with the recommended rules           |
 | Husky, lint-staged, commitlint | Git hooks: formatting, linting, commit format |
-| pnpm 12, Node.js 24            | Package manager and runtime                   |
+| pnpm 12, Node.js 24 and 26     | Package manager and runtime                   |
 | Cloudflare Pages               | Hosting, with a preview per branch            |
 
 ## Getting started
@@ -54,8 +54,9 @@ pnpm preview    # serve dist/ on http://localhost:4173/
 `pnpm test` runs Vitest. The tests live in `test/` and are named `*.test.js`:
 
 - the model and rule tests run in Node.js, without a DOM;
-- the tests of `PieceFactory.js` and of the UI controller run in happy-dom, chosen by a
-  `// @vitest-environment happy-dom` comment on their first line;
+- the tests of the page, the footer year, the UI controller and the piece factory
+  (`index-page.test.js`, `copyright.test.js`, `main.test.js` and `piece-factory.test.js`) run in
+  happy-dom, chosen by a `// @vitest-environment happy-dom` comment on their first line;
 - the tests of the `prepare-commit-msg` hook run Git in temporary repositories.
 
 `pnpm test:coverage` adds a V8 coverage report of `app/js/`: a summary in the terminal and an
@@ -82,7 +83,8 @@ app/                 Vite root: the page, its styles and images
   public/            Files copied as they are to dist/: the Cloudflare Pages _headers, the
                      favicon and the 1200x630 social preview image (og-image.jpg)
 commitlint/          Ticket reference rule, bot commits and the pull request title config
-docs/                README screenshot, decisions (ADRs) and the evolution of the stack
+docs/                README screenshot, decisions (ADRs), the evolution of the stack and
+                     ai-workflow/ (how agents work on the project)
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests
 .github/workflows/   CI, commit message checks, actionlint and the GitHub Pages redirect
