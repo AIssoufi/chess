@@ -1,7 +1,7 @@
 import Chessboard from './Chessboard.js';
 import PieceFactory from './PieceFactory.js';
 import { enableBoardNavigation, focusSquare } from './board-navigation/roving-focus.js';
-import { COLOR_LABELS, COLORS } from './colors/constants.js';
+import { COLOR_LABELS } from './colors/constants.js';
 import consoleLog from './console-log.js';
 import { showCopyrightYear } from './copyright/show-copyright-year.js';
 import { DRAW_REASON_LABELS } from './draws/constants.js';
@@ -11,9 +11,17 @@ import {
   GAME_OVER_DIALOG_DELAY_MS,
 } from './game-over/constants.js';
 import { getGameOutcome } from './game-over/utils.js';
-import { getSquareLabel } from './labels/utils.js';
 import { SPECIAL_MOVE_LABELS } from './moves/constants.js';
-import { getStatusMessage } from './status/utils.js';
+import {
+  clearCheck,
+  getSquareNode,
+  markCheck,
+  renderCaptures,
+  renderCurrentPlayer,
+  renderPieces,
+  renderSquareLabels,
+  renderStatus,
+} from './rendering/render.js';
 
 const game = new Chessboard();
 const factory = new PieceFactory();
@@ -26,63 +34,13 @@ let lastMove = null;
 
 // ─── DOM rendering ──────────────────────────────────────────────────────────
 
+function renderLabels() {
+  renderSquareLabels({ game, selection: { square: selectedSquare, moves: possibleMoves } });
+}
+
 function renderBoard() {
-  document.querySelectorAll('.piece').forEach((p) => p.remove());
-  for (const [position, piece] of game.board) {
-    const squareNode = document.querySelector(`.square[data-position="${position}"]`);
-    const pieceNode = factory.create({ type: piece.type, color: piece.color });
-    if (!squareNode || !pieceNode) continue;
-    // The name of the square already holds the piece: it is not read twice
-    pieceNode.setAttribute('aria-hidden', 'true');
-    squareNode.appendChild(pieceNode);
-  }
-  renderSquareLabels();
-}
-
-function renderSquareLabels() {
-  document.querySelectorAll('.container-squares .square').forEach((squareNode) => {
-    const position = squareNode.dataset.position;
-    const label = getSquareLabel({
-      square: position,
-      piece: game.getPiece(position),
-      isPossibleMove: possibleMoves.includes(position),
-      isCheck: squareNode.classList.contains('check'),
-    });
-    if (label) squareNode.setAttribute('aria-label', label);
-    squareNode.setAttribute('aria-selected', String(position === selectedSquare));
-  });
-}
-
-function renderStatus({ outcome, color, winner, drawReason }) {
-  const promotedType = lastMove?.promotion ? game.getPiece(lastMove.to)?.type : undefined;
-  document.querySelector('.game-status').textContent = getStatusMessage({
-    lastMove,
-    promotedType,
-    outcome,
-    color,
-    winner,
-    drawReason,
-  });
-}
-
-function renderCaptures() {
-  for (const color of COLORS) {
-    const zone = document.getElementById(`${color}-captures`);
-    const counter = document.getElementById(`${color}-capture-count`);
-    zone.innerHTML = '';
-    counter.textContent = game.captures[color].length;
-    for (const piece of game.captures[color]) {
-      const pieceNode = factory.create({ type: piece.type, color: piece.color });
-      if (pieceNode) zone.appendChild(pieceNode);
-    }
-  }
-}
-
-function updateCurrentPlayer() {
-  document.querySelectorAll('.control').forEach((c) => c.classList.remove('current-player'));
-  document
-    .querySelector(`.control[data-color="${game.currentColor}"]`)
-    ?.classList.add('current-player');
+  renderPieces({ game, factory });
+  renderLabels();
 }
 
 // ─── Selection and highlighting ─────────────────────────────────────────────
@@ -92,7 +50,7 @@ function deselect() {
   document.querySelectorAll('.selected').forEach((c) => c.classList.remove('selected'));
   selectedSquare = null;
   possibleMoves = [];
-  renderSquareLabels();
+  renderLabels();
 }
 
 function select(position) {
@@ -105,39 +63,33 @@ function select(position) {
 
   selectedSquare = position;
   possibleMoves = moves;
-  document.querySelector(`.square[data-position="${position}"]`)?.classList.add('selected');
+  getSquareNode({ square: position })?.classList.add('selected');
   for (const dest of moves) {
-    document.querySelector(`.square[data-position="${dest}"]`)?.classList.add('possible-move');
+    getSquareNode({ square: dest })?.classList.add('possible-move');
   }
-  renderSquareLabels();
+  renderLabels();
 }
 
 // ─── Check indicator ────────────────────────────────────────────────────────
 
-function markCheck(color) {
-  clearCheck();
-  for (const [p, piece] of game.board) {
-    if (piece.type === 'king' && piece.color === color) {
-      document.querySelector(`.square[data-position="${p}"]`)?.classList.add('check');
-      break;
-    }
-  }
-  renderSquareLabels();
+function showCheck(color) {
+  markCheck({ board: game.board, color });
+  renderLabels();
 }
 
-function clearCheck() {
-  document.querySelectorAll('.square.check').forEach((c) => c.classList.remove('check'));
-  renderSquareLabels();
+function hideCheck() {
+  clearCheck();
+  renderLabels();
 }
 
 // ─── After each move ────────────────────────────────────────────────────────
 
 function afterMove() {
   const { outcome, color, winner, drawReason } = getGameOutcome({ game });
-  renderStatus({ outcome, color, winner, drawReason });
+  renderStatus({ game, lastMove, outcome, color, winner, drawReason });
   if (outcome === GAME_OUTCOMES.checkmate) {
     console.log(`Échec et mat ! ${COLOR_LABELS[winner]} gagne.`);
-    markCheck(color);
+    showCheck(color);
     document.querySelector('.winner-color').textContent = COLOR_LABELS[winner];
     setTimeout(() => showAlert(GAME_OVER_ALERTS.checkmate), GAME_OVER_DIALOG_DELAY_MS);
   } else if (outcome === GAME_OUTCOMES.stalemate) {
@@ -149,7 +101,7 @@ function afterMove() {
     setTimeout(() => showAlert(GAME_OVER_ALERTS.draw), GAME_OVER_DIALOG_DELAY_MS);
   } else if (outcome === GAME_OUTCOMES.check) {
     console.log(`${COLOR_LABELS[color]} est en échec !`);
-    markCheck(color);
+    showCheck(color);
   }
 }
 
@@ -172,9 +124,9 @@ document.querySelector('.promotion__wrapper').addEventListener('click', (event) 
   game.promote({ position: game.promotionSquare, type: btn.dataset.type });
   document.querySelector('.promotion__wrapper').style.display = 'none';
   renderBoard();
-  renderCaptures();
-  updateCurrentPlayer();
-  clearCheck();
+  renderCaptures({ game, factory });
+  renderCurrentPlayer({ color: game.currentColor });
+  hideCheck();
   afterMove();
 });
 
@@ -222,9 +174,9 @@ document.querySelector('.container-squares').addEventListener('click', (event) =
       if (!result) return;
 
       renderBoard();
-      renderCaptures();
+      renderCaptures({ game, factory });
       deselect();
-      clearCheck();
+      hideCheck();
 
       const log = result.specialMove
         ? `${result.from} → ${result.to} (${SPECIAL_MOVE_LABELS[result.specialMove]})`
@@ -237,7 +189,7 @@ document.querySelector('.container-squares').addEventListener('click', (event) =
         return;
       }
 
-      updateCurrentPlayer();
+      renderCurrentPlayer({ color: game.currentColor });
       afterMove();
     } else if (piece && piece.color === game.currentColor) {
       // Select another piece of the same side
@@ -256,11 +208,11 @@ function initialize() {
   game.initialize();
   lastMove = null;
   renderBoard();
-  renderCaptures();
+  renderCaptures({ game, factory });
   deselect();
-  clearCheck();
-  updateCurrentPlayer();
-  renderStatus(getGameOutcome({ game }));
+  hideCheck();
+  renderCurrentPlayer({ color: game.currentColor });
+  renderStatus({ game, lastMove, ...getGameOutcome({ game }) });
 }
 
 consoleLog();
