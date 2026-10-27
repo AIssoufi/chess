@@ -2,10 +2,9 @@ import Chessboard from '../../../app/js/Chessboard.js';
 import pawn from '../../../app/js/pieces/pawn.js';
 import { COLORS } from '../../../app/js/colors/constants.js';
 import { getOpponent } from '../../../app/js/colors/utils.js';
-import { SQUARE_PATTERN } from '../../../app/js/squares/constants.js';
-import { getEnPassantCaptureSquare } from '../../../app/js/squares/utils.js';
+import { BOARD_FILES, BOARD_SIZE } from '../../../app/js/squares/constants.js';
+import { getEnPassantCaptureSquare, isSquare } from '../../../app/js/squares/utils.js';
 import {
-  BOARD_SIZE,
   CASTLING_PATTERN,
   CASTLING_PIECE_TYPES,
   CASTLING_RIGHTS,
@@ -13,7 +12,6 @@ import {
   EMPTY_SQUARES_PATTERN,
   EN_PASSANT_RANKS,
   FIELD_SEPARATOR_PATTERN,
-  FILES,
   MAX_FIELD_COUNT,
   MIN_FIELD_COUNT,
   PAWNLESS_RANKS,
@@ -77,7 +75,7 @@ function parseRank({ fen, row, rank, board }) {
 
     const isWhite = letter === letter.toUpperCase();
     const color = isWhite ? 'white' : 'black';
-    const square = `${FILES[fileIndex]}${rank}`;
+    const square = `${BOARD_FILES[fileIndex]}${rank}`;
     board.set(square, { type, color, hasMoved: hasPieceMoved({ type, color, square }) });
     fileIndex += 1;
   }
@@ -164,9 +162,8 @@ function applyCastlingRights({ fen, castling, board }) {
 function parseEnPassant({ fen, enPassant, color, board }) {
   if (enPassant === EMPTY_FIELD) return null;
 
-  const isSquare = SQUARE_PATTERN.test(enPassant);
   const isOnTargetRank = enPassant[1] === EN_PASSANT_RANKS[color];
-  if (!isSquare || !isOnTargetRank) {
+  if (!isSquare(enPassant) || !isOnTargetRank) {
     throw invalidFen({ fen, reason: `bad en passant square "${enPassant}"` });
   }
 

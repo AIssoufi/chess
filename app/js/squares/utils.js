@@ -2,6 +2,20 @@ import { getPawnDirection } from '../colors/utils.js';
 import { BOARD_SIZE, FIRST_RANK, SQUARE_PATTERN } from './constants.js';
 
 /**
+ * Tells whether a value is a square of the board, in lowercase algebraic notation.
+ *
+ * @param {unknown} value The value, which may be of any type.
+ * @returns {boolean} true for a square from `a1` to `h8`, false otherwise, including for a value
+ *   that is not a string.
+ * @example
+ * isSquare('e4'); // true
+ * isSquare('E4'); // false
+ */
+export function isSquare(value) {
+  return typeof value === 'string' && SQUARE_PATTERN.test(value);
+}
+
+/**
  * Returns the square of the pawn that an en passant capture takes: one rank behind the target
  * square, from the point of view of the capturing pawn.
  *
@@ -14,14 +28,12 @@ import { BOARD_SIZE, FIRST_RANK, SQUARE_PATTERN } from './constants.js';
  * getEnPassantCaptureSquare({ target: 'd6', color: 'white' }); // 'd5'
  */
 export function getEnPassantCaptureSquare({ target, color } = {}) {
-  const isSquare = typeof target === 'string' && SQUARE_PATTERN.test(target);
   const direction = getPawnDirection(color);
   const hasDirection = direction !== 0;
-  if (!isSquare || !hasDirection) return null;
+  if (!isSquare(target) || !hasDirection) return null;
 
   const capturedSquare = `${target[0]}${Number(target[1]) - direction}`;
-  const isOnBoard = SQUARE_PATTERN.test(capturedSquare);
-  return isOnBoard ? capturedSquare : null;
+  return isSquare(capturedSquare) ? capturedSquare : null;
 }
 
 /**

@@ -1,5 +1,5 @@
-import { BOARD_FILES } from '../board-navigation/constants.js';
-import { SQUARE_PATTERN } from '../squares/constants.js';
+import { BOARD_FILES } from '../squares/constants.js';
+import { isSquare } from '../squares/utils.js';
 import {
   MAX_LONE_MINOR_PIECES,
   MINOR_PIECE_TYPES,
@@ -34,7 +34,7 @@ export function hasInsufficientMaterial(board) {
 
   const pieces = [...board].filter(([, piece]) => piece?.type !== 'king');
   const isMinorPiece = ([square, piece]) =>
-    SQUARE_PATTERN.test(square) && MINOR_PIECE_TYPES.includes(piece?.type);
+    isSquare(square) && MINOR_PIECE_TYPES.includes(piece?.type);
   const hasOnlyMinorPieces = pieces.every(isMinorPiece);
   if (!hasOnlyMinorPieces) return false;
   if (pieces.length <= MAX_LONE_MINOR_PIECES) return true;

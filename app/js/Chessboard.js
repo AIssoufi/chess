@@ -27,19 +27,19 @@ import {
   SPECIAL_MOVES,
 } from './moves/constants.js';
 import { isOpponentPiece } from './moves/utils.js';
+import { BOARD_FILES } from './squares/constants.js';
 import { areCoordinatesOnBoard, getEnPassantCaptureSquare } from './squares/utils.js';
 
-const FILES = 'abcdefgh';
 /** Piece types a pawn may be promoted to. */
 const PROMOTION_PIECE_TYPES = ['queen', 'rook', 'bishop', 'knight'];
 /** Rank a pawn of each color is promoted on: the last rank in its direction. */
 const PROMOTION_RANKS = Object.freeze({ white: '8', black: '1' });
 
 function fileIndex(letter) {
-  return FILES.indexOf(letter);
+  return BOARD_FILES.indexOf(letter);
 }
 function fileLetter(c) {
-  return FILES[c];
+  return BOARD_FILES[c];
 }
 function toSquare({ file, rank }) {
   return `${fileLetter(file)}${rank}`;

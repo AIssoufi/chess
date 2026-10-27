@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { getPieceLabel, getSquareLabel } from '../app/js/labels/utils.js';
+import { getLabel, getPieceLabel, getSquareLabel } from '../app/js/labels/utils.js';
+
+const SIDES = Object.freeze({ white: 'blancs', black: 'noirs' });
 
 const PIECE_NAMES = [
   ['king', 'white', 'roi blanc'],
@@ -28,6 +30,33 @@ const UNKNOWN_PIECES = [
   ['numbers', { type: 1, color: 2 }],
   ['an empty object', {}],
 ];
+
+describe('getLabel', () => {
+  it('returns the label of a key', () => {
+    expect(getLabel({ labels: SIDES, key: 'black' })).toBe('noirs');
+  });
+
+  it.each([
+    ['an unknown key', 'red'],
+    ['a key that every object inherits', 'toString'],
+    ['an empty string', ''],
+    ['undefined', undefined],
+    ['null', null],
+    ['a number', 1],
+  ])('returns null for %s', (_label, key) => {
+    expect(getLabel({ labels: SIDES, key })).toBeNull();
+  });
+
+  it.each([
+    ['no parameters', undefined],
+    ['null', null],
+    ['no table', { key: 'black' }],
+    ['a null table', { labels: null, key: 'black' }],
+    ['a table that is a string', { labels: 'noirs', key: '0' }],
+  ])('returns null for %s', (_label, params) => {
+    expect(getLabel(params)).toBeNull();
+  });
+});
 
 describe('getPieceLabel', () => {
   it.each(PIECE_NAMES)('names the %s of color %s "%s"', (type, color, expected) => {

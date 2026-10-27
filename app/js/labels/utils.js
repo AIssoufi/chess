@@ -1,4 +1,4 @@
-import { SQUARE_PATTERN } from '../squares/constants.js';
+import { isSquare } from '../squares/utils.js';
 import {
   CHECK_LABEL,
   EMPTY_SQUARE_LABEL,
@@ -6,6 +6,25 @@ import {
   PIECE_LABELS,
   POSSIBLE_MOVE_LABEL,
 } from './constants.js';
+
+/**
+ * Returns the label of a key in a table of labels, without reading the keys that every object
+ * inherits, such as `toString`.
+ *
+ * @param {object | null} [params]
+ * @param {Readonly<Record<string, string>>} params.labels The labels, by key.
+ * @param {unknown} params.key The key, which may be missing or of any type.
+ * @returns {string | null} The label, or `null` when the table has no such key, and without a
+ *   table.
+ * @example
+ * getLabel({ labels: { white: 'blanche' }, key: 'white' }); // 'blanche'
+ */
+export function getLabel(params) {
+  const { labels, key } = params ?? {};
+  const hasTable = typeof labels === 'object' && labels !== null;
+  const isKnownKey = hasTable && typeof key === 'string' && Object.hasOwn(labels, key);
+  return isKnownKey ? labels[key] : null;
+}
 
 /**
  * Returns the French name of a piece, read by screen readers.
@@ -44,8 +63,7 @@ export function getPieceLabel({ type, color } = {}) {
  * getSquareLabel({ square: 'e4', isPossibleMove: true }); // 'e4, vide, coup possible'
  */
 export function getSquareLabel({ square, piece, isPossibleMove = false, isCheck = false } = {}) {
-  const isSquare = typeof square === 'string' && SQUARE_PATTERN.test(square);
-  if (!isSquare) return null;
+  if (!isSquare(square)) return null;
 
   const pieceLabel = piece ? getPieceLabel(piece) : null;
   const parts = [square, pieceLabel ?? EMPTY_SQUARE_LABEL];

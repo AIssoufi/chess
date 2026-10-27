@@ -1,5 +1,6 @@
-import { BOARD_SIZE, FIRST_RANK, SQUARE_PATTERN } from '../squares/constants.js';
-import { BOARD_FILES, NAVIGATION_STEPS } from './constants.js';
+import { BOARD_FILES, BOARD_SIZE, FIRST_RANK } from '../squares/constants.js';
+import { isSquare } from '../squares/utils.js';
+import { NAVIGATION_STEPS } from './constants.js';
 
 /**
  * Keeps a file index or a rank inside the board.
@@ -27,9 +28,8 @@ function clampToBoard({ value, min }) {
  * getNextSquare({ square: 'e2', key: 'Home' }); // 'a2'
  */
 export function getNextSquare({ square, key } = {}) {
-  const isSquare = typeof square === 'string' && SQUARE_PATTERN.test(square);
   const isNavigationKey = typeof key === 'string' && Object.hasOwn(NAVIGATION_STEPS, key);
-  if (!isSquare || !isNavigationKey) return null;
+  if (!isSquare(square) || !isNavigationKey) return null;
 
   const { fileStep, rankStep } = NAVIGATION_STEPS[key];
   const fileIndex = clampToBoard({ value: BOARD_FILES.indexOf(square[0]) + fileStep, min: 0 });

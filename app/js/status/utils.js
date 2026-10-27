@@ -2,9 +2,9 @@ import { getOpponent } from '../colors/utils.js';
 import { DRAW_REASON_LABELS } from '../draws/constants.js';
 import { GAME_OUTCOMES } from '../game-over/constants.js';
 import { PIECE_TYPE_LABELS } from '../labels/constants.js';
-import { getPieceLabel } from '../labels/utils.js';
+import { getLabel, getPieceLabel } from '../labels/utils.js';
 import { SPECIAL_MOVES, SPECIAL_MOVE_LABELS } from '../moves/constants.js';
-import { SQUARE_PATTERN } from '../squares/constants.js';
+import { isSquare } from '../squares/utils.js';
 import {
   MOVE_PART_SEPARATOR,
   PLACEHOLDER_PATTERN,
@@ -24,30 +24,6 @@ import {
  */
 function fillText({ text, values }) {
   return text.replace(PLACEHOLDER_PATTERN, (_, name) => values[name]);
-}
-
-/**
- * Returns the label of a key in a table of labels, without reading the keys that every object
- * inherits, such as `toString`.
- *
- * @param {object} params
- * @param {Readonly<Record<string, string>>} params.labels The labels, by key.
- * @param {unknown} params.key The key, which may be missing or of any type.
- * @returns {string | null} The label, or `null` when the table has no such key.
- */
-function getLabel({ labels, key }) {
-  const isKnownKey = typeof key === 'string' && Object.hasOwn(labels, key);
-  return isKnownKey ? labels[key] : null;
-}
-
-/**
- * Tells whether a value is a square of the board, such as `'e4'`.
- *
- * @param {unknown} value The value.
- * @returns {boolean} Whether it is a square.
- */
-function isSquare(value) {
-  return typeof value === 'string' && SQUARE_PATTERN.test(value);
 }
 
 /**
