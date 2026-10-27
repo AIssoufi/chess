@@ -57,9 +57,19 @@ pnpm preview    # serve dist/ on http://localhost:4173/
 `pnpm test` runs Vitest. The tests live in `test/` and are named `*.test.js`:
 
 - the model and rule tests run in Node.js, without a DOM;
-- the tests of the page, the footer year, the UI controller and the piece factory
-  (`index-page.test.js`, `copyright.test.js`, `main.test.js` and `piece-factory.test.js`) run in
-  happy-dom, chosen by a `// @vitest-environment happy-dom` comment on their first line;
+- the tests that need a DOM run in happy-dom, chosen by a `// @vitest-environment happy-dom`
+  comment on their first line:
+  - `index-page.test.js`: the head of the page and its social preview image;
+  - `accessibility-page.test.js`: the landmarks, the board and the screen reader names;
+  - `french-punctuation.test.js`: the French punctuation of the shown texts;
+  - `copyright.test.js`: the footer year;
+  - `main.test.js`: the UI controller;
+  - `piece-factory.test.js`: the piece factory;
+  - `rendering.test.js`: the pieces, the square labels, the status, the captures and the check;
+  - `selection.test.js`: the selected square, its moves and what a click does;
+  - `roving-focus.test.js`: the keyboard focus of the board;
+  - `promotion.test.js`: the promotion choice;
+  - `alerts.test.js`: the game over dialog;
 - the tests of the `prepare-commit-msg` hook run Git in temporary repositories.
 
 `pnpm test:coverage` adds a V8 coverage report of `app/js/`: a summary in the terminal and an
@@ -98,6 +108,7 @@ app/                 Vite root: the page, its styles and images
     copyright/       Writes the current year at the end of the footer copyright
     draws/           Draw reasons and their labels, insufficient material and the position key
     game-over/       Move outcome (check, mate, stalemate, draw), its log line and its alert
+    labels/          Screen reader names of the pieces and the squares, in French
     main.js          Wiring: listens to the board, the promotion and the dialog, calls the modules
     moves/           Piece steps, special move names and labels, the capture helper and move logs
     PieceFactory.js  Creates the DOM node of a piece from its type and color
@@ -106,6 +117,7 @@ app/                 Vite root: the page, its styles and images
     rendering/       Renders the pieces, the square labels, the status, the captures and the check
     selection/       Selected square, its moves and their highlight, and what a click does
     squares/         Board size and square helpers, such as the square an en passant capture takes
+    status/          Status announcement: the last move, whose turn it is and the game outcome
   public/            Files copied as they are to dist/: the Cloudflare Pages _headers, the
                      favicon and the 1200x630 social preview image (og-image.jpg)
 commitlint/          Ticket reference rule, bot commits and the pull request title config
@@ -115,7 +127,8 @@ e2e/                 Browser tests (Playwright): the layout and game specs, and 
 playwright.config.js Playwright config: the browsers, and the preview server on a free port
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests
-.github/workflows/   CI, commit message checks, actionlint and the GitHub Pages redirect
+.github/workflows/   CI, commit message checks, actionlint, the live check and the GitHub Pages
+                     redirect
 ```
 
 ## CI and deployment
