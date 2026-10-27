@@ -12,7 +12,7 @@ page of the agentic architecture docs.
 | Worktrunk (`wt`)     | Creates and removes the Git worktree of each ticket                        |
 | GitHub CLI (`gh`)    | Issues, project fields, pull requests, checks and merges                   |
 | Husky and commitlint | Commit format and ticket reference, locally and in CI                      |
-| GitHub Actions       | The CI and the commit message check of each pull request                   |
+| GitHub Actions       | CI and commit check of each PR, GitHub Pages redirect on `master`          |
 | Cloudflare Pages     | Production on `master`, a preview per branch                               |
 
 ## Worktrees
