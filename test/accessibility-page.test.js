@@ -4,7 +4,11 @@ import { fileURLToPath } from 'node:url';
 import { describe, it, expect, beforeEach } from 'vitest';
 
 const INDEX_PAGE = readFileSync(fileURLToPath(import.meta.resolve('../app/index.html')), 'utf8');
-const PAGE_BODY = INDEX_PAGE.match(/<body>([\s\S]*)<\/body>/)[1];
+/** The body of the page without its scripts, which happy-dom would otherwise try to load. */
+const PAGE_TEMPLATE = document.createElement('template');
+PAGE_TEMPLATE.innerHTML = INDEX_PAGE.match(/<body>([\s\S]*)<\/body>/)[1];
+PAGE_TEMPLATE.content.querySelectorAll('script').forEach((script) => script.remove());
+const PAGE_BODY = PAGE_TEMPLATE.innerHTML;
 const BOARD_SQUARE_COUNT = 64;
 const BOARD_ROW_COUNT = 8;
 /** The square that takes the focus first, from the Tab key: the king's pawn of white. */
