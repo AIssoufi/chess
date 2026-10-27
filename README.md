@@ -105,8 +105,9 @@ test/                Unit tests
   falls back to the home page without JavaScript.
 - **Dependabot** (`.github/dependabot.yml`): each week, one pull request bumps the GitHub Actions,
   one bumps the npm packages within their major, and each new major of a package gets its own.
-  Their titles start with `ci(deps):`, `build(deps):` or `build(deps-dev):`, so they pass the
-  commit message check.
+  Their commits and titles start with `ci(deps):`, `build(deps):` or `build(deps-dev):` and a
+  capitalized `Bump`, which the commit and title checks let through; other capitalized subjects
+  still fail.
 
 ### Cloudflare Pages settings
 

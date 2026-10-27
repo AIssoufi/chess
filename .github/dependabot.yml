@@ -1,5 +1,7 @@
-# Opens one weekly pull request per group. The prefixes give conventional titles, such as
-# `ci(deps): bump …` or `build(deps-dev): bump …`, which the pull request title check requires.
+# Opens one weekly pull request per group. The prefixes give conventional headers, such as
+# `ci(deps): Bump …` or `build(deps-dev): Bump …`, in both the commits and the titles. The commit
+# check skips the signed-off commits, and the title check lets through these prefixes followed by
+# `Bump` (`DEPENDABOT_TITLE` of commitlint/), despite the capitalized subject.
 version: 2
 
 updates:

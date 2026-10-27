@@ -27,5 +27,12 @@ export const RELEASE_COMMIT_HEADER = /^chore(\([^)]+\))?: release( \S+)? v?\d+\.
 /** Sign-off of a GitHub App, such as `Signed-off-by: dependabot[bot] <support@github.com>`. */
 export const BOT_SIGN_OFF = /^Signed-off-by: \S+\[bot\] /m;
 
+/**
+ * Pull request title of Dependabot, such as `build(deps-dev): Bump happy-dom from 21.0.3 to 21.0.4`
+ * or `ci(deps): Bump the github-actions group with 2 updates`. These titles capitalize `Bump`,
+ * which `subject-case` refuses, and have no sign-off to recognize them, unlike the commits.
+ */
+export const DEPENDABOT_TITLE = /^(build|ci)\(deps(-dev)?\): Bump \S/;
+
 /** Section of the README that explains the commit conventions, linked from commitlint errors. */
 export const COMMIT_CONVENTIONS_URL = 'https://github.com/AIssoufi/chess#conventions';
