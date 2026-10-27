@@ -512,12 +512,12 @@ describe('main.js keyboard and screen readers', () => {
     expect(status()).toBe('Aux blancs de jouer.');
 
     play([['e2', 'e4']]);
-    expect(status()).toBe('Dernier coup : pion blanc de e2 à e4. Aux noirs de jouer.');
+    expect(status()).toBe('Dernier coup\u00a0: pion blanc de e2 à e4. Aux noirs de jouer.');
 
     play([['d7', 'd5']]);
     play([['e4', 'd5']]);
     expect(status()).toBe(
-      'Dernier coup : pion blanc de e4 à d5, prend pion noir. Aux noirs de jouer.'
+      'Dernier coup\u00a0: pion blanc de e4 à d5, prend pion noir. Aux noirs de jouer.'
     );
   });
 
@@ -526,27 +526,29 @@ describe('main.js keyboard and screen readers', () => {
     square('d7').click();
     square('e7').click();
 
-    expect(status()).toBe('Dernier coup : pion blanc de e2 à e4. Aux noirs de jouer.');
+    expect(status()).toBe('Dernier coup\u00a0: pion blanc de e2 à e4. Aux noirs de jouer.');
   });
 
   it('announces the checkmate and names the mated king', () => {
     play(FOOLS_MATE);
 
-    expect(status()).toBe('Dernier coup : dame noire de d8 à h4. Échec et mat, les noirs gagnent.');
+    expect(status()).toBe(
+      'Dernier coup\u00a0: dame noire de d8 à h4. Échec et mat, les noirs gagnent.'
+    );
     expect(label('e1')).toBe('e1, roi blanc, en échec');
   });
 
   it('announces the stalemate', () => {
     play(LOYD_STALEMATE);
 
-    expect(status()).toBe('Dernier coup : dame blanche de c8 à e6. Pat, match nul.');
+    expect(status()).toBe('Dernier coup\u00a0: dame blanche de c8 à e6. Pat, match nul.');
   });
 
   it('announces the draw by repetition with its reason', () => {
     play(THREEFOLD_REPETITION);
 
     expect(status()).toBe(
-      'Dernier coup : cavalier noir de f6 à g8. Match nul : position répétée trois fois.'
+      'Dernier coup\u00a0: cavalier noir de f6 à g8. Match nul\u00a0: position répétée trois fois.'
     );
   });
 
@@ -578,14 +580,14 @@ describe('main.js keyboard and screen readers', () => {
     play([['e7', 'd8']]);
 
     expect(document.activeElement).toBe(promotionButton('queen'));
-    expect(status()).toBe('Dernier coup : pion noir de a6 à a5. Aux blancs de jouer.');
+    expect(status()).toBe('Dernier coup\u00a0: pion noir de a6 à a5. Aux blancs de jouer.');
 
     promotionButton('queen').click();
 
     expect(document.activeElement).toBe(square('d8'));
     expect(label('d8')).toBe('d8, dame blanche');
     expect(status()).toBe(
-      'Dernier coup : pion blanc de e7 à d8, prend dame noire, promu en dame. ' +
+      'Dernier coup\u00a0: pion blanc de e7 à d8, prend dame noire, promu en dame. ' +
         'Les noirs sont en échec. Aux noirs de jouer.'
     );
   });

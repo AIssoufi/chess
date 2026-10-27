@@ -9,14 +9,14 @@ export const SIDE_LABELS = Object.freeze({
  * `{name}` placeholder is replaced by its value.
  */
 export const STATUS_TEXTS = Object.freeze({
-  lastMove: 'Dernier coup : {piece} de {from} à {to}',
+  lastMove: 'Dernier coup\u00a0: {piece} de {from} à {to}',
   capture: 'prend {piece}',
   promotion: 'promu en {type}',
   turn: 'Aux {side} de jouer.',
   check: 'Les {side} sont en échec.',
   checkmate: 'Échec et mat, les {side} gagnent.',
   stalemate: 'Pat, match nul.',
-  draw: 'Match nul : {reason}.',
+  draw: 'Match nul\u00a0: {reason}.',
   unexplainedDraw: 'Match nul.',
 });
 
