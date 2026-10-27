@@ -188,7 +188,7 @@ describe('game over dialog', () => {
 
       expect(alert).not.toBeNull();
       expect(alert[1]).toMatch(/<h2 id="[a-z-]+">/);
-      expect(alert[1]).toContain('<button>Rejouer !</button>');
+      expect(alert[1]).toContain('<button>Rejouer&nbsp;!</button>');
     }
   );
 });

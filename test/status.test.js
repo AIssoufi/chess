@@ -16,7 +16,7 @@ describe('getStatusMessage', () => {
   it('announces the last move, then the side to play', () => {
     expect(
       getStatusMessage({ lastMove: PAWN_DOUBLE_STEP, outcome: 'ongoing', color: 'black' })
-    ).toBe('Dernier coup : pion blanc de e2 à e4. Aux noirs de jouer.');
+    ).toBe('Dernier coup\u00a0: pion blanc de e2 à e4. Aux noirs de jouer.');
   });
 
   it('names the piece taken', () => {
@@ -28,7 +28,7 @@ describe('getStatusMessage', () => {
     };
 
     expect(getStatusMessage({ lastMove, outcome: 'ongoing', color: 'black' })).toBe(
-      'Dernier coup : pion blanc de e4 à d5, prend dame noire. Aux noirs de jouer.'
+      'Dernier coup\u00a0: pion blanc de e4 à d5, prend dame noire. Aux noirs de jouer.'
     );
   });
 
@@ -42,7 +42,7 @@ describe('getStatusMessage', () => {
     };
 
     expect(getStatusMessage({ lastMove, outcome: 'ongoing', color: 'black' })).toBe(
-      'Dernier coup : pion blanc de e5 à d6, prend pion noir, en-passant. Aux noirs de jouer.'
+      'Dernier coup\u00a0: pion blanc de e5 à d6, prend pion noir, en-passant. Aux noirs de jouer.'
     );
   });
 
@@ -53,7 +53,7 @@ describe('getStatusMessage', () => {
     const lastMove = { from: 'e8', to, piece: { type: 'king', color: 'black' }, specialMove };
 
     expect(getStatusMessage({ lastMove, outcome: 'ongoing', color: 'white' })).toBe(
-      `Dernier coup : roi noir de e8 à ${to}, ${label}. Aux blancs de jouer.`
+      `Dernier coup\u00a0: roi noir de e8 à ${to}, ${label}. Aux blancs de jouer.`
     );
   });
 
@@ -72,7 +72,7 @@ describe('getStatusMessage', () => {
     };
 
     expect(getStatusMessage({ lastMove, promotedType, outcome: 'ongoing', color: 'black' })).toBe(
-      `Dernier coup : pion blanc de e7 à d8, prend dame noire, promu en ${label}. Aux noirs de jouer.`
+      `Dernier coup\u00a0: pion blanc de e7 à d8, prend dame noire, promu en ${label}. Aux noirs de jouer.`
     );
   });
 
@@ -82,7 +82,7 @@ describe('getStatusMessage', () => {
       const lastMove = { from: 'e7', to: 'e8', piece: WHITE_PAWN, promotion: true };
 
       expect(getStatusMessage({ lastMove, promotedType, outcome: 'ongoing', color: 'black' })).toBe(
-        'Dernier coup : pion blanc de e7 à e8. Aux noirs de jouer.'
+        'Dernier coup\u00a0: pion blanc de e7 à e8. Aux noirs de jouer.'
       );
     }
   );
@@ -95,7 +95,7 @@ describe('getStatusMessage', () => {
         outcome: 'ongoing',
         color: 'black',
       })
-    ).toBe('Dernier coup : pion blanc de e2 à e4. Aux noirs de jouer.');
+    ).toBe('Dernier coup\u00a0: pion blanc de e2 à e4. Aux noirs de jouer.');
   });
 
   it.each([
@@ -113,7 +113,7 @@ describe('getStatusMessage', () => {
 
     expect(getStatusMessage({ outcome: 'checkmate', color: 'white', winner })).toBe(expected);
     expect(getStatusMessage({ lastMove, outcome: 'checkmate', color: 'white', winner })).toBe(
-      `Dernier coup : dame noire de d8 à h4. ${expected}`
+      `Dernier coup\u00a0: dame noire de d8 à h4. ${expected}`
     );
   });
 
@@ -122,15 +122,15 @@ describe('getStatusMessage', () => {
   });
 
   it.each([
-    ['insufficient-material', 'Match nul : matériel insuffisant pour mater.'],
-    ['fifty-move-rule', 'Match nul : cinquante coups sans prise ni mouvement de pion.'],
-    ['threefold-repetition', 'Match nul : position répétée trois fois.'],
+    ['insufficient-material', 'Match nul\u00a0: matériel insuffisant pour mater.'],
+    ['fifty-move-rule', 'Match nul\u00a0: cinquante coups sans prise ni mouvement de pion.'],
+    ['threefold-repetition', 'Match nul\u00a0: position répétée trois fois.'],
   ])('announces a draw by %s with its reason, without a side to play', (drawReason, expected) => {
     const lastMove = { from: 'g1', to: 'f3', piece: { type: 'knight', color: 'white' } };
 
     expect(getStatusMessage({ outcome: 'draw', color: 'black', drawReason })).toBe(expected);
     expect(getStatusMessage({ lastMove, outcome: 'draw', color: 'black', drawReason })).toBe(
-      `Dernier coup : cavalier blanc de g1 à f3. ${expected}`
+      `Dernier coup\u00a0: cavalier blanc de g1 à f3. ${expected}`
     );
   });
 
@@ -152,7 +152,7 @@ describe('getStatusMessage', () => {
     'leaves out the side to play %j, which is no color',
     (color) => {
       expect(getStatusMessage({ lastMove: PAWN_DOUBLE_STEP, outcome: 'check', color })).toBe(
-        'Dernier coup : pion blanc de e2 à e4.'
+        'Dernier coup\u00a0: pion blanc de e2 à e4.'
       );
     }
   );
@@ -182,7 +182,7 @@ describe('getStatusMessage', () => {
     const lastMove = { ...PAWN_DOUBLE_STEP, captured: { type: 'unicorn', color: 'black' } };
 
     expect(getStatusMessage({ lastMove, outcome: 'ongoing', color: 'black' })).toBe(
-      'Dernier coup : pion blanc de e2 à e4. Aux noirs de jouer.'
+      'Dernier coup\u00a0: pion blanc de e2 à e4. Aux noirs de jouer.'
     );
   });
 
@@ -190,7 +190,7 @@ describe('getStatusMessage', () => {
     const lastMove = { ...PAWN_DOUBLE_STEP, specialMove: 'toString' };
 
     expect(getStatusMessage({ lastMove, outcome: 'ongoing', color: 'black' })).toBe(
-      'Dernier coup : pion blanc de e2 à e4. Aux noirs de jouer.'
+      'Dernier coup\u00a0: pion blanc de e2 à e4. Aux noirs de jouer.'
     );
   });
 
@@ -198,7 +198,7 @@ describe('getStatusMessage', () => {
     const lastMove = { from: 'd4', to: 'e3', piece: BLACK_PAWN, specialMove: 'en-passant' };
 
     expect(getStatusMessage({ lastMove, outcome: 'ongoing', color: 'white' })).toBe(
-      'Dernier coup : pion noir de d4 à e3, prend pion blanc, en-passant. Aux blancs de jouer.'
+      'Dernier coup\u00a0: pion noir de d4 à e3, prend pion blanc, en-passant. Aux blancs de jouer.'
     );
   });
 

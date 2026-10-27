@@ -181,7 +181,7 @@ describe('renderStatus', () => {
     const lastMove = game.move({ from: 'e2', to: 'e4' });
     renderStatus({ game, lastMove, outcome: GAME_OUTCOMES.ongoing, color: 'black' });
     expect(document.querySelector('.game-status').textContent).toBe(
-      'Dernier coup : pion blanc de e2 à e4. Aux noirs de jouer.'
+      'Dernier coup\u00a0: pion blanc de e2 à e4. Aux noirs de jouer.'
     );
   });
 
@@ -194,7 +194,7 @@ describe('renderStatus', () => {
       color: 'black',
     });
     expect(document.querySelector('.game-status').textContent).toBe(
-      'Dernier coup : pion blanc de g7 à g8, promu en dame. Aux noirs de jouer.'
+      'Dernier coup\u00a0: pion blanc de g7 à g8, promu en dame. Aux noirs de jouer.'
     );
   });
 
@@ -207,7 +207,7 @@ describe('renderStatus', () => {
       color: 'black',
     });
     expect(document.querySelector('.game-status').textContent).toBe(
-      'Dernier coup : pion blanc de g7 à g8. Aux noirs de jouer.'
+      'Dernier coup\u00a0: pion blanc de g7 à g8. Aux noirs de jouer.'
     );
   });
 });
