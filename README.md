@@ -122,8 +122,9 @@ test/                Unit tests
 
 - **CI** (`ci.yml`): on every pull request and push to `master`, installs with the frozen lockfile,
   then runs `pnpm audit --audit-level high` (which fails on an advisory of high or critical
-  severity), `pnpm format:check`, `pnpm lint`, `pnpm test` and `pnpm build` on the Node.js version
-  of `.nvmrc` (24), and `pnpm test` again on Node.js 26 in the `test (node 26)` job.
+  severity), `pnpm format:check`, `pnpm lint`, `pnpm test`, `pnpm build` and `pnpm test:e2e`, with
+  the browsers cached per Playwright version, on the Node.js version of `.nvmrc` (24), and
+  `pnpm test` again on Node.js 26 in the `test (node 26)` job.
 - **Commit messages** (`commit-messages.yml`): on every pull request, and when its title changes,
   runs commitlint on each commit that the base branch lacks, and on the title with
   `commitlint/pr-title.config.js`, which needs no ticket reference.
