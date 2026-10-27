@@ -1,0 +1,52 @@
+/**
+ * The floor of the height term of the `--square` rule of the styles, in CSS pixels: the smallest
+ * side of a square on a screen wide enough for the board.
+ */
+export const MIN_SQUARE_SIZE_PX = 40;
+
+/** The largest side of a square, in CSS pixels, that the `--square` rule of the styles allows. */
+export const MAX_SQUARE_SIZE_PX = 70;
+
+/** How far a square may sit from its place on the grid, in CSS pixels: subpixel rounding only. */
+export const GRID_TOLERANCE_PX = 1;
+
+/**
+ * The viewports of the layout tests: a phone upright, a tablet upright, a phone sideways and a
+ * laptop. `boardOverflowIssue` names the open issue of a viewport whose board does not fit yet.
+ */
+export const LAYOUT_VIEWPORTS = Object.freeze([
+  { width: 390, height: 800 },
+  { width: 768, height: 1024 },
+  { width: 844, height: 390, boardOverflowIssue: 33 },
+  { width: 1280, height: 800 },
+]);
+
+/** The fool's mate, the shortest checkmate: black mates on its second move. */
+export const FOOLS_MATE_MOVES = Object.freeze([
+  { from: 'f2', to: 'f3' },
+  { from: 'e7', to: 'e5' },
+  { from: 'g2', to: 'g4' },
+  { from: 'd8', to: 'h4' },
+]);
+
+/**
+ * A short game that brings a white pawn from h2 to the last rank, capturing the rook on h8; the
+ * last move leaves the promotion pending.
+ */
+export const PROMOTION_MOVES = Object.freeze([
+  { from: 'h2', to: 'h4' },
+  { from: 'g7', to: 'g5' },
+  { from: 'h4', to: 'g5' },
+  { from: 'h7', to: 'h6' },
+  { from: 'g5', to: 'h6' },
+  { from: 'f8', to: 'g7' },
+  { from: 'h6', to: 'g7' },
+  { from: 'g8', to: 'f6' },
+  { from: 'g7', to: 'h8' },
+]);
+
+/** The square where the pawn of `PROMOTION_MOVES` promotes. */
+export const PROMOTION_SQUARE = 'h8';
+
+/** The number of pieces one side can capture: every piece of the opponent but its king. */
+export const MAX_CAPTURED_PIECES = 15;

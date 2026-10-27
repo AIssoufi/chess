@@ -76,3 +76,7 @@ typings/
 
 # Vite build output
 dist/
+
+# Playwright output: the error context of failed tests, and the report of --reporter=html
+test-results/
+playwright-report/
