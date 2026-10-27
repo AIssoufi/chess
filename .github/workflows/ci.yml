@@ -17,6 +17,7 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -54,9 +55,11 @@ jobs:
           key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
 
       - if: steps.playwright-cache.outputs.cache-hit != 'true'
+        timeout-minutes: 10
         run: pnpm exec playwright install --with-deps chromium webkit
 
       - if: steps.playwright-cache.outputs.cache-hit == 'true'
+        timeout-minutes: 10
         run: pnpm exec playwright install-deps chromium webkit
 
       - run: pnpm test:e2e
@@ -67,6 +70,7 @@ jobs:
   test-node-26:
     name: test (node 26)
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
