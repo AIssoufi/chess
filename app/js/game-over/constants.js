@@ -16,3 +16,6 @@ export const GAME_OVER_ALERTS = Object.freeze({
 
 /** Delay before the game over dialog opens, so that the last move shows on the board first. */
 export const GAME_OVER_DIALOG_DELAY_MS = 200;
+
+/** The outcomes that leave the king of the side to play in check, which the board marks. */
+export const CHECKED_KING_OUTCOMES = Object.freeze([GAME_OUTCOMES.checkmate, GAME_OUTCOMES.check]);

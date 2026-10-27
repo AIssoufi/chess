@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isOpponentPiece } from '../app/js/moves/utils.js';
+import { getMoveLog, isOpponentPiece } from '../app/js/moves/utils.js';
 
 const WHITE_PAWN = Object.freeze({ type: 'pawn', color: 'white', hasMoved: false });
 const BLACK_ROOK = Object.freeze({ type: 'rook', color: 'black', hasMoved: false });
@@ -24,5 +24,33 @@ describe('isOpponentPiece', () => {
     ['missing params', undefined],
   ])('returns false for %s', (_label, params) => {
     expect(isOpponentPiece(params)).toBe(false);
+  });
+});
+
+describe('getMoveLog', () => {
+  it('logs the squares of a move', () => {
+    expect(getMoveLog({ from: 'e2', to: 'e4' })).toBe('e2 → e4');
+  });
+
+  it.each([
+    ['kingside-castling', 'e1', 'g1', 'e1 → g1 (petit-roque)'],
+    ['queenside-castling', 'e8', 'c8', 'e8 → c8 (grand-roque)'],
+    ['en-passant', 'e5', 'd6', 'e5 → d6 (en-passant)'],
+  ])('names a %s', (specialMove, from, to, log) => {
+    expect(getMoveLog({ from, to, specialMove })).toBe(log);
+  });
+
+  it('logs the squares alone for an unknown special move', () => {
+    expect(getMoveLog({ from: 'e2', to: 'e4', specialMove: 'teleport' })).toBe('e2 → e4');
+  });
+
+  it.each([
+    ['no move', undefined],
+    ['null', null],
+    ['an empty move', {}],
+    ['a move without target', { from: 'e2' }],
+    ['a target that is not a square', { from: 'e2', to: 'e9' }],
+  ])('logs nothing for %s', (_label, move) => {
+    expect(getMoveLog(move)).toBeNull();
   });
 });
