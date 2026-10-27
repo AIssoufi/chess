@@ -16,6 +16,8 @@ export const STATUS_TEXTS = Object.freeze({
   check: 'Les {side} sont en échec.',
   checkmate: 'Échec et mat, les {side} gagnent.',
   stalemate: 'Pat, match nul.',
+  draw: 'Match nul : {reason}.',
+  unexplainedDraw: 'Match nul.',
 });
 
 /** A `{name}` placeholder of the status texts, whose first group is the name. */

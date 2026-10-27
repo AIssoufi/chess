@@ -1,4 +1,5 @@
 import { getOpponent } from '../colors/utils.js';
+import { DRAW_REASON_LABELS } from '../draws/constants.js';
 import { GAME_OUTCOMES } from '../game-over/constants.js';
 import { PIECE_TYPE_LABELS } from '../labels/constants.js';
 import { getPieceLabel } from '../labels/utils.js';
@@ -105,10 +106,18 @@ function describeMove({ lastMove, promotedType }) {
  * @param {string} [params.outcome] One of `GAME_OUTCOMES`; anything else reads as `ongoing`.
  * @param {string} [params.color] The color to play.
  * @param {string} [params.winner] The winning color, after a checkmate.
+ * @param {string} [params.drawReason] Why the game is drawn, one of `DRAW_REASONS`, after a draw.
  * @returns {string[]} The sentences, none when a color they need is missing.
  */
-function describeOutcome({ outcome, color, winner }) {
+function describeOutcome({ outcome, color, winner, drawReason }) {
   if (outcome === GAME_OUTCOMES.stalemate) return [STATUS_TEXTS.stalemate];
+
+  if (outcome === GAME_OUTCOMES.draw) {
+    const reason = getLabel({ labels: DRAW_REASON_LABELS, key: drawReason });
+    return reason
+      ? [fillText({ text: STATUS_TEXTS.draw, values: { reason } })]
+      : [STATUS_TEXTS.unexplainedDraw];
+  }
 
   if (outcome === GAME_OUTCOMES.checkmate) {
     const winnerLabel = getLabel({ labels: SIDE_LABELS, key: winner });
@@ -135,6 +144,8 @@ function describeOutcome({ outcome, color, winner }) {
  *   `GAME_OUTCOMES`, as `getGameOutcome` returns it.
  * @param {'white' | 'black'} [params.color] The color to play.
  * @param {'white' | 'black'} [params.winner] The winning color, after a checkmate.
+ * @param {string} [params.drawReason] Why the game is drawn, one of `DRAW_REASONS`, as
+ *   `getGameOutcome` returns it after a draw.
  * @returns {string} The announcement, or an empty string when nothing valid is given.
  * @example
  * getStatusMessage({ outcome: 'ongoing', color: 'white' }); // 'Aux blancs de jouer.'
@@ -144,9 +155,16 @@ function describeOutcome({ outcome, color, winner }) {
  *   color: 'black',
  * }); // 'Dernier coup : pion blanc de e2 à e4. Aux noirs de jouer.'
  */
-export function getStatusMessage({ lastMove, promotedType, outcome, color, winner } = {}) {
+export function getStatusMessage({
+  lastMove,
+  promotedType,
+  outcome,
+  color,
+  winner,
+  drawReason,
+} = {}) {
   const moveSentence = describeMove({ lastMove, promotedType });
   const sentences = moveSentence ? [moveSentence] : [];
-  sentences.push(...describeOutcome({ outcome, color, winner }));
+  sentences.push(...describeOutcome({ outcome, color, winner, drawReason }));
   return sentences.join(SENTENCE_SEPARATOR);
 }

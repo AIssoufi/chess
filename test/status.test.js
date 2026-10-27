@@ -121,6 +121,26 @@ describe('getStatusMessage', () => {
     expect(getStatusMessage({ outcome: 'stalemate', color: 'black' })).toBe('Pat, match nul.');
   });
 
+  it.each([
+    ['insufficient-material', 'Match nul : matériel insuffisant pour mater.'],
+    ['fifty-move-rule', 'Match nul : cinquante coups sans prise ni mouvement de pion.'],
+    ['threefold-repetition', 'Match nul : position répétée trois fois.'],
+  ])('announces a draw by %s with its reason, without a side to play', (drawReason, expected) => {
+    const lastMove = { from: 'g1', to: 'f3', piece: { type: 'knight', color: 'white' } };
+
+    expect(getStatusMessage({ outcome: 'draw', color: 'black', drawReason })).toBe(expected);
+    expect(getStatusMessage({ lastMove, outcome: 'draw', color: 'black', drawReason })).toBe(
+      `Dernier coup : cavalier blanc de g1 à f3. ${expected}`
+    );
+  });
+
+  it.each([['unknown'], ['toString'], [''], [undefined], [null]])(
+    'announces a draw without its reason when the reason is %j',
+    (drawReason) => {
+      expect(getStatusMessage({ outcome: 'draw', color: 'black', drawReason })).toBe('Match nul.');
+    }
+  );
+
   it.each([['red'], ['toString'], [''], [undefined], [null]])(
     'leaves out the winner %j, which is no color',
     (winner) => {

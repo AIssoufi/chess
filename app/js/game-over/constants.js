@@ -2,6 +2,7 @@
 export const GAME_OUTCOMES = Object.freeze({
   checkmate: 'checkmate',
   stalemate: 'stalemate',
+  draw: 'draw',
   check: 'check',
   ongoing: 'ongoing',
 });
@@ -10,6 +11,7 @@ export const GAME_OUTCOMES = Object.freeze({
 export const GAME_OVER_ALERTS = Object.freeze({
   [GAME_OUTCOMES.checkmate]: 'checkmate',
   [GAME_OUTCOMES.stalemate]: 'stalemate',
+  [GAME_OUTCOMES.draw]: 'draw',
 });
 
 /** Delay before the game over dialog opens, so that the last move shows on the board first. */
