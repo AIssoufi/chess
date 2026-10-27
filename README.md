@@ -60,8 +60,8 @@ pnpm preview    # serve dist/ on http://localhost:4173/
   - `chessboard.test.js`, `fen.test.js` and `perft.test.js`: the board model and its rules, the
     FEN loader of the tests, and the move counts of reference positions;
   - `board-navigation.test.js`, `castling.test.js`, `colors.test.js`, `draws.test.js`,
-    `game-over.test.js`, `labels.test.js`, `moves.test.js`, `squares.test.js` and
-    `status.test.js`: the helpers of the game modules of `app/js/`;
+    `game-over.test.js`, `labels.test.js`, `moves.test.js`, `notation.test.js`,
+    `squares.test.js` and `status.test.js`: the helpers of the game modules of `app/js/`;
   - `accessibility-style.test.js`: the reduced motion and the square focus of the stylesheet;
   - `redirect.test.js`: the page that redirects the old GitHub Pages URL;
   - `commitlint.test.js`: the ticket reference rule, the bot commits and the pull
@@ -122,6 +122,7 @@ app/                 Vite root: the page, its styles and images
     labels/          Screen reader names of the pieces and the squares, in French
     main.js          Wiring: listens to the board, the promotion and the dialog, calls the modules
     moves/           Piece steps, special move names and labels, the capture helper and move logs
+    notation/        French algebraic notation of a move, its rival pieces and the turns of the list
     PieceFactory.js  Creates the DOM node of a piece from its type and color
     pieces/          Piece configs: Unicode symbol and starting squares
     promotion/       Promotion choice: shows the pieces of the pawn color and reads the click
