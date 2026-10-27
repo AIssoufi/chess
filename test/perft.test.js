@@ -80,7 +80,7 @@ function countLeafNodes({ game, depth }) {
         countAfter({
           game,
           depth,
-          play: () => game.promote(square, type),
+          play: () => game.promote({ position: square, type }),
           label: `${square}=${type}`,
         }),
       0
@@ -94,7 +94,7 @@ function countLeafNodes({ game, depth }) {
   let nodeCount = 0;
   for (const from of ownSquares) {
     for (const to of game.getMoves(from)) {
-      const play = () => game.move(from, to);
+      const play = () => game.move({ from, to });
       nodeCount += countAfter({ game, depth: depth - 1, play, label: `${from}-${to}` });
     }
   }
