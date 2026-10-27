@@ -1,5 +1,39 @@
 import { describe, it, expect } from 'vitest';
-import { areCoordinatesOnBoard, getEnPassantCaptureSquare } from '../app/js/squares/utils.js';
+import {
+  areCoordinatesOnBoard,
+  getEnPassantCaptureSquare,
+  isSquare,
+} from '../app/js/squares/utils.js';
+
+describe('isSquare', () => {
+  it.each(['a1', 'h8', 'e4'])('accepts the square %s', (value) => {
+    expect(isSquare(value)).toBe(true);
+  });
+
+  it.each([
+    ['an empty string', ''],
+    ['a file past h', 'i1'],
+    ['a rank past 8', 'a9'],
+    ['rank 0', 'a0'],
+    ['an uppercase file', 'A1'],
+    ['a square with spaces around it', ' e4 '],
+    ['a square followed by more text', 'e4e5'],
+    ['a lone file', 'e'],
+  ])('refuses %s', (_label, value) => {
+    expect(isSquare(value)).toBe(false);
+  });
+
+  it.each([
+    ['undefined', undefined],
+    ['null', null],
+    ['a number', 11],
+    ['an array holding a square', ['e4']],
+    ['an object', { square: 'e4' }],
+    ['a String object', new String('e4')],
+  ])('refuses %s, which is not a string', (_label, value) => {
+    expect(isSquare(value)).toBe(false);
+  });
+});
 
 describe('getEnPassantCaptureSquare', () => {
   it('returns the square below the target for a white pawn', () => {

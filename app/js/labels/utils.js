@@ -1,4 +1,4 @@
-import { SQUARE_PATTERN } from '../squares/constants.js';
+import { isSquare } from '../squares/utils.js';
 import {
   CHECK_LABEL,
   EMPTY_SQUARE_LABEL,
@@ -44,8 +44,7 @@ export function getPieceLabel({ type, color } = {}) {
  * getSquareLabel({ square: 'e4', isPossibleMove: true }); // 'e4, vide, coup possible'
  */
 export function getSquareLabel({ square, piece, isPossibleMove = false, isCheck = false } = {}) {
-  const isSquare = typeof square === 'string' && SQUARE_PATTERN.test(square);
-  if (!isSquare) return null;
+  if (!isSquare(square)) return null;
 
   const pieceLabel = piece ? getPieceLabel(piece) : null;
   const parts = [square, pieceLabel ?? EMPTY_SQUARE_LABEL];

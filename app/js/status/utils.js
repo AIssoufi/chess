@@ -4,7 +4,7 @@ import { GAME_OUTCOMES } from '../game-over/constants.js';
 import { PIECE_TYPE_LABELS } from '../labels/constants.js';
 import { getPieceLabel } from '../labels/utils.js';
 import { SPECIAL_MOVES, SPECIAL_MOVE_LABELS } from '../moves/constants.js';
-import { SQUARE_PATTERN } from '../squares/constants.js';
+import { isSquare } from '../squares/utils.js';
 import {
   MOVE_PART_SEPARATOR,
   PLACEHOLDER_PATTERN,
@@ -38,16 +38,6 @@ function fillText({ text, values }) {
 function getLabel({ labels, key }) {
   const isKnownKey = typeof key === 'string' && Object.hasOwn(labels, key);
   return isKnownKey ? labels[key] : null;
-}
-
-/**
- * Tells whether a value is a square of the board, such as `'e4'`.
- *
- * @param {unknown} value The value.
- * @returns {boolean} Whether it is a square.
- */
-function isSquare(value) {
-  return typeof value === 'string' && SQUARE_PATTERN.test(value);
 }
 
 /**

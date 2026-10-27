@@ -1,4 +1,4 @@
-import { SQUARE_PATTERN } from '../squares/constants.js';
+import { isSquare } from '../squares/utils.js';
 import {
   SHORTCUT_MODIFIERS,
   SQUARE_SELECTOR,
@@ -16,8 +16,9 @@ import { getNextSquare } from './utils.js';
  * @returns {HTMLElement | null} The node, or `null` when the value is not a square of the board.
  */
 function getSquareNode({ board, square }) {
-  const isSquare = typeof square === 'string' && SQUARE_PATTERN.test(square);
-  return isSquare ? board.querySelector(`${SQUARE_SELECTOR}[data-position="${square}"]`) : null;
+  return isSquare(square)
+    ? board.querySelector(`${SQUARE_SELECTOR}[data-position="${square}"]`)
+    : null;
 }
 
 /**
