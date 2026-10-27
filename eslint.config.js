@@ -7,7 +7,7 @@ import globals from 'globals';
  * the recommended rules hold no formatting rule, so the two never conflict.
  */
 export default [
-  { ignores: ['dist/', 'coverage/'] },
+  { ignores: ['dist/', 'coverage/', 'test-results/', 'playwright-report/'] },
   js.configs.recommended,
   {
     files: ['app/**/*.js', 'redirect/**/*.js'],
@@ -18,8 +18,9 @@ export default [
     languageOptions: { globals: globals.node },
   },
   {
-    // The UI tests run in happy-dom, so they use the browser globals too.
-    files: ['test/**/*.js'],
+    // The UI tests run in happy-dom, and the end-to-end tests run code in the page, so they use the
+    // browser globals too.
+    files: ['test/**/*.js', 'e2e/**/*.js'],
     languageOptions: { globals: { ...globals.node, ...globals.browser } },
   },
 ];

@@ -41,6 +41,26 @@ jobs:
 
       - run: pnpm build
 
+      # The browsers are cached per Playwright version, since each version needs its own builds;
+      # their system libraries come from apt and are installed on every run.
+      - name: Read the Playwright version
+        id: playwright
+        run: echo "version=$(pnpm exec playwright --version | cut -d ' ' -f 2)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
+      - if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium webkit
+
+      - if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium webkit
+
+      - run: pnpm test:e2e
+
   # package.json also supports Node.js 26, so the tests run on it too; audit, format, lint and
   # build stay on .nvmrc in the check job above, since their result does not depend on the
   # Node.js version.

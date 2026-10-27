@@ -121,6 +121,22 @@ JavaScript file in the CI, and the dead DOM controller of the 2018 version is go
 
 Decision: [0006. Lint the code with ESLint](decisions/0006-lint-with-eslint.md)
 
+## October 2026: Playwright
+
+happy-dom lays nothing out, so the layout was only checked by hand. Playwright now plays the
+built game in Chromium and WebKit at four screen sizes, and the CI runs it after the build.
+
+Measured on 2026-10-27.
+
+| Figure                                   | Before    | After                                |
+| ---------------------------------------- | --------- | ------------------------------------ |
+| Browser tests (Chromium and WebKit)      | none      | 30, 4 of them `test.fixme`           |
+| `pnpm test:e2e` run time (median, built) | no script | 6.0 s                                |
+| Duration of the CI `check` job (median)  | 32 s      | see the pull request that closes #78 |
+
+Decision: [0007. Test the layout and a game in a browser
+with Playwright](decisions/0007-test-in-a-browser-with-playwright.md)
+
 ## How the figures were measured
 
 - Each commit was checked out in a detached worktree outside the repository, then removed.
@@ -143,3 +159,5 @@ Decision: [0006. Lint the code with ESLint](decisions/0006-lint-with-eslint.md)
 - The headers come from `curl -sI` on 2026-10-20 (see
   [0005](decisions/0005-host-on-cloudflare-pages.md)).
 - The figures of the ESLint section come from #41 and its decision record.
+- The CI durations of the Playwright section are the median of the `check` job over three runs of
+  one tree, pushed as separate commits to a throwaway branch.

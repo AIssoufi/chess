@@ -12,16 +12,17 @@ moves, threefold repetition).
 
 ## Tech stack
 
-| Tool                           | Role                                          |
-| ------------------------------ | --------------------------------------------- |
-| JavaScript (ES modules)        | Game model and UI, no framework               |
-| Vite 8                         | Dev server and production build               |
-| Vitest 5, happy-dom 21         | Unit tests, with a DOM for the UI             |
-| Prettier 3                     | Code formatting                               |
-| ESLint 10                      | Linting, with the recommended rules           |
-| Husky, lint-staged, commitlint | Git hooks: formatting, linting, commit format |
-| pnpm 12, Node.js 24 and 26     | Package manager and runtime                   |
-| Cloudflare Pages               | Hosting, with a preview per branch            |
+| Tool                           | Role                                               |
+| ------------------------------ | -------------------------------------------------- |
+| JavaScript (ES modules)        | Game model and UI, no framework                    |
+| Vite 8                         | Dev server and production build                    |
+| Vitest 5, happy-dom 21         | Unit tests, with a DOM for the UI                  |
+| Playwright 1.64                | Browser tests in Chromium and WebKit, on the build |
+| Prettier 3                     | Code formatting                                    |
+| ESLint 10                      | Linting, with the recommended rules                |
+| Husky, lint-staged, commitlint | Git hooks: formatting, linting, commit format      |
+| pnpm 12, Node.js 24 and 26     | Package manager and runtime                        |
+| Cloudflare Pages               | Hosting, with a preview per branch                 |
 
 ## Getting started
 
@@ -46,6 +47,7 @@ pnpm preview    # serve dist/ on http://localhost:4173/
 | `pnpm preview`       | Serve the production build                  |
 | `pnpm test`          | Run the unit tests once                     |
 | `pnpm test:coverage` | Run the tests once with a coverage report   |
+| `pnpm test:e2e`      | Build, then run the browser tests           |
 | `pnpm format`        | Format every file with Prettier             |
 | `pnpm format:check`  | Check the formatting without changing files |
 | `pnpm lint`          | Lint every JavaScript file with ESLint      |
@@ -62,6 +64,23 @@ pnpm preview    # serve dist/ on http://localhost:4173/
 
 `pnpm test:coverage` adds a V8 coverage report of `app/js/`: a summary in the terminal and an
 HTML report in `coverage/`, which Git and Prettier ignore.
+
+### Browser tests
+
+`pnpm test:e2e` runs Playwright on the production build, in Chromium and WebKit. It builds the
+site, serves `dist/` with `vite preview` on a free port, and runs the `*.spec.js` files of `e2e/`.
+[ADR 0007](docs/decisions/0007-test-in-a-browser-with-playwright.md) lists what they check.
+
+Install the two browsers once, and again after an upgrade of `@playwright/test`:
+
+```bash
+pnpm exec playwright install chromium webkit
+pnpm test:e2e
+```
+
+A test that fails on an open layout issue is marked `test.fixme`, with the issue number in its
+title, and shows as skipped until that issue is fixed. A failure writes its error context to
+`test-results/`, which Git and Prettier ignore.
 
 ## Project structure
 
@@ -92,6 +111,8 @@ app/                 Vite root: the page, its styles and images
 commitlint/          Ticket reference rule, bot commits and the pull request title config
 docs/                README screenshot, decisions (ADRs), the evolution of the stack and
                      ai-workflow/ (how agents work on the project)
+e2e/                 Browser tests (Playwright): the layout and game specs, and their helpers
+playwright.config.js Playwright config: the browsers, and the preview server on a free port
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests
 .github/workflows/   CI, commit message checks, actionlint and the GitHub Pages redirect
@@ -101,8 +122,9 @@ test/                Unit tests
 
 - **CI** (`ci.yml`): on every pull request and push to `master`, installs with the frozen lockfile,
   then runs `pnpm audit --audit-level high` (which fails on an advisory of high or critical
-  severity), `pnpm format:check`, `pnpm lint`, `pnpm test` and `pnpm build` on the Node.js version
-  of `.nvmrc` (24), and `pnpm test` again on Node.js 26 in the `test (node 26)` job.
+  severity), `pnpm format:check`, `pnpm lint`, `pnpm test`, `pnpm build` and `pnpm test:e2e`, with
+  the browsers cached per Playwright version, on the Node.js version of `.nvmrc` (24), and
+  `pnpm test` again on Node.js 26 in the `test (node 26)` job.
 - **Commit messages** (`commit-messages.yml`): on every pull request, and when its title changes,
   runs commitlint on each commit that the base branch lacks, and on the title with
   `commitlint/pr-title.config.js`, which needs no ticket reference.
