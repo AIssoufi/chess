@@ -1,6 +1,6 @@
 import { BOARD_SIZE } from '../app/js/squares/constants.js';
 import pawn from '../app/js/pieces/pawn.js';
-import { CAPTURES_ID_SUFFIX } from '../app/js/rendering/constants.js';
+import { CAPTURES_ID_SUFFIX, PIECE_CLASS } from '../app/js/rendering/constants.js';
 import {
   GRID_TOLERANCE_PX,
   LAYOUT_VIEWPORTS,
@@ -80,15 +80,15 @@ test.describe(`with ${MAX_CAPTURED_PIECES} captured pieces at ${CAPTURES_VIEWPOR
   test.fixme('keeps the game inside the screen (#49)', async ({ page }) => {
     await page.goto('/');
     await page.locator(`#white${CAPTURES_ID_SUFFIX}`).evaluate(
-      (zone, { count, symbol }) => {
+      (zone, { count, pieceClass, symbol }) => {
         for (let index = 0; index < count; index += 1) {
           const piece = document.createElement('span');
-          piece.className = 'piece';
+          piece.className = pieceClass;
           piece.textContent = symbol;
           zone.appendChild(piece);
         }
       },
-      { count: MAX_CAPTURED_PIECES, symbol: pawn.piece.black }
+      { count: MAX_CAPTURED_PIECES, pieceClass: PIECE_CLASS, symbol: pawn.piece.black }
     );
 
     const scrollHeight = await page.evaluate(() => document.documentElement.scrollHeight);

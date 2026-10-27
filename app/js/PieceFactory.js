@@ -6,6 +6,7 @@ import king from './pieces/king.js';
 import bishop from './pieces/bishop.js';
 import { isColor } from './colors/utils.js';
 import { getPieceLabel } from './labels/utils.js';
+import { PIECE_CLASS } from './rendering/constants.js';
 
 const CONFIGS = { knight, queen, bishop, pawn, king, rook };
 
@@ -30,7 +31,7 @@ export default class PieceFactory {
     const node = document.createElement('span');
     node.id = this.counter++;
     node.textContent = symbol;
-    node.className = 'piece';
+    node.className = PIECE_CLASS;
     node.dataset.type = type;
     node.dataset.color = color;
     node.setAttribute('role', 'img');
