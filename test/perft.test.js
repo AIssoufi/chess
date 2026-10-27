@@ -1,12 +1,7 @@
 import { describe, it, expect } from 'vitest';
+import { PROMOTION_PIECE_TYPES } from '../app/js/promotion/constants.js';
 import { STARTING_FEN } from './helpers/fen/constants.js';
 import { loadFen } from './helpers/fen/utils.js';
-
-/**
- * The piece types a pawn may be promoted to, each one a move of its own in perft. Kept apart from
- * the model's own list, so that perft notices a type missing from it.
- */
-const PROMOTION_PIECE_TYPES = ['queen', 'rook', 'bishop', 'knight'];
 
 /**
  * The reference positions of https://www.chessprogramming.org/Perft_Results, with their leaf node

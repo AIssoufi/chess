@@ -1,5 +1,6 @@
 import { getLabel } from '../labels/utils.js';
 import { SPECIAL_MOVES } from '../moves/constants.js';
+import { PROMOTION_PIECE_TYPES } from '../promotion/constants.js';
 import { isSquare } from '../squares/utils.js';
 import {
   CAPTURE_SIGN,
@@ -9,7 +10,6 @@ import {
   OUTCOME_SIGNS,
   PIECE_LETTERS,
   PROMOTION_SIGN,
-  PROMOTION_TYPES,
 } from './constants.js';
 
 /**
@@ -64,7 +64,7 @@ function getOrigin({ from, isPawn, isCapture, rivalSquares }) {
  */
 function getPromotionSuffix({ promotion, promotedType }) {
   if (promotion !== true) return '';
-  if (!PROMOTION_TYPES.includes(promotedType)) return null;
+  if (!PROMOTION_PIECE_TYPES.includes(promotedType)) return null;
   return `${PROMOTION_SIGN}${PIECE_LETTERS[promotedType]}`;
 }
 

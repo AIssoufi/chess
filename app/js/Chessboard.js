@@ -27,11 +27,10 @@ import {
   SPECIAL_MOVES,
 } from './moves/constants.js';
 import { isOpponentPiece } from './moves/utils.js';
+import { PROMOTION_PIECE_TYPES } from './promotion/constants.js';
 import { BOARD_FILES } from './squares/constants.js';
 import { areCoordinatesOnBoard, getEnPassantCaptureSquare } from './squares/utils.js';
 
-/** Piece types a pawn may be promoted to. */
-const PROMOTION_PIECE_TYPES = ['queen', 'rook', 'bishop', 'knight'];
 /** Rank a pawn of each color is promoted on: the last rank in its direction. */
 const PROMOTION_RANKS = Object.freeze({ white: '8', black: '1' });
 

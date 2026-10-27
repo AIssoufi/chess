@@ -14,9 +14,6 @@ export const PIECE_LETTERS = Object.freeze({
   pawn: '',
 });
 
-/** The piece types a pawn may be promoted to, which the notation writes after `=`. */
-export const PROMOTION_TYPES = Object.freeze(['queen', 'rook', 'bishop', 'knight']);
-
 /** The notation of each castling, with the letter O, as `Chessboard#move` reports it. */
 export const CASTLING_NOTATIONS = Object.freeze({
   [SPECIAL_MOVES.kingsideCastling]: 'O-O',
