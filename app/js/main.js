@@ -14,6 +14,11 @@ import {
 import { getGameOutcome } from './game-over/utils.js';
 import { SPECIAL_MOVE_LABELS } from './moves/constants.js';
 import {
+  getChosenPieceType,
+  hidePromotionChoice,
+  showPromotionChoice,
+} from './promotion/promotion-choice.js';
+import {
   clearCheck,
   markCheck,
   renderCaptures,
@@ -91,34 +96,21 @@ function afterMove() {
 
 // ─── Promotion ──────────────────────────────────────────────────────────────
 
-function showPromotion(position) {
-  const piece = game.getPiece(position);
-  const wrapper = document.querySelector('.promotion__wrapper');
-  wrapper.querySelectorAll('[data-type]').forEach((btn) => {
-    btn.textContent = factory.getSymbol(btn.dataset.type, piece.color);
-  });
-  wrapper.style.display = 'flex';
-  wrapper.querySelector('[data-type]')?.focus();
-}
+const promotionWrapper = document.querySelector('.promotion__wrapper');
 
-document.querySelector('.promotion__wrapper').addEventListener('click', (event) => {
-  const btn = event.target.closest('[data-type]');
-  if (!btn || !game.promotionSquare) return;
+promotionWrapper.addEventListener('click', (event) => {
+  const type = getChosenPieceType(event);
+  if (!type || !game.promotionSquare) return;
 
-  game.promote({ position: game.promotionSquare, type: btn.dataset.type });
-  document.querySelector('.promotion__wrapper').style.display = 'none';
+  game.promote({ position: game.promotionSquare, type });
+  hidePromotionChoice(promotionWrapper);
   renderBoard();
   renderCaptures({ game, factory });
   renderCurrentPlayer({ color: game.currentColor });
   hideCheck();
   afterMove();
-});
-
-// Registered after the listener above, so it runs once the promotion is played: the focus goes
-// back to the square of the promoted pawn
-document.querySelector('.promotion__wrapper').addEventListener('click', (event) => {
-  const isPromotionPlayed = event.target.closest('[data-type]') && !game.promotionSquare;
-  if (isPromotionPlayed) focusSquare({ board: boardNode, square: lastMove?.to });
+  // The focus goes back to the square of the promoted pawn
+  focusSquare({ board: boardNode, square: lastMove?.to });
 });
 
 // ─── Alerts ─────────────────────────────────────────────────────────────────
@@ -158,7 +150,11 @@ function playMove(to) {
   lastMove = result;
 
   if (result.promotion) {
-    showPromotion(result.to);
+    showPromotionChoice({
+      wrapper: promotionWrapper,
+      factory,
+      color: game.getPiece(result.to).color,
+    });
     return;
   }
 
