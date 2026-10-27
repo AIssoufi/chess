@@ -70,6 +70,7 @@ HTML report in `coverage/`, which Git and Prettier ignore.
 app/                 Vite root: the page, its styles and images
   css/               Styles and images
   js/                Game code
+    alerts/          Game over dialog: writes the winner or the draw reason, shows and hides it
     board-navigation/ Keyboard navigation of the board: the key moves and the roving focus
     castling/        Castling helpers, such as whether a rook may castle with its king
     Chessboard.js    Board model and rules, without DOM
@@ -77,11 +78,14 @@ app/                 Vite root: the page, its styles and images
     console-log.js   Copies each console.log line to the move log panel of the page
     copyright/       Writes the current year at the end of the footer copyright
     draws/           Draw reasons and their labels, insufficient material and the position key
-    game-over/       Move outcome (check, mate, stalemate, draw) and game over dialog constants
-    main.js          UI controller: renders the board and handles clicks
-    moves/           Piece steps, special move names and labels, and the capture helper
+    game-over/       Move outcome (check, mate, stalemate, draw), its log line and its alert
+    main.js          Wiring: listens to the board, the promotion and the dialog, calls the modules
+    moves/           Piece steps, special move names and labels, the capture helper and move logs
     PieceFactory.js  Creates the DOM node of a piece from its type and color
     pieces/          Piece configs: Unicode symbol and starting squares
+    promotion/       Promotion choice: shows the pieces of the pawn color and reads the click
+    rendering/       Renders the pieces, the square labels, the status, the captures and the check
+    selection/       Selected square, its moves and their highlight, and what a click does
     squares/         Board size and square helpers, such as the square an en passant capture takes
   public/            Files copied as they are to dist/: the Cloudflare Pages _headers, the
                      favicon and the 1200x630 social preview image (og-image.jpg)
