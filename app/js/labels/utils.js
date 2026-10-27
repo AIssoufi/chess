@@ -8,6 +8,25 @@ import {
 } from './constants.js';
 
 /**
+ * Returns the label of a key in a table of labels, without reading the keys that every object
+ * inherits, such as `toString`.
+ *
+ * @param {object | null} [params]
+ * @param {Readonly<Record<string, string>>} params.labels The labels, by key.
+ * @param {unknown} params.key The key, which may be missing or of any type.
+ * @returns {string | null} The label, or `null` when the table has no such key, and without a
+ *   table.
+ * @example
+ * getLabel({ labels: { white: 'blanche' }, key: 'white' }); // 'blanche'
+ */
+export function getLabel(params) {
+  const { labels, key } = params ?? {};
+  const hasTable = typeof labels === 'object' && labels !== null;
+  const isKnownKey = hasTable && typeof key === 'string' && Object.hasOwn(labels, key);
+  return isKnownKey ? labels[key] : null;
+}
+
+/**
  * Returns the French name of a piece, read by screen readers.
  *
  * @param {object} params
