@@ -67,6 +67,7 @@ function jpegSize(bytes) {
 describe('index.html head', () => {
   it('describes the game', () => {
     expect(meta('[name="description"]')).toMatch(/^Jeu d'échecs/);
+    expect(meta('[name="description"]')).not.toMatch(/toutes les règles/);
   });
 
   it('drops the obsolete keywords tag', () => {

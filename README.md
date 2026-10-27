@@ -1,7 +1,7 @@
 # Chess
 
-A chess game for two players in the browser, written in vanilla JavaScript, with the full rules:
-castling, en passant, promotion, check, checkmate and stalemate.
+A chess game for two players in the browser, written in vanilla JavaScript, with castling, en
+passant, promotion, check, checkmate and stalemate.
 
 **Live demo:** https://chess.issoufi.fr
 
