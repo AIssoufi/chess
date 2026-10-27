@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import Chessboard from '../app/js/Chessboard.js';
+import { DRAW_REASONS } from '../app/js/draws/constants.js';
 
 let game;
 
@@ -646,5 +647,271 @@ describe('promotion edge cases', () => {
     expect(game.currentColor).toBe('black');
     expect(game.isInCheck('black')).toBe(true);
     expect(game.isCheckmate('black')).toBe(false);
+  });
+});
+
+// ─── Game end and draw rules ────────────────────────────────────────────────
+
+/**
+ * Plays moves written as `'from-to'`, such as `'g1-f3'`.
+ *
+ * @param {string[]} moves The moves, in order.
+ * @returns {Array<object | null>} What `move` returned for each one.
+ */
+function playMoves(moves) {
+  return moves.map((move) => {
+    const [from, to] = move.split('-');
+    return game.move({ from, to });
+  });
+}
+
+/** Both knights of each side leave and come back: four half-moves that repeat the position. */
+const KNIGHT_ROUND_TRIP = Object.freeze(['g1-f3', 'g8-f6', 'f3-g1', 'f6-g8']);
+
+/** The same round trip with black to move first. */
+const BLACK_FIRST_KNIGHT_ROUND_TRIP = Object.freeze(['g8-f6', 'g1-f3', 'f6-g8', 'f3-g1']);
+
+/** Both kings and a rook each, which is enough material to mate, with white to move. */
+const KINGS_AND_ROOKS = Object.freeze({
+  e1: { type: 'king', color: 'white' },
+  a1: { type: 'rook', color: 'white' },
+  e8: { type: 'king', color: 'black' },
+  h8: { type: 'rook', color: 'black' },
+});
+
+/** The rooks of `KINGS_AND_ROOKS` leave and come back: four half-moves, white first. */
+const ROOK_ROUND_TRIP = Object.freeze(['a1-a2', 'h8-h7', 'a2-a1', 'h7-h8']);
+
+describe('half-move clock', () => {
+  it('starts at zero and counts the moves without a capture or a pawn move', () => {
+    expect(game.halfMoveClock).toBe(0);
+    playMoves(['g1-f3', 'g8-f6']);
+    expect(game.halfMoveClock).toBe(2);
+  });
+
+  it('is reset by a pawn move', () => {
+    playMoves(['g1-f3', 'e7-e5']);
+    expect(game.halfMoveClock).toBe(0);
+  });
+
+  it('is reset by a capture', () => {
+    setUpBoard({ pieces: { ...KINGS_AND_ROOKS, a8: { type: 'knight', color: 'black' } } });
+    game.halfMoveClock = 10;
+    playMoves(['a1-a8']);
+    expect(game.halfMoveClock).toBe(0);
+  });
+
+  it('is reset by an en passant capture', () => {
+    setUpBoard({
+      pieces: {
+        ...KINGS_AND_ROOKS,
+        e5: { type: 'pawn', color: 'white' },
+        d5: { type: 'pawn', color: 'black' },
+      },
+    });
+    game.enPassantSquare = 'd6';
+    game.halfMoveClock = 10;
+    expect(playMoves(['e5-d6'])).toEqual([expect.objectContaining({ specialMove: 'en-passant' })]);
+    expect(game.halfMoveClock).toBe(0);
+  });
+
+  it('stays at zero through a promotion, then counts again', () => {
+    setUpBoard({ pieces: { ...KINGS_AND_ROOKS, b7: { type: 'pawn', color: 'white' } } });
+    game.halfMoveClock = 10;
+    playMoves(['b7-b8']);
+    expect(game.halfMoveClock).toBe(0);
+    game.promote({ position: 'b8', type: 'bishop' });
+    expect(game.halfMoveClock).toBe(0);
+    expect(playMoves(['h8-h7'])).toEqual([expect.objectContaining({ to: 'h7' })]);
+    expect(game.halfMoveClock).toBe(1);
+  });
+});
+
+describe('fifty-move rule', () => {
+  beforeEach(() => {
+    setUpBoard({ pieces: KINGS_AND_ROOKS });
+    game.halfMoveClock = 98;
+  });
+
+  it('does not end the game after 99 half-moves', () => {
+    playMoves(['a1-a2']);
+    expect(game.halfMoveClock).toBe(99);
+    expect(game.getDrawReason()).toBeNull();
+    expect(game.isOver).toBe(false);
+  });
+
+  it('ends the game after 100 half-moves without a capture or a pawn move', () => {
+    playMoves(['a1-a2', 'h8-h7']);
+    expect(game.getDrawReason()).toBe(DRAW_REASONS.fiftyMoveRule);
+    expect(game.isOver).toBe(true);
+    expect(playMoves(['a2-a3'])).toEqual([null]);
+  });
+
+  it('does not end the game when the 100th half-move is a pawn move', () => {
+    setUpBoard({ pieces: { ...KINGS_AND_ROOKS, b2: { type: 'pawn', color: 'white' } } });
+    game.halfMoveClock = 99;
+    playMoves(['b2-b3']);
+    expect(game.halfMoveClock).toBe(0);
+    expect(game.isOver).toBe(false);
+  });
+});
+
+describe('threefold repetition', () => {
+  it('records the starting position once', () => {
+    expect(game.positionCounts.get(game.positionKey)).toBe(1);
+    expect(game.positionCounts.size).toBe(1);
+  });
+
+  it('does not end the game when a position occurs twice', () => {
+    playMoves(KNIGHT_ROUND_TRIP);
+    expect(game.positionCounts.get(game.positionKey)).toBe(2);
+    expect(game.getDrawReason()).toBeNull();
+    expect(game.isOver).toBe(false);
+  });
+
+  it('ends the game when a position occurs a third time', () => {
+    playMoves([...KNIGHT_ROUND_TRIP, ...KNIGHT_ROUND_TRIP]);
+    expect(game.getDrawReason()).toBe(DRAW_REASONS.threefoldRepetition);
+    expect(game.isOver).toBe(true);
+    expect(playMoves(['e2-e4'])).toEqual([null]);
+  });
+
+  it('tells apart the same placement with the other side to move', () => {
+    setUpBoard({ pieces: KINGS_AND_ROOKS });
+    playMoves([...ROOK_ROUND_TRIP, ...ROOK_ROUND_TRIP]);
+    // The white rook takes three moves to come back, so black is to move this time
+    playMoves(['a1-a3', 'h8-h7', 'a3-a2', 'h7-h8', 'a2-a1']);
+
+    expect(game.currentColor).toBe('black');
+    expect(game.getDrawReason()).toBeNull();
+    expect(game.isOver).toBe(false);
+  });
+
+  it('tells apart the same placement with other castling rights', () => {
+    setUpBoard({
+      pieces: {
+        e1: { type: 'king', color: 'white', hasMoved: false },
+        h1: { type: 'rook', color: 'white', hasMoved: false },
+        b1: { type: 'knight', color: 'white' },
+        e8: { type: 'king', color: 'black' },
+        a8: { type: 'rook', color: 'black' },
+      },
+    });
+    const knightRoundTrip = ['b1-c3', 'a8-a7', 'c3-b1', 'a7-a8'];
+    playMoves([...knightRoundTrip, ...knightRoundTrip]);
+    // The rook comes back to h1, but white has lost the right to castle kingside
+    playMoves(['h1-h2', 'a8-a7', 'h2-h1', 'a7-a8']);
+
+    expect(game.getDrawReason()).toBeNull();
+    expect(game.isOver).toBe(false);
+  });
+
+  it('ignores an en passant square where no pawn can take', () => {
+    playMoves(['e2-e4', ...BLACK_FIRST_KNIGHT_ROUND_TRIP, ...BLACK_FIRST_KNIGHT_ROUND_TRIP]);
+    expect(game.getDrawReason()).toBe(DRAW_REASONS.threefoldRepetition);
+    expect(game.isOver).toBe(true);
+  });
+
+  it('counts an en passant square where a pawn can take', () => {
+    setUpBoard({
+      pieces: {
+        e1: { type: 'king', color: 'white' },
+        e5: { type: 'pawn', color: 'white' },
+        e8: { type: 'king', color: 'black' },
+        d7: { type: 'pawn', color: 'black', hasMoved: false },
+      },
+      colorToPlay: 'black',
+    });
+    const kingRoundTrip = ['e1-e2', 'e8-e7', 'e2-e1', 'e7-e8'];
+    playMoves(['d7-d5', ...kingRoundTrip, ...kingRoundTrip]);
+
+    expect(game.getDrawReason()).toBeNull();
+    expect(game.isOver).toBe(false);
+  });
+});
+
+describe('insufficient material', () => {
+  it('ends the game when a capture leaves the two kings alone', () => {
+    setUpBoard({
+      pieces: {
+        d1: { type: 'king', color: 'white' },
+        e2: { type: 'rook', color: 'black' },
+        h8: { type: 'king', color: 'black' },
+      },
+    });
+    playMoves(['d1-e2']);
+
+    expect(game.getDrawReason()).toBe(DRAW_REASONS.insufficientMaterial);
+    expect(game.isOver).toBe(true);
+    expect(playMoves(['h8-h7'])).toEqual([null]);
+  });
+
+  it('goes on when a capture leaves a king and two knights against a king', () => {
+    setUpBoard({
+      pieces: {
+        d1: { type: 'king', color: 'white' },
+        b1: { type: 'knight', color: 'white' },
+        g1: { type: 'knight', color: 'white' },
+        e2: { type: 'rook', color: 'black' },
+        h8: { type: 'king', color: 'black' },
+      },
+    });
+    playMoves(['d1-e2']);
+
+    expect(game.getDrawReason()).toBeNull();
+    expect(game.isOver).toBe(false);
+  });
+
+  it('ends the game when a promotion to a knight leaves a king and a knight against a king', () => {
+    setUpBoard({
+      pieces: {
+        e1: { type: 'king', color: 'white' },
+        a7: { type: 'pawn', color: 'white' },
+        h8: { type: 'king', color: 'black' },
+      },
+    });
+    playMoves(['a7-a8']);
+    expect(game.isOver).toBe(false);
+    game.promote({ position: 'a8', type: 'knight' });
+
+    expect(game.getDrawReason()).toBe(DRAW_REASONS.insufficientMaterial);
+    expect(game.isOver).toBe(true);
+  });
+});
+
+describe('game end', () => {
+  it('ends the game on checkmate', () => {
+    playMoves(['f2-f3', 'e7-e5', 'g2-g4', 'd8-h4']);
+    expect(game.isCheckmate('white')).toBe(true);
+    expect(game.getDrawReason()).toBeNull();
+    expect(game.isOver).toBe(true);
+  });
+
+  it('ends the game on stalemate', () => {
+    setUpBoard({
+      pieces: {
+        e1: { type: 'king', color: 'white' },
+        f5: { type: 'queen', color: 'white' },
+        h8: { type: 'king', color: 'black' },
+      },
+    });
+    playMoves(['f5-g6']);
+    expect(game.isStalemate('black')).toBe(true);
+    expect(game.isOver).toBe(true);
+  });
+
+  it('goes on while the side to move has a legal move and no draw rule applies', () => {
+    playMoves(['e2-e4', 'e7-e5']);
+    expect(game.isOver).toBe(false);
+  });
+
+  it('is cleared by initialize, with the clock and the repetitions', () => {
+    playMoves([...KNIGHT_ROUND_TRIP, ...KNIGHT_ROUND_TRIP, 'g1-f3']);
+    game.initialize();
+
+    expect(game.isOver).toBe(false);
+    expect(game.halfMoveClock).toBe(0);
+    expect(game.positionCounts.size).toBe(1);
+    expect(game.getDrawReason()).toBeNull();
   });
 });
