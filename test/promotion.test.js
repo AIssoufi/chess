@@ -6,8 +6,7 @@ import {
   hidePromotionChoice,
   showPromotionChoice,
 } from '../app/js/promotion/promotion-choice.js';
-
-const PROMOTION_TYPES = ['queen', 'rook', 'bishop', 'knight'];
+import { PROMOTION_PIECE_TYPES } from '../app/js/promotion/constants.js';
 
 let wrapper;
 const factory = new PieceFactory();
@@ -26,7 +25,7 @@ beforeEach(() => {
   document.body.innerHTML = `
     <div class="promotion__wrapper" style="display: none">
       <p>Promouvoir le pion en :</p>
-      <div>${PROMOTION_TYPES.map((type) => `<button data-type="${type}"></button>`).join('')}</div>
+      <div>${PROMOTION_PIECE_TYPES.map((type) => `<button data-type="${type}"></button>`).join('')}</div>
     </div>`;
   wrapper = document.querySelector('.promotion__wrapper');
 });
@@ -34,7 +33,7 @@ beforeEach(() => {
 describe('showPromotionChoice', () => {
   it.each(['white', 'black'])('shows the symbols of the %s pieces', (color) => {
     showPromotionChoice({ wrapper, factory, color });
-    for (const type of PROMOTION_TYPES) {
+    for (const type of PROMOTION_PIECE_TYPES) {
       expect(buttonOf(type).textContent).toBe(factory.getSymbol(type, color));
     }
   });
