@@ -52,6 +52,18 @@ h1 {
   color: #fff;
   font-family: var(--display-font);
 }
+/* Read by screen readers, out of sight and out of the layout */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
 .wrapper {
   display: grid;
   grid-auto-flow: column;
@@ -130,6 +142,14 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
+  /* The squares are buttons: drop the look that browsers give them */
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  font: inherit;
+  color: inherit;
 }
 
 .row:nth-of-type(odd) .square:nth-of-type(even) {
@@ -159,6 +179,7 @@ h1 {
 
 .piece {
   /* 3rem in a 70px square, scaled down with smaller squares */
+  display: block;
   font-size: min(3rem, calc(var(--square) * 0.69));
   text-align: center;
   width: 100%;
@@ -172,6 +193,13 @@ h1 {
 
 .square.possible-move:hover {
   cursor: crosshair;
+}
+
+/* Only for the keyboard: a dark ring lined with white shows on every color of square */
+.square:focus-visible {
+  outline: 3px solid #0d47a1;
+  outline-offset: -3px;
+  box-shadow: inset 0 0 0 5px #fff;
 }
 
 .square {
@@ -322,6 +350,23 @@ h1 {
   }
   to {
     background-color: rgba(220, 50, 50, 0.4);
+  }
+}
+
+/* Without motion, the highlights keep their color and the side to play its first background */
+@media (prefers-reduced-motion: reduce) {
+  .square.possible-move,
+  .square.check,
+  .current-player h2 {
+    animation: none;
+  }
+
+  .current-player h2 {
+    background-color: rgba(139, 195, 74, 0.5);
+  }
+
+  .promotion__pieces button {
+    transition: none;
   }
 }
 

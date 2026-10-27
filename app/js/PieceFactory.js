@@ -5,6 +5,7 @@ import pawn from './pieces/pawn.js';
 import king from './pieces/king.js';
 import bishop from './pieces/bishop.js';
 import { isColor } from './colors/utils.js';
+import { getPieceLabel } from './labels/utils.js';
 
 const CONFIGS = { knight, queen, bishop, pawn, king, rook };
 
@@ -14,24 +15,26 @@ export default class PieceFactory {
   }
 
   /**
-   * Builds the DOM node of a piece.
+   * Builds the DOM node of a piece, an image named for screen readers, such as `dame noire`.
    *
    * @param {object | null} [params]
    * @param {string} params.type The piece type, such as `'queen'`.
    * @param {'white' | 'black'} params.color The piece color.
-   * @returns {HTMLDivElement | null} The node, or `null` when the type or the color is unknown.
+   * @returns {HTMLSpanElement | null} The node, or `null` when the type or the color is unknown.
    */
   create(params) {
     const { type, color } = params ?? {};
     const symbol = this.getSymbol(type, color);
     if (!symbol) return null;
 
-    const node = document.createElement('div');
+    const node = document.createElement('span');
     node.id = this.counter++;
     node.textContent = symbol;
     node.className = 'piece';
     node.dataset.type = type;
     node.dataset.color = color;
+    node.setAttribute('role', 'img');
+    node.setAttribute('aria-label', getPieceLabel({ type, color }));
     return node;
   }
 

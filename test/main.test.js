@@ -400,3 +400,146 @@ describe('main.js stalemate', () => {
     expect(currentPlayer()).toBe('white');
   });
 });
+
+describe('main.js keyboard and screen readers', () => {
+  const status = () => document.querySelector('.game-status').textContent;
+  const label = (position) => square(position).getAttribute('aria-label');
+  const promotionButton = (type) =>
+    document.querySelector(`.promotion__wrapper [data-type="${type}"]`);
+
+  /**
+   * Presses a key on the focused element.
+   *
+   * @param {string} key The key, such as `'ArrowUp'`.
+   */
+  function press(key) {
+    const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+    document.activeElement.dispatchEvent(event);
+  }
+
+  it('names each square after its piece, or as empty', () => {
+    expect(label('e2')).toBe('e2, pion blanc');
+    expect(label('d8')).toBe('d8, dame noire');
+    expect(label('e4')).toBe('e4, vide');
+  });
+
+  it('hides the pieces of the board, which the names of the squares already read', () => {
+    const pieces = document.querySelectorAll('.container-squares .piece');
+
+    expect([...pieces].every((piece) => piece.getAttribute('aria-hidden') === 'true')).toBe(true);
+  });
+
+  it('leaves the captured pieces readable, as images named in French', () => {
+    play([
+      ['e2', 'e4'],
+      ['d7', 'd5'],
+      ['e4', 'd5'],
+    ]);
+    const prisoner = document.querySelector('#white-captures .piece');
+
+    expect(prisoner.getAttribute('role')).toBe('img');
+    expect(prisoner.getAttribute('aria-label')).toBe('pion noir');
+    expect(prisoner.hasAttribute('aria-hidden')).toBe(false);
+  });
+
+  it('marks the selected square and names the squares it can move to', () => {
+    square('e2').click();
+
+    expect(square('e2').getAttribute('aria-selected')).toBe('true');
+    expect(square('d2').getAttribute('aria-selected')).toBe('false');
+    expect(label('e3')).toBe('e3, vide, coup possible');
+    expect(label('e4')).toBe('e4, vide, coup possible');
+    expect(label('e5')).toBe('e5, vide');
+  });
+
+  it('drops the selection and the possible moves from the names once the move is played', () => {
+    play([['e2', 'e4']]);
+
+    expect(label('e4')).toBe('e4, pion blanc');
+    expect(label('e3')).toBe('e3, vide');
+    expect(document.querySelectorAll('[aria-selected="true"]')).toHaveLength(0);
+  });
+
+  it('announces the side to play at the start, then each move', () => {
+    expect(status()).toBe('Aux blancs de jouer.');
+
+    play([['e2', 'e4']]);
+    expect(status()).toBe('Dernier coup : pion blanc de e2 à e4. Aux noirs de jouer.');
+
+    play([['d7', 'd5']]);
+    play([['e4', 'd5']]);
+    expect(status()).toBe(
+      'Dernier coup : pion blanc de e4 à d5, prend pion noir. Aux noirs de jouer.'
+    );
+  });
+
+  it('keeps the announcement of the previous move while the selection changes', () => {
+    play([['e2', 'e4']]);
+    square('d7').click();
+    square('e7').click();
+
+    expect(status()).toBe('Dernier coup : pion blanc de e2 à e4. Aux noirs de jouer.');
+  });
+
+  it('announces the checkmate and names the mated king', () => {
+    play(FOOLS_MATE);
+
+    expect(status()).toBe('Dernier coup : dame noire de d8 à h4. Échec et mat, les noirs gagnent.');
+    expect(label('e1')).toBe('e1, roi blanc, en échec');
+  });
+
+  it('announces the stalemate', () => {
+    play(LOYD_STALEMATE);
+
+    expect(status()).toBe('Dernier coup : dame blanche de c8 à e6. Pat, match nul.');
+  });
+
+  it('starts the announcements again in a new game', () => {
+    vi.useFakeTimers();
+    play(FOOLS_MATE);
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+
+    document.querySelector('.alert__wrapper .checkmate button').click();
+
+    expect(status()).toBe('Aux blancs de jouer.');
+    expect(label('e1')).toBe('e1, roi blanc');
+  });
+
+  it('moves the focus across the board with the arrows', () => {
+    square('e2').focus();
+
+    press('ArrowUp');
+    press('ArrowUp');
+    press('ArrowLeft');
+
+    expect(document.activeElement).toBe(square('d4'));
+    const tabbable = document.querySelectorAll('.container-squares [tabindex="0"]');
+    expect([...tabbable]).toEqual([square('d4')]);
+  });
+
+  it('focuses the first piece of the promotion choice, then the promoted square', () => {
+    play(MOVES_BEFORE_PROMOTION);
+    play([['e7', 'd8']]);
+
+    expect(document.activeElement).toBe(promotionButton('queen'));
+    expect(status()).toBe('Dernier coup : pion noir de a6 à a5. Aux blancs de jouer.');
+
+    promotionButton('queen').click();
+
+    expect(document.activeElement).toBe(square('d8'));
+    expect(label('d8')).toBe('d8, dame blanche');
+    expect(status()).toBe(
+      'Dernier coup : pion blanc de e7 à d8, prend dame noire, promu en dame. ' +
+        'Les noirs sont en échec. Aux noirs de jouer.'
+    );
+  });
+
+  it('leaves the focus on the choice after a click outside the piece buttons', () => {
+    play(MOVES_BEFORE_PROMOTION);
+    play([['e7', 'd8']]);
+
+    document.querySelector('.promotion__wrapper p').click();
+
+    expect(document.activeElement).toBe(promotionButton('queen'));
+  });
+});
