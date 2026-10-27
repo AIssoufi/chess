@@ -56,11 +56,32 @@ pnpm preview    # serve dist/ on http://localhost:4173/
 
 `pnpm test` runs Vitest. The tests live in `test/` and are named `*.test.js`:
 
-- the model and rule tests run in Node.js, without a DOM;
-- the tests of the page, the footer year, the UI controller and the piece factory
-  (`index-page.test.js`, `copyright.test.js`, `main.test.js` and `piece-factory.test.js`) run in
-  happy-dom, chosen by a `// @vitest-environment happy-dom` comment on their first line;
-- the tests of the `prepare-commit-msg` hook run Git in temporary repositories.
+- the tests that need no DOM run in Node.js:
+  - `chessboard.test.js`, `fen.test.js` and `perft.test.js`: the board model and its rules, the
+    FEN loader of the tests, and the move counts of reference positions;
+  - `board-navigation.test.js`, `castling.test.js`, `colors.test.js`, `draws.test.js`,
+    `game-over.test.js`, `labels.test.js`, `moves.test.js`, `squares.test.js` and
+    `status.test.js`: the helpers of the game modules of `app/js/`;
+  - `accessibility-style.test.js`: the reduced motion and the square focus of the stylesheet;
+  - `redirect.test.js`: the page that redirects the old GitHub Pages URL;
+  - `commitlint.test.js`: the ticket reference rule, the bot commits and the pull
+    request titles of commitlint;
+  - `e2e-helpers.test.js`: the helpers of the browser tests;
+- the tests that need a DOM run in happy-dom, chosen by a `// @vitest-environment happy-dom`
+  comment on their first line:
+  - `index-page.test.js`: the head of the page and its social preview image;
+  - `accessibility-page.test.js`: the landmarks, the board and the screen reader names;
+  - `french-punctuation.test.js`: the French punctuation of the shown texts;
+  - `copyright.test.js`: the footer year;
+  - `main.test.js`: the UI controller;
+  - `piece-factory.test.js`: the piece factory;
+  - `rendering.test.js`: the pieces, the square labels, the status, the captures and the check;
+  - `selection.test.js`: the selected square, its moves and what a click does;
+  - `roving-focus.test.js`: the keyboard focus of the board;
+  - `promotion.test.js`: the promotion choice;
+  - `alerts.test.js`: the game over dialog;
+- `prepare-commit-msg.test.js` runs Git in temporary repositories to test the hook that adds the
+  ticket trailer.
 
 `pnpm test:coverage` adds a V8 coverage report of `app/js/`: a summary in the terminal and an
 HTML report in `coverage/`, which Git and Prettier ignore.
@@ -98,6 +119,7 @@ app/                 Vite root: the page, its styles and images
     copyright/       Writes the current year at the end of the footer copyright
     draws/           Draw reasons and their labels, insufficient material and the position key
     game-over/       Move outcome (check, mate, stalemate, draw), its log line and its alert
+    labels/          Screen reader names of the pieces and the squares, in French
     main.js          Wiring: listens to the board, the promotion and the dialog, calls the modules
     moves/           Piece steps, special move names and labels, the capture helper and move logs
     PieceFactory.js  Creates the DOM node of a piece from its type and color
@@ -106,6 +128,7 @@ app/                 Vite root: the page, its styles and images
     rendering/       Renders the pieces, the square labels, the status, the captures and the check
     selection/       Selected square, its moves and their highlight, and what a click does
     squares/         Board size and square helpers, such as the square an en passant capture takes
+    status/          Status announcement: the last move, whose turn it is and the game outcome
   public/            Files copied as they are to dist/: the Cloudflare Pages _headers, the
                      favicon and the 1200x630 social preview image (og-image.jpg)
 commitlint/          Ticket reference rule, bot commits and the pull request title config
@@ -115,7 +138,8 @@ e2e/                 Browser tests (Playwright): the layout and game specs, and 
 playwright.config.js Playwright config: the browsers, and the preview server on a free port
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests
-.github/workflows/   CI, commit message checks, actionlint and the GitHub Pages redirect
+.github/workflows/   CI, commit message checks, actionlint, the live check and the GitHub Pages
+                     redirect
 ```
 
 ## CI and deployment
