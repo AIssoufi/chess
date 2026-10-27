@@ -7,16 +7,10 @@ import {
   writeAlertDetails,
 } from './alerts/game-over-dialog.js';
 import { enableBoardNavigation, focusSquare } from './board-navigation/roving-focus.js';
-import consoleLog from './console-log.js';
 import { showCopyrightYear } from './copyright/show-copyright-year.js';
 import { GAME_OVER_DIALOG_DELAY_MS } from './game-over/constants.js';
-import {
-  getGameOutcome,
-  getOutcomeAlert,
-  getOutcomeLog,
-  isKingInCheck,
-} from './game-over/utils.js';
-import { getMoveLog } from './moves/utils.js';
+import { getGameOutcome, getOutcomeAlert, isKingInCheck } from './game-over/utils.js';
+import { getMoveNotation, getRivalSquares } from './notation/utils.js';
 import { PROMOTION_CHOICE_SELECTOR } from './promotion/constants.js';
 import {
   getChosenPieceType,
@@ -28,6 +22,7 @@ import {
   markCheck,
   renderCaptures,
   renderCurrentPlayer,
+  renderMoveList,
   renderPieces,
   renderSquareLabels,
   renderStatus,
@@ -46,6 +41,11 @@ const gameOverDialog = document.querySelector(GAME_OVER_DIALOG_SELECTOR);
 let selection = NO_SELECTION;
 // The last move played, as `game.move` returns it, which the status announces
 let lastMove = null;
+// The pieces that could also reach the target square of the last move, which its notation tells
+// apart, listed before it was played
+let lastRivalSquares = [];
+// The notation of each move of the game, in the order they were played
+let notations = [];
 
 // ─── DOM rendering ──────────────────────────────────────────────────────────
 
@@ -78,13 +78,27 @@ function hideCheck() {
   renderLabels();
 }
 
+// ─── Move list ──────────────────────────────────────────────────────────────
+
+// Writes the last move, once its promotion is chosen, at the end of the move list
+function recordLastMove(outcome) {
+  const promotedType = lastMove.promotion ? game.getPiece(lastMove.to)?.type : undefined;
+  const notation = getMoveNotation({
+    move: lastMove,
+    promotedType,
+    outcome,
+    rivalSquares: lastRivalSquares,
+  });
+  if (notation) notations.push(notation);
+  renderMoveList({ notations });
+}
+
 // ─── After each move ────────────────────────────────────────────────────────
 
 function afterMove() {
   const { outcome, color, winner, drawReason } = getGameOutcome({ game });
   renderStatus({ game, lastMove, outcome, color, winner, drawReason });
-  const outcomeLog = getOutcomeLog({ outcome, color, winner, drawReason });
-  if (outcomeLog) console.log(outcomeLog);
+  recordLastMove(outcome);
   if (isKingInCheck(outcome)) showCheck(color);
 
   const alertName = getOutcomeAlert(outcome);
@@ -127,7 +141,9 @@ gameOverDialog.addEventListener('close', () => {
 // ─── Click handler (delegated to the board) ─────────────────────────────────
 
 function playMove(to) {
-  const result = game.move({ from: selection.square, to });
+  const from = selection.square;
+  const rivalSquares = getRivalSquares({ game, from, to });
+  const result = game.move({ from, to });
   if (!result) return;
 
   renderBoard();
@@ -135,9 +151,8 @@ function playMove(to) {
   setSelection(NO_SELECTION);
   hideCheck();
 
-  const moveLog = getMoveLog(result);
-  if (moveLog) console.log(moveLog);
   lastMove = result;
+  lastRivalSquares = rivalSquares;
 
   if (result.promotion) {
     showPromotionChoice({
@@ -165,6 +180,9 @@ boardNode.addEventListener('click', (event) => {
 function initialize() {
   game.initialize();
   lastMove = null;
+  lastRivalSquares = [];
+  notations = [];
+  renderMoveList({ notations });
   renderBoard();
   renderCaptures({ game, factory });
   setSelection(NO_SELECTION);
@@ -173,7 +191,6 @@ function initialize() {
   renderStatus({ game, lastMove, ...getGameOutcome({ game }) });
 }
 
-consoleLog();
 showCopyrightYear();
 enableBoardNavigation(boardNode);
 initialize();

@@ -2,12 +2,12 @@
 
 A chess game for two players in the browser, written in vanilla JavaScript, with castling, en
 passant, promotion, check, checkmate, stalemate and the draw rules (insufficient material, fifty
-moves, threefold repetition).
+moves, threefold repetition). The moves of the game show in a list, in French algebraic notation.
 
 **Live demo:** https://chess.issoufi.fr
 
 <p align="center">
-  <img src="docs/screenshot.webp" alt="A game in progress: the white knight on f3 is selected and its legal moves are highlighted" width="800">
+  <img src="docs/screenshot.webp" alt="A game in progress: the white knight on f3 is selected, its legal moves are highlighted and the move list shows the first three turns" width="800">
 </p>
 
 ## Tech stack
@@ -70,12 +70,13 @@ pnpm preview    # serve dist/ on http://localhost:4173/
 - the tests that need a DOM run in happy-dom, chosen by a `// @vitest-environment happy-dom`
   comment on their first line:
   - `index-page.test.js`: the head of the page and its social preview image;
-  - `accessibility-page.test.js`: the landmarks, the board and the screen reader names;
+  - `accessibility-page.test.js`: the landmarks, the board, the move list and the screen reader
+    names;
   - `french-punctuation.test.js`: the French punctuation of the shown texts;
   - `copyright.test.js`: the footer year;
   - `main.test.js`: the UI controller;
   - `piece-factory.test.js`: the piece factory;
-  - `rendering.test.js`: the pieces, the square labels, the status, the captures and the check;
+  - `rendering.test.js`: the pieces, square labels, status, captures, check and move list;
   - `selection.test.js`: the selected square, its moves and what a click does;
   - `roving-focus.test.js`: the keyboard focus of the board;
   - `promotion.test.js`: the promotion choice;
@@ -115,18 +116,17 @@ app/                 Vite root: the page, its styles and images
     castling/        Castling helpers, such as whether a rook may castle with its king
     Chessboard.js    Board model and rules, without DOM
     colors/          Color helpers, such as the opponent of a color
-    console-log.js   Copies each console.log line to the move log panel of the page
     copyright/       Writes the current year at the end of the footer copyright
     draws/           Draw reasons and their labels, insufficient material and the position key
-    game-over/       Move outcome (check, mate, stalemate, draw), its log line and its alert
+    game-over/       Move outcome (check, mate, stalemate, draw) and its alert
     labels/          Screen reader names of the pieces and the squares, in French
     main.js          Wiring: listens to the board, the promotion and the dialog, calls the modules
-    moves/           Piece steps, special move names and labels, the capture helper and move logs
+    moves/           Piece steps, special move names and labels, and the capture helper
     notation/        French algebraic notation of a move, its rival pieces and the turns of the list
     PieceFactory.js  Creates the DOM node of a piece from its type and color
     pieces/          Piece configs: Unicode symbol and starting squares
     promotion/       Promotion choice: shows the pieces of the pawn color and reads the click
-    rendering/       Renders the pieces, the square labels, the status, the captures and the check
+    rendering/       Renders the pieces, square labels, status, captures, check and the move list
     selection/       Selected square, its moves and their highlight, and what a click does
     squares/         Board size and square helpers, such as the square an en passant capture takes
     status/          Status announcement: the last move, whose turn it is and the game outcome

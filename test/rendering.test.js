@@ -9,6 +9,7 @@ import {
   markCheck,
   renderCaptures,
   renderCurrentPlayer,
+  renderMoveList,
   renderPieces,
   renderSquareLabels,
   renderStatus,
@@ -40,7 +41,9 @@ function buildPage() {
     <div class="container-squares">${squares.join('')}</div>
     <div data-color="white" class="control current-player">
       <span id="white-capture-count">0</span><div id="white-captures"></div></div>
-    <p class="game-status"></p>`;
+    <p class="game-status"></p>
+    <section class="move-list"><p class="move-list__empty">Aucun coup joué</p>
+      <ol class="move-list__moves"></ol></section>`;
 }
 
 /**
@@ -271,5 +274,96 @@ describe('markCheck and clearCheck', () => {
 
   it('does nothing on a board without a mark', () => {
     expect(() => clearCheck()).not.toThrow();
+  });
+});
+
+describe('renderMoveList', () => {
+  const list = () => document.querySelector('.move-list__moves');
+  const isEmptyNoteShown = () => !document.querySelector('.move-list__empty').hidden;
+  /** @returns {{ number: number, moves: string[] }[]} Each turn, with its number and its moves. */
+  const shownTurns = () =>
+    [...list().children].map((item) => ({
+      number: item.value,
+      moves: [...item.querySelectorAll('.move-list__move')].map((move) => move.textContent),
+    }));
+
+  it('numbers the moves by turn, white then black, and hides the note', () => {
+    renderMoveList({ notations: ['e4', 'e5', 'Cf3'] });
+
+    expect(shownTurns()).toEqual([
+      { number: 1, moves: ['e4', 'e5'] },
+      { number: 2, moves: ['Cf3'] },
+    ]);
+    expect(list().children[0].textContent).toBe('e4 e5');
+    expect(isEmptyNoteShown()).toBe(false);
+  });
+
+  it('replaces the moves shown before', () => {
+    renderMoveList({ notations: ['e4', 'e5', 'Cf3'] });
+    renderMoveList({ notations: ['d4'] });
+
+    expect(shownTurns()).toEqual([{ number: 1, moves: ['d4'] }]);
+  });
+
+  it('empties the list and shows the note again for a game without moves', () => {
+    renderMoveList({ notations: ['e4'] });
+    renderMoveList({ notations: [] });
+
+    expect(list().children).toHaveLength(0);
+    expect(isEmptyNoteShown()).toBe(true);
+  });
+
+  it.each([
+    ['undefined', undefined],
+    ['null', null],
+    ['a string', 'e4 e5'],
+    ['an object', { white: 'e4' }],
+  ])('empties the list for %s instead of an array', (_name, notations) => {
+    renderMoveList({ notations: ['e4'] });
+    renderMoveList({ notations });
+
+    expect(list().children).toHaveLength(0);
+    expect(isEmptyNoteShown()).toBe(true);
+  });
+
+  it('skips a move that is not a string and keeps the rest of its turn', () => {
+    renderMoveList({ notations: [42, 'e5', 'Cf3', null] });
+
+    expect(shownTurns()).toEqual([
+      { number: 1, moves: ['e5'] },
+      { number: 2, moves: ['Cf3'] },
+    ]);
+  });
+
+  it('empties the list when called without parameters', () => {
+    renderMoveList({ notations: ['e4'] });
+    renderMoveList();
+
+    expect(list().children).toHaveLength(0);
+  });
+
+  it('scrolls the list to the last move', () => {
+    Object.defineProperty(list(), 'scrollHeight', { configurable: true, value: 480 });
+
+    renderMoveList({ notations: ['e4', 'e5'] });
+
+    expect(list().scrollTop).toBe(480);
+  });
+
+  it('searches inside the given root only', () => {
+    const root = document.createElement('div');
+    root.innerHTML = '<ol class="move-list__moves"></ol>';
+
+    renderMoveList({ notations: ['e4'], root });
+
+    expect(root.querySelectorAll('li')).toHaveLength(1);
+    expect(list().children).toHaveLength(0);
+    expect(isEmptyNoteShown()).toBe(true);
+  });
+
+  it('does nothing on a page without a move list', () => {
+    document.body.innerHTML = '';
+
+    expect(() => renderMoveList({ notations: ['e4'] })).not.toThrow();
   });
 });

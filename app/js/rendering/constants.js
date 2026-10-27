@@ -21,6 +21,15 @@ export const CURRENT_PLAYER_CLASS = 'current-player';
 /** The class of the square of a king in check. */
 export const CHECK_CLASS = 'check';
 
+/** The selector of the list of the moves played, one item per turn. */
+export const MOVE_LIST_SELECTOR = '.move-list__moves';
+
+/** The selector of the note that the move list shows before the first move. */
+export const MOVE_LIST_EMPTY_SELECTOR = '.move-list__empty';
+
+/** The class of a move of the list, white's or black's. */
+export const MOVE_CLASS = 'move-list__move';
+
 /** The end of the id of the zone that shows the pieces a color captured, as in `white-captures`. */
 export const CAPTURES_ID_SUFFIX = '-captures';
 

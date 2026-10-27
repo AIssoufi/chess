@@ -216,16 +216,89 @@ h1 {
   grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
 }
 
-.console-log {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  color: #fff;
-  width: 1000%;
-  padding: 10px 10px;
-  font-family: monospace;
-  max-height: 10vh;
-  overflow: auto;
+/*
+ * Move list: under the panel of white, beside the board. Its size containment keeps the list out
+ * of the size of the game frame, so it takes the height that the board leaves and scrolls.
+ */
+.wrapper {
+  grid-template-areas: 'black game white' 'black game moves';
+  grid-template-rows: min-content 1fr;
+}
+
+.control[data-color='black'] {
+  grid-area: black;
+}
+
+.game {
+  grid-area: game;
+}
+
+.control[data-color='white'] {
+  grid-area: white;
+}
+
+.move-list {
+  grid-area: moves;
+  display: flex;
+  flex-direction: column;
+  /* Wide enough for a turn on one line, narrow enough to keep the game frame under 900px */
+  min-width: 7.5rem;
+  min-height: 8rem;
+  margin: 0 20px;
+  contain: size;
+}
+
+.move-list h2 {
+  margin: 1rem 0 0.5rem;
+  font-size: 1.2rem;
+}
+
+.move-list__empty {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.move-list__moves {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0 0 0 1.6rem;
+  overflow-y: auto;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.6;
+}
+
+/* The move of white keeps its width, so that the moves of black line up */
+.move-list__move:first-child {
+  display: inline-block;
+  min-width: 3.2em;
+}
+
+/* Narrow screens: the list goes under the panel of white, and grows up to a few turns */
+@media (max-width: 899px) {
+  .wrapper {
+    grid-template-areas: 'black' 'game' 'white' 'moves';
+    grid-template-rows: none;
+  }
+
+  .move-list {
+    width: 100%;
+    min-height: 0;
+    max-height: 12rem;
+    margin: 0;
+    padding: 0 1rem;
+    contain: none;
+  }
+
+  /* Centered, as the panels of the players */
+  .move-list h2 {
+    text-align: center;
+  }
+
+  .move-list__moves {
+    align-self: center;
+  }
 }
 
 /* Game over modal: a <dialog> that the browser centers in the top layer */
