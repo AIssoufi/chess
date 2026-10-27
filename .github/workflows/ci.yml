@@ -30,6 +30,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Fails on an advisory of high or critical severity in any dependency of the lockfile.
+      - run: pnpm audit --audit-level high
+
       - run: pnpm format:check
 
       - run: pnpm lint
@@ -38,9 +41,9 @@ jobs:
 
       - run: pnpm build
 
-  # package.json also supports Node.js 26, so the tests run on it too; format, lint and build
-  # stay on .nvmrc in the check job above, since their result does not depend on the Node.js
-  # version.
+  # package.json also supports Node.js 26, so the tests run on it too; audit, format, lint and
+  # build stay on .nvmrc in the check job above, since their result does not depend on the
+  # Node.js version.
   test-node-26:
     name: test (node 26)
     runs-on: ubuntu-latest
