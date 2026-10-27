@@ -47,6 +47,14 @@ const LOYD_STALEMATE = [
   ['f7', 'g6'],
   ['c8', 'e6'],
 ];
+/** Both knights go out and back twice: the starting position occurs a third time, a draw. */
+const KNIGHT_ROUND_TRIP = [
+  ['g1', 'f3'],
+  ['g8', 'f6'],
+  ['f3', 'g1'],
+  ['f6', 'g8'],
+];
+const THREEFOLD_REPETITION = [...KNIGHT_ROUND_TRIP, ...KNIGHT_ROUND_TRIP];
 
 const originalConsoleLog = console.log;
 
@@ -401,6 +409,46 @@ describe('main.js stalemate', () => {
   });
 });
 
+describe('main.js draw', () => {
+  const dialog = () => document.querySelector('.alert__wrapper');
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    play(THREEFOLD_REPETITION);
+  });
+
+  it('opens the draw dialog with its reason in French after the delay', () => {
+    expect(dialog().open).toBe(false);
+
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+
+    expect(dialog().open).toBe(true);
+    expect(dialog().querySelector('.draw').classList).toContain('shown');
+    expect(dialog().querySelector('.stalemate').classList).not.toContain('shown');
+    expect(dialog().getAttribute('aria-labelledby')).toBe('draw-title');
+    expect(dialog().querySelector('.draw-reason').textContent).toBe('position répétée trois fois');
+    const lastLine = document.querySelector('.console-log').lastElementChild.textContent;
+    expect(lastLine).toMatch(/> Match nul : position répétée trois fois\.$/);
+  });
+
+  it('ignores clicks on the board once the game is drawn', () => {
+    square('g1').click();
+
+    expect(squaresWithClass('selected')).toEqual([]);
+  });
+
+  it('starts a new game when "Rejouer" closes the dialog', () => {
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+
+    dialog().querySelector('.draw button').click();
+
+    expect(dialog().open).toBe(false);
+    expect(dialog().querySelectorAll('.shown')).toHaveLength(0);
+    play([['g1', 'f3']]);
+    expect(pieceOn('f3')).toEqual({ type: 'knight', color: 'white' });
+  });
+});
+
 describe('main.js keyboard and screen readers', () => {
   const status = () => document.querySelector('.game-status').textContent;
   const label = (position) => square(position).getAttribute('aria-label');
@@ -492,6 +540,14 @@ describe('main.js keyboard and screen readers', () => {
     play(LOYD_STALEMATE);
 
     expect(status()).toBe('Dernier coup : dame blanche de c8 à e6. Pat, match nul.');
+  });
+
+  it('announces the draw by repetition with its reason', () => {
+    play(THREEFOLD_REPETITION);
+
+    expect(status()).toBe(
+      'Dernier coup : cavalier noir de f6 à g8. Match nul : position répétée trois fois.'
+    );
   });
 
   it('starts the announcements again in a new game', () => {

@@ -4,9 +4,15 @@ import bishop from './pieces/bishop.js';
 import pawn from './pieces/pawn.js';
 import king from './pieces/king.js';
 import rook from './pieces/rook.js';
-import { isCastlingRook } from './castling/utils.js';
+import { getCastlingRights, isCastlingRook } from './castling/utils.js';
 import { COLORS } from './colors/constants.js';
 import { getOpponent, getPawnDirection } from './colors/utils.js';
+import {
+  DRAW_REASONS,
+  FIFTY_MOVE_RULE_HALF_MOVES,
+  REPETITION_DRAW_COUNT,
+} from './draws/constants.js';
+import { getPositionKey, hasInsufficientMaterial } from './draws/utils.js';
 import {
   ALL_DIRECTIONS,
   BISHOP_DIRECTIONS,
@@ -60,6 +66,9 @@ export default class Chessboard {
     this.promotionSquare = null; // square where a promotion is pending
     this.captures = { white: [], black: [] }; // pieces captured by each color
     this.isOver = false;
+    this.halfMoveClock = 0; // half-moves since the last capture or pawn move
+    this.positionCounts = new Map(); // times each position key occurred, for the repetition rule
+    this.positionKey = null; // key of the current position, kept at the end of each turn
   }
 
   initialize() {
@@ -70,6 +79,9 @@ export default class Chessboard {
     this.promotionSquare = null;
     this.captures = { white: [], black: [] };
     this.isOver = false;
+    this.halfMoveClock = 0;
+    this.positionCounts = new Map();
+    this._recordPosition();
   }
 
   getPiece(position) {
@@ -312,6 +324,67 @@ export default class Chessboard {
     return !this.isInCheck(color) && this._hasNoLegalMove(color);
   }
 
+  /**
+   * Returns the en passant square when a pawn of the side to move can really take there, as the
+   * repetition rule counts it, or null.
+   */
+  _getCapturableEnPassantSquare() {
+    if (!this.enPassantSquare) return null;
+    // A snapshot of the board, since getMoves reorders its entries (see _hasNoLegalMove)
+    const entries = [...this.board.entries()];
+    const canTakeEnPassant = entries.some(([position, piece]) => {
+      const isOwnPawn = piece.type === 'pawn' && piece.color === this.currentColor;
+      if (!isOwnPawn) return false;
+      const canReachEnPassantSquare = this.getMoves(position).includes(this.enPassantSquare);
+      return canReachEnPassantSquare;
+    });
+    return canTakeEnPassant ? this.enPassantSquare : null;
+  }
+
+  /** Returns the key of the current position for the repetition rule. */
+  _getPositionKey() {
+    return getPositionKey({
+      board: this.board,
+      color: this.currentColor,
+      castlingRights: getCastlingRights(this.board),
+      enPassantSquare: this._getCapturableEnPassantSquare(),
+    });
+  }
+
+  /** Keeps the key of the current position and counts one more occurrence of it. */
+  _recordPosition() {
+    this.positionKey = this._getPositionKey();
+    const count = this.positionCounts.get(this.positionKey) ?? 0;
+    this.positionCounts.set(this.positionKey, count + 1);
+  }
+
+  /**
+   * Tells why the current position is a draw, besides a stalemate: insufficient material, the
+   * fifty-move rule or a threefold repetition, checked in that order.
+   * @returns {string | null} One of `DRAW_REASONS`, or null when no draw rule applies.
+   */
+  getDrawReason() {
+    if (hasInsufficientMaterial(this.board)) return DRAW_REASONS.insufficientMaterial;
+    const isFiftyMoveRuleReached = this.halfMoveClock >= FIFTY_MOVE_RULE_HALF_MOVES;
+    if (isFiftyMoveRuleReached) return DRAW_REASONS.fiftyMoveRule;
+    const occurrenceCount = this.positionCounts.get(this.positionKey) ?? 0;
+    const isThreefoldRepetition = occurrenceCount >= REPETITION_DRAW_COUNT;
+    if (isThreefoldRepetition) return DRAW_REASONS.threefoldRepetition;
+    return null;
+  }
+
+  /**
+   * Passes the move to the opponent, records the new position and ends the game when the
+   * opponent has no legal move (checkmate or stalemate) or a draw rule applies.
+   */
+  _endTurn() {
+    this.currentColor = getOpponent(this.currentColor);
+    this._recordPosition();
+    const hasNoLegalMove = this._hasNoLegalMove(this.currentColor);
+    const isDraw = this.getDrawReason() !== null;
+    this.isOver = hasNoLegalMove || isDraw;
+  }
+
   // ─── Playing a move ───────────────────────────────────────────────────────
 
   /**
@@ -384,13 +457,17 @@ export default class Chessboard {
     // ── Record the capture ──
     if (captured) this.captures[piece.color].push(captured);
 
+    // ── Half-move clock: a pawn move, en passant included, or a capture resets it ──
+    const resetsHalfMoveClock = piece.type === 'pawn' || captured !== null;
+    this.halfMoveClock = resetsHalfMoveClock ? 0 : this.halfMoveClock + 1;
+
     // ── Promotion ──
     const promotion = piece.type === 'pawn' && to[1] === PROMOTION_RANKS[piece.color];
     if (promotion) {
       this.promotionSquare = to;
       // The turn passes after the promotion (through promote())
     } else {
-      this.currentColor = getOpponent(this.currentColor);
+      this._endTurn();
     }
 
     return { from, to, piece, captured, specialMove, enPassantCaptureSquare, promotion };
@@ -416,7 +493,7 @@ export default class Chessboard {
     if (!piece) return false;
     this.board.set(position, { ...piece, type });
     this.promotionSquare = null;
-    this.currentColor = getOpponent(this.currentColor);
+    this._endTurn();
     return true;
   }
 }

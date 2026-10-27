@@ -1,7 +1,8 @@
 # Chess
 
 A chess game for two players in the browser, written in vanilla JavaScript, with castling, en
-passant, promotion, check, checkmate and stalemate.
+passant, promotion, check, checkmate, stalemate and the draw rules (insufficient material, fifty
+moves, threefold repetition).
 
 **Live demo:** https://chess.issoufi.fr
 
@@ -75,7 +76,8 @@ app/                 Vite root: the page, its styles and images
     colors/          Color helpers, such as the opponent of a color
     console-log.js   Copies each console.log line to the move log panel of the page
     copyright/       Writes the current year at the end of the footer copyright
-    game-over/       Move outcome (check, mate, stalemate) and game over dialog constants
+    draws/           Draw reasons and their labels, insufficient material and the position key
+    game-over/       Move outcome (check, mate, stalemate, draw) and game over dialog constants
     main.js          UI controller: renders the board and handles clicks
     moves/           Piece steps, special move names and labels, and the capture helper
     PieceFactory.js  Creates the DOM node of a piece from its type and color

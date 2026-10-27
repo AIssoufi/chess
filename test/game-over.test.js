@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, it, expect, beforeEach } from 'vitest';
 import Chessboard from '../app/js/Chessboard.js';
+import { DRAW_REASONS } from '../app/js/draws/constants.js';
 import { GAME_OUTCOMES, GAME_OVER_ALERTS } from '../app/js/game-over/constants.js';
 import { getGameOutcome } from '../app/js/game-over/utils.js';
 
@@ -96,6 +97,55 @@ describe('getGameOutcome', () => {
       color: 'black',
       winner: null,
     });
+  });
+
+  it('reports a draw and its reason when only the kings are left', () => {
+    setUpBoard({
+      pieces: { e1: { type: 'king', color: 'white' }, e8: { type: 'king', color: 'black' } },
+      colorToPlay: 'black',
+    });
+
+    expect(getGameOutcome({ game })).toEqual({
+      outcome: GAME_OUTCOMES.draw,
+      color: 'black',
+      winner: null,
+      drawReason: DRAW_REASONS.insufficientMaterial,
+    });
+  });
+
+  it('reports a draw by repetition once the starting position occurs a third time', () => {
+    const knightRoundTrip = [
+      ['g1', 'f3'],
+      ['g8', 'f6'],
+      ['f3', 'g1'],
+      ['f6', 'g8'],
+    ];
+    for (const [from, to] of [...knightRoundTrip, ...knightRoundTrip]) game.move({ from, to });
+
+    expect(getGameOutcome({ game })).toMatchObject({
+      outcome: GAME_OUTCOMES.draw,
+      drawReason: DRAW_REASONS.threefoldRepetition,
+    });
+  });
+
+  it('reports a checkmate rather than a draw by the fifty-move rule', () => {
+    for (const [from, to] of FOOLS_MATE) game.move({ from, to });
+    game.halfMoveClock = 100;
+
+    expect(getGameOutcome({ game })).toMatchObject({ outcome: GAME_OUTCOMES.checkmate });
+  });
+
+  it('reports a stalemate rather than a draw by insufficient material', () => {
+    setUpBoard({
+      pieces: {
+        a8: { type: 'king', color: 'black' },
+        c8: { type: 'king', color: 'white' },
+        b6: { type: 'bishop', color: 'white' },
+      },
+      colorToPlay: 'black',
+    });
+
+    expect(getGameOutcome({ game })).toMatchObject({ outcome: GAME_OUTCOMES.stalemate });
   });
 
   it('reports an ongoing game at the start', () => {

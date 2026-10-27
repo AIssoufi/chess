@@ -4,6 +4,7 @@ import { enableBoardNavigation, focusSquare } from './board-navigation/roving-fo
 import { COLOR_LABELS, COLORS } from './colors/constants.js';
 import consoleLog from './console-log.js';
 import { showCopyrightYear } from './copyright/show-copyright-year.js';
+import { DRAW_REASON_LABELS } from './draws/constants.js';
 import {
   GAME_OUTCOMES,
   GAME_OVER_ALERTS,
@@ -52,7 +53,7 @@ function renderSquareLabels() {
   });
 }
 
-function renderStatus({ outcome, color, winner }) {
+function renderStatus({ outcome, color, winner, drawReason }) {
   const promotedType = lastMove?.promotion ? game.getPiece(lastMove.to)?.type : undefined;
   document.querySelector('.game-status').textContent = getStatusMessage({
     lastMove,
@@ -60,6 +61,7 @@ function renderStatus({ outcome, color, winner }) {
     outcome,
     color,
     winner,
+    drawReason,
   });
 }
 
@@ -131,18 +133,20 @@ function clearCheck() {
 // ─── After each move ────────────────────────────────────────────────────────
 
 function afterMove() {
-  const { outcome, color, winner } = getGameOutcome({ game });
-  renderStatus({ outcome, color, winner });
+  const { outcome, color, winner, drawReason } = getGameOutcome({ game });
+  renderStatus({ outcome, color, winner, drawReason });
   if (outcome === GAME_OUTCOMES.checkmate) {
-    game.isOver = true;
     console.log(`Échec et mat ! ${COLOR_LABELS[winner]} gagne.`);
     markCheck(color);
     document.querySelector('.winner-color').textContent = COLOR_LABELS[winner];
     setTimeout(() => showAlert(GAME_OVER_ALERTS.checkmate), GAME_OVER_DIALOG_DELAY_MS);
   } else if (outcome === GAME_OUTCOMES.stalemate) {
-    game.isOver = true;
     console.log('Pat — match nul.');
     setTimeout(() => showAlert(GAME_OVER_ALERTS.stalemate), GAME_OVER_DIALOG_DELAY_MS);
+  } else if (outcome === GAME_OUTCOMES.draw) {
+    console.log(`Match nul : ${DRAW_REASON_LABELS[drawReason]}.`);
+    document.querySelector('.draw-reason').textContent = DRAW_REASON_LABELS[drawReason];
+    setTimeout(() => showAlert(GAME_OVER_ALERTS.draw), GAME_OVER_DIALOG_DELAY_MS);
   } else if (outcome === GAME_OUTCOMES.check) {
     console.log(`${COLOR_LABELS[color]} est en échec !`);
     markCheck(color);
