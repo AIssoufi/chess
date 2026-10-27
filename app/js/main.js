@@ -1,5 +1,6 @@
 import Chessboard from './Chessboard.js';
 import PieceFactory from './PieceFactory.js';
+import { SQUARE_SELECTOR } from './board-navigation/constants.js';
 import { enableBoardNavigation, focusSquare } from './board-navigation/roving-focus.js';
 import { COLOR_LABELS } from './colors/constants.js';
 import consoleLog from './console-log.js';
@@ -14,7 +15,6 @@ import { getGameOutcome } from './game-over/utils.js';
 import { SPECIAL_MOVE_LABELS } from './moves/constants.js';
 import {
   clearCheck,
-  getSquareNode,
   markCheck,
   renderCaptures,
   renderCurrentPlayer,
@@ -22,20 +22,23 @@ import {
   renderSquareLabels,
   renderStatus,
 } from './rendering/render.js';
+import { CLICK_ACTIONS, NO_SELECTION } from './selection/constants.js';
+import { highlightSelection } from './selection/highlight.js';
+import { getClickAction, getSelection } from './selection/utils.js';
 
 const game = new Chessboard();
 const factory = new PieceFactory();
 const boardNode = document.querySelector('.container-squares');
 
-let selectedSquare = null;
-let possibleMoves = [];
+// The selected square and the squares it can move to
+let selection = NO_SELECTION;
 // The last move played, as `game.move` returns it, which the status announces
 let lastMove = null;
 
 // ─── DOM rendering ──────────────────────────────────────────────────────────
 
 function renderLabels() {
-  renderSquareLabels({ game, selection: { square: selectedSquare, moves: possibleMoves } });
+  renderSquareLabels({ game, selection });
 }
 
 function renderBoard() {
@@ -45,28 +48,9 @@ function renderBoard() {
 
 // ─── Selection and highlighting ─────────────────────────────────────────────
 
-function deselect() {
-  document.querySelectorAll('.possible-move').forEach((c) => c.classList.remove('possible-move'));
-  document.querySelectorAll('.selected').forEach((c) => c.classList.remove('selected'));
-  selectedSquare = null;
-  possibleMoves = [];
-  renderLabels();
-}
-
-function select(position) {
-  deselect();
-  const piece = game.getPiece(position);
-  if (!piece || piece.color !== game.currentColor) return;
-
-  const moves = game.getMoves(position);
-  if (moves.length === 0) return;
-
-  selectedSquare = position;
-  possibleMoves = moves;
-  getSquareNode({ square: position })?.classList.add('selected');
-  for (const dest of moves) {
-    getSquareNode({ square: dest })?.classList.add('possible-move');
-  }
+function setSelection(nextSelection) {
+  selection = nextSelection;
+  highlightSelection({ selection });
   renderLabels();
 }
 
@@ -158,48 +142,36 @@ gameOverDialog.addEventListener('close', () => {
 
 // ─── Click handler (delegated to the board) ─────────────────────────────────
 
-document.querySelector('.container-squares').addEventListener('click', (event) => {
-  if (game.isOver || game.promotionSquare) return;
+function playMove(to) {
+  const result = game.move({ from: selection.square, to });
+  if (!result) return;
 
-  const squareNode = event.target.closest('.square');
-  if (!squareNode) return;
+  renderBoard();
+  renderCaptures({ game, factory });
+  setSelection(NO_SELECTION);
+  hideCheck();
 
-  const position = squareNode.dataset.position;
-  const piece = game.getPiece(position);
+  const log = result.specialMove
+    ? `${result.from} → ${result.to} (${SPECIAL_MOVE_LABELS[result.specialMove]})`
+    : `${result.from} → ${result.to}`;
+  console.log(log);
+  lastMove = result;
 
-  if (selectedSquare) {
-    if (possibleMoves.includes(position)) {
-      // Play the move
-      const result = game.move({ from: selectedSquare, to: position });
-      if (!result) return;
-
-      renderBoard();
-      renderCaptures({ game, factory });
-      deselect();
-      hideCheck();
-
-      const log = result.specialMove
-        ? `${result.from} → ${result.to} (${SPECIAL_MOVE_LABELS[result.specialMove]})`
-        : `${result.from} → ${result.to}`;
-      console.log(log);
-      lastMove = result;
-
-      if (result.promotion) {
-        showPromotion(result.to);
-        return;
-      }
-
-      renderCurrentPlayer({ color: game.currentColor });
-      afterMove();
-    } else if (piece && piece.color === game.currentColor) {
-      // Select another piece of the same side
-      select(position);
-    } else {
-      deselect();
-    }
-  } else if (piece && piece.color === game.currentColor) {
-    select(position);
+  if (result.promotion) {
+    showPromotion(result.to);
+    return;
   }
+
+  renderCurrentPlayer({ color: game.currentColor });
+  afterMove();
+}
+
+boardNode.addEventListener('click', (event) => {
+  const square = event.target.closest(SQUARE_SELECTOR)?.dataset.position;
+  const action = getClickAction({ game, selection, square });
+  if (action === CLICK_ACTIONS.move) playMove(square);
+  else if (action === CLICK_ACTIONS.select) setSelection(getSelection({ game, square }));
+  else if (action === CLICK_ACTIONS.deselect) setSelection(NO_SELECTION);
 });
 
 // ─── Initialization ─────────────────────────────────────────────────────────
@@ -209,7 +181,7 @@ function initialize() {
   lastMove = null;
   renderBoard();
   renderCaptures({ game, factory });
-  deselect();
+  setSelection(NO_SELECTION);
   hideCheck();
   renderCurrentPlayer({ color: game.currentColor });
   renderStatus({ game, lastMove, ...getGameOutcome({ game }) });
