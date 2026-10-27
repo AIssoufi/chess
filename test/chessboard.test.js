@@ -529,6 +529,40 @@ describe('en passant edge cases', () => {
     expect(moves).not.toContain('c6');
     expect(moves).toContain('b6');
   });
+
+  it('is not offered to a white pawn beside the white pawn that just advanced two squares', () => {
+    game.move({ from: 'e2', to: 'e4' });
+
+    expect(game.getMoves('d2')).toEqual(['d3', 'd4']);
+    expect(game.getMoves('f2')).toEqual(['f3', 'f4']);
+  });
+
+  it('is not offered to a black pawn beside the black pawn that just advanced two squares', () => {
+    game.move({ from: 'a2', to: 'a3' });
+    game.move({ from: 'e7', to: 'e5' });
+
+    expect(game.getMoves('d7')).toEqual(['d6', 'd5']);
+    expect(game.getMoves('f7')).toEqual(['f6', 'f5']);
+  });
+
+  it.each([
+    ['an own pawn', { type: 'pawn', color: 'white' }],
+    ['an opponent knight', { type: 'knight', color: 'black' }],
+    ['no piece', null],
+  ])('is not offered when the square behind the target holds %s', (_label, behind) => {
+    setUpBoard({
+      pieces: {
+        e1: { type: 'king', color: 'white' },
+        e8: { type: 'king', color: 'black' },
+        e5: { type: 'pawn', color: 'white' },
+        ...(behind && { d5: behind }),
+      },
+    });
+    game.enPassantSquare = 'd6';
+
+    expect(game.getMoves('e5')).not.toContain('d6');
+    expect(game.move({ from: 'e5', to: 'd6' })).toBeNull();
+  });
 });
 
 describe('promotion edge cases', () => {

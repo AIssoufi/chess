@@ -180,8 +180,14 @@ export default class Chessboard {
               moves.push(dest);
             }
             // En passant
-            const isEnPassantTarget = !forAttack && dest === this.enPassantSquare;
-            if (isEnPassantTarget) {
+            const isEnPassantSquare = !forAttack && dest === this.enPassantSquare;
+            if (!isEnPassantSquare) continue;
+            const capturablePawn = this.board.get(
+              getEnPassantCaptureSquare({ target: dest, color: piece.color })
+            );
+            const hasOpponentPawnBehind =
+              capturablePawn?.type === 'pawn' && capturablePawn.color === getOpponent(piece.color);
+            if (hasOpponentPawnBehind) {
               moves.push(dest);
             }
           }
