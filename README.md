@@ -64,6 +64,8 @@ pnpm preview    # serve dist/ on http://localhost:4173/
     `squares.test.js` and `status.test.js`: the helpers of the game modules of `app/js/`;
   - `accessibility-style.test.js`: the reduced motion and the square focus of the stylesheet;
   - `redirect.test.js`: the page that redirects the old GitHub Pages URL;
+  - `public-files.test.js`: the build copy of the root files, `robots.txt`, the sitemap and the
+    HSTS header;
   - `commitlint.test.js`: the ticket reference rule, the bot commits and the pull
     request titles of commitlint;
   - `e2e-helpers.test.js`: the helpers of the browser tests;
@@ -131,7 +133,8 @@ app/                 Vite root: the page, its styles and images
     squares/         Board size and square helpers, such as the square an en passant capture takes
     status/          Status announcement: the last move, whose turn it is and the game outcome
   public/            Files copied as they are to dist/: the Cloudflare Pages _headers, the
-                     favicon and the 1200x630 social preview image (og-image.jpg)
+                     favicon, the 1200x630 social preview image (og-image.jpg), robots.txt
+                     and the sitemap
 commitlint/          Ticket reference rule, bot commits and the pull request title config
 docs/                README screenshot, decisions (ADRs), the evolution of the stack and
                      ai-workflow/ (how agents work on the project)
@@ -199,9 +202,10 @@ repository:
 | Custom domain          | `chess.issoufi.fr`, a CNAME to the project's `.pages.dev` |
 
 `app/public/_headers` sets the response headers: a one-year immutable cache for the hashed files
-of `/assets/`, and a Content Security Policy and a Permissions Policy on every page. Pages already
-sends `X-Content-Type-Options` and `Referrer-Policy`. Change `frame-ancestors` in that file to embed
-the game in another site.
+of `/assets/`, and a Content Security Policy, a Permissions Policy and HSTS on every page. Pages
+already sends `X-Content-Type-Options` and `Referrer-Policy`. Change `frame-ancestors` in that file
+to embed the game in another site. HSTS lasts one year and covers this host only, without
+`includeSubDomains` or `preload`, since this repository does not serve the parent `issoufi.fr`.
 
 ## Conventions
 
