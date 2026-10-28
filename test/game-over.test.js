@@ -2,9 +2,9 @@ import { readFileSync } from 'node:fs';
 import { describe, it, expect, beforeEach } from 'vitest';
 import Chessboard from '../app/js/Chessboard.js';
 import { ALERT_CHOICES } from '../app/js/alerts/constants.js';
-import { DRAW_REASONS } from '../app/js/draws/constants.js';
+import { DRAW_REASONS, FIFTY_MOVE_RULE_HALF_MOVES } from '../app/js/draws/constants.js';
 import { GAME_OUTCOMES, GAME_OVER_ALERTS } from '../app/js/game-over/constants.js';
-import { getGameOutcome, getOutcomeAlert, isKingInCheck } from '../app/js/game-over/utils.js';
+import { getGameOutcome, getOutcomeAlert } from '../app/js/game-over/utils.js';
 
 const INDEX_PAGE = readFileSync(new URL('../app/index.html', import.meta.url), 'utf8');
 const FOOLS_MATE = [
@@ -12,6 +12,32 @@ const FOOLS_MATE = [
   ['e7', 'e5'],
   ['g2', 'g4'],
   ['d8', 'h4'],
+];
+/** Both knights go out and back twice: the starting position occurs a third time. */
+const KNIGHT_ROUND_TRIP = [
+  ['g1', 'f3'],
+  ['g8', 'f6'],
+  ['f3', 'g1'],
+  ['f6', 'g8'],
+];
+const THREEFOLD_REPETITION = [...KNIGHT_ROUND_TRIP, ...KNIGHT_ROUND_TRIP];
+/**
+ * The black queen checks the white king from h4 three times, the king going to e3 and back: the
+ * third check repeats its position a third time.
+ */
+const PERPETUAL_CHECK_CYCLE = [
+  ['f2', 'e3'],
+  ['h4', 'e7'],
+  ['e3', 'f2'],
+  ['e7', 'h4'],
+];
+const PERPETUAL_CHECK = [
+  ['f2', 'f3'],
+  ['e7', 'e5'],
+  ['e1', 'f2'],
+  ['d8', 'h4'],
+  ...PERPETUAL_CHECK_CYCLE,
+  ...PERPETUAL_CHECK_CYCLE,
 ];
 
 let game;
@@ -44,6 +70,7 @@ describe('getGameOutcome', () => {
       outcome: GAME_OUTCOMES.checkmate,
       color: 'white',
       winner: 'black',
+      isCheck: true,
     });
   });
 
@@ -63,6 +90,7 @@ describe('getGameOutcome', () => {
       outcome: GAME_OUTCOMES.checkmate,
       color: 'black',
       winner: 'white',
+      isCheck: true,
     });
   });
 
@@ -80,6 +108,7 @@ describe('getGameOutcome', () => {
       outcome: GAME_OUTCOMES.stalemate,
       color: 'black',
       winner: null,
+      isCheck: false,
     });
   });
 
@@ -97,6 +126,7 @@ describe('getGameOutcome', () => {
       outcome: GAME_OUTCOMES.check,
       color: 'black',
       winner: null,
+      isCheck: true,
     });
   });
 
@@ -110,22 +140,79 @@ describe('getGameOutcome', () => {
       outcome: GAME_OUTCOMES.draw,
       color: 'black',
       winner: null,
+      isCheck: false,
       drawReason: DRAW_REASONS.insufficientMaterial,
     });
   });
 
   it('reports a draw by repetition once the starting position occurs a third time', () => {
-    const knightRoundTrip = [
-      ['g1', 'f3'],
-      ['g8', 'f6'],
-      ['f3', 'g1'],
-      ['f6', 'g8'],
-    ];
-    for (const [from, to] of [...knightRoundTrip, ...knightRoundTrip]) game.move({ from, to });
+    for (const [from, to] of THREEFOLD_REPETITION) game.move({ from, to });
 
     expect(getGameOutcome({ game })).toMatchObject({
       outcome: GAME_OUTCOMES.draw,
       drawReason: DRAW_REASONS.threefoldRepetition,
+    });
+  });
+
+  describe('a checking move that also ends the game in a draw', () => {
+    it('keeps the check after a capture that leaves too few pieces to mate', () => {
+      setUpBoard({
+        pieces: {
+          e1: { type: 'king', color: 'white' },
+          b3: { type: 'bishop', color: 'white' },
+          a8: { type: 'king', color: 'black' },
+          d5: { type: 'rook', color: 'black' },
+        },
+        colorToPlay: 'white',
+      });
+      game.move({ from: 'b3', to: 'd5' });
+
+      expect(getGameOutcome({ game })).toEqual({
+        outcome: GAME_OUTCOMES.draw,
+        color: 'black',
+        winner: null,
+        isCheck: true,
+        drawReason: DRAW_REASONS.insufficientMaterial,
+      });
+    });
+
+    it('keeps the check of a perpetual check that repeats the position a third time', () => {
+      for (const [from, to] of PERPETUAL_CHECK) game.move({ from, to });
+
+      expect(getGameOutcome({ game })).toMatchObject({
+        outcome: GAME_OUTCOMES.draw,
+        isCheck: true,
+        drawReason: DRAW_REASONS.threefoldRepetition,
+      });
+    });
+
+    it('keeps the check of a move that reaches the fifty-move limit', () => {
+      setUpBoard({
+        pieces: {
+          e1: { type: 'king', color: 'white' },
+          a1: { type: 'rook', color: 'white' },
+          h8: { type: 'king', color: 'black' },
+          b7: { type: 'rook', color: 'black' },
+        },
+        colorToPlay: 'white',
+      });
+      game.halfMoveClock = FIFTY_MOVE_RULE_HALF_MOVES - 1;
+      game.move({ from: 'a1', to: 'a8' });
+
+      expect(getGameOutcome({ game })).toMatchObject({
+        outcome: GAME_OUTCOMES.draw,
+        isCheck: true,
+        drawReason: DRAW_REASONS.fiftyMoveRule,
+      });
+    });
+
+    it('reports no check for a draw that leaves the king out of check', () => {
+      for (const [from, to] of THREEFOLD_REPETITION) game.move({ from, to });
+
+      expect(getGameOutcome({ game })).toMatchObject({
+        outcome: GAME_OUTCOMES.draw,
+        isCheck: false,
+      });
     });
   });
 
@@ -154,6 +241,7 @@ describe('getGameOutcome', () => {
       outcome: GAME_OUTCOMES.ongoing,
       color: 'white',
       winner: null,
+      isCheck: false,
     });
   });
 
@@ -166,6 +254,7 @@ describe('getGameOutcome', () => {
       outcome: GAME_OUTCOMES.ongoing,
       color: null,
       winner: null,
+      isCheck: false,
     });
   });
 });
@@ -205,21 +294,5 @@ describe('getOutcomeAlert', () => {
     ['undefined', undefined],
   ])('opens no alert for %s', (_label, outcome) => {
     expect(getOutcomeAlert(outcome)).toBeNull();
-  });
-});
-
-describe('isKingInCheck', () => {
-  it.each([GAME_OUTCOMES.check, GAME_OUTCOMES.checkmate])('is true after a %s', (outcome) => {
-    expect(isKingInCheck(outcome)).toBe(true);
-  });
-
-  it.each([
-    GAME_OUTCOMES.stalemate,
-    GAME_OUTCOMES.draw,
-    GAME_OUTCOMES.ongoing,
-    'check ',
-    undefined,
-  ])('is false for %s', (outcome) => {
-    expect(isKingInCheck(outcome)).toBe(false);
   });
 });

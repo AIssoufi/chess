@@ -55,6 +55,22 @@ const KNIGHT_ROUND_TRIP = [
   ['f6', 'g8'],
 ];
 const THREEFOLD_REPETITION = [...KNIGHT_ROUND_TRIP, ...KNIGHT_ROUND_TRIP];
+/** The white king goes to e3 and back to f2, where the black queen checks it again from h4. */
+const PERPETUAL_CHECK_CYCLE = [
+  ['f2', 'e3'],
+  ['h4', 'e7'],
+  ['e3', 'f2'],
+  ['e7', 'h4'],
+];
+/** The queen checks the king from h4 a third time in the same position, a draw by repetition. */
+const PERPETUAL_CHECK = [
+  ['f2', 'f3'],
+  ['e7', 'e5'],
+  ['e1', 'f2'],
+  ['d8', 'h4'],
+  ...PERPETUAL_CHECK_CYCLE,
+  ...PERPETUAL_CHECK_CYCLE,
+];
 
 /**
  * Returns the square of the board at a position.
@@ -674,6 +690,11 @@ describe('main.js draw', () => {
     expect(moveListTurns()).toHaveLength(4);
   });
 
+  it('marks no king in check after a draw without check', () => {
+    expect(squaresWithClass('check')).toEqual([]);
+    expect(moveListTurns().at(-1)).toBe('Cg1 Cg8');
+  });
+
   it('ignores clicks on the board once the game is drawn', () => {
     square('g1').click();
 
@@ -701,6 +722,27 @@ describe('main.js draw', () => {
     expect(dialog().open).toBe(false);
     expect(moveListTurns()).toHaveLength(4);
     expect(squaresWithClass('selected')).toEqual([]);
+  });
+});
+
+describe('main.js draw by a perpetual check', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    play(PERPETUAL_CHECK);
+  });
+
+  it('keeps the + of the last check in the move list', () => {
+    expect(moveListTurns().at(-1)).toBe('Rf2 Dh4+');
+  });
+
+  it('marks the king in check on the board', () => {
+    expect(squaresWithClass('check')).toEqual(['f2']);
+  });
+
+  it('opens the draw dialog after the delay', () => {
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+
+    expect(document.querySelector('.alert__wrapper .draw').classList).toContain('shown');
   });
 });
 

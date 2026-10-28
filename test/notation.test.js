@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import Chessboard from '../app/js/Chessboard.js';
+import { DRAW_REASONS, FIFTY_MOVE_RULE_HALF_MOVES } from '../app/js/draws/constants.js';
 import { getGameOutcome } from '../app/js/game-over/utils.js';
 import { getMoveNotation, getMoveTurns, getRivalSquares } from '../app/js/notation/utils.js';
 
@@ -26,8 +27,8 @@ function playMoves(moves) {
     const rivalSquares = getRivalSquares({ game, from, to });
     const move = game.move({ from, to });
     if (promotedType) game.promote({ position: to, type: promotedType });
-    const { outcome } = getGameOutcome({ game });
-    return getMoveNotation({ move, promotedType, outcome, rivalSquares });
+    const { outcome, isCheck } = getGameOutcome({ game });
+    return getMoveNotation({ move, promotedType, outcome, isCheck, rivalSquares });
   });
 }
 
@@ -105,6 +106,28 @@ describe('getMoveNotation', () => {
     expect(getMoveNotation({ move, outcome: 'ongoing' })).toBe('Dh5');
     expect(getMoveNotation({ move, outcome: 'toString' })).toBe('Dh5');
     expect(getMoveNotation({ move, outcome: 42 })).toBe('Dh5');
+  });
+
+  it('adds + for a check that also ends the game in a draw, and keeps # for a checkmate', () => {
+    const move = { from: 'd1', to: 'h5', piece: { type: 'queen', color: 'white' }, captured: null };
+    expect(getMoveNotation({ move, outcome: 'draw', isCheck: true })).toBe('Dh5+');
+    expect(getMoveNotation({ move, outcome: 'check', isCheck: true })).toBe('Dh5+');
+    expect(getMoveNotation({ move, outcome: 'checkmate', isCheck: true })).toBe('Dh5#');
+    expect(getMoveNotation({ move, outcome: 'draw', isCheck: false })).toBe('Dh5');
+    expect(getMoveNotation({ move, outcome: 'draw', isCheck: 'true' })).toBe('Dh5');
+    expect(getMoveNotation({ move, outcome: 'draw', isCheck: null })).toBe('Dh5');
+    expect(getMoveNotation({ move, isCheck: true })).toBe('Dh5+');
+  });
+
+  it('adds + to a castling that gives check and ends the game in a draw', () => {
+    const move = {
+      from: 'e1',
+      to: 'g1',
+      piece: WHITE_KING,
+      captured: null,
+      specialMove: 'kingside-castling',
+    };
+    expect(getMoveNotation({ move, outcome: 'draw', isCheck: true })).toBe('O-O+');
   });
 
   describe('a piece that another piece of its kind could replace', () => {
@@ -300,6 +323,61 @@ describe('the notation of a game played on the board', () => {
       ['b1', 'd2'],
     ]);
     expect(notations.at(-1)).toBe('Cbd2');
+  });
+});
+
+describe('the notation of a checking move that ends the game in a draw', () => {
+  it('writes Fxd5+ for a capture of the last rook with check', () => {
+    game.board.clear();
+    game.board.set('e1', { ...WHITE_KING, hasMoved: true });
+    game.board.set('b3', { type: 'bishop', color: 'white', hasMoved: true });
+    game.board.set('a8', { type: 'king', color: 'black', hasMoved: true });
+    game.board.set('d5', { type: 'rook', color: 'black', hasMoved: true });
+
+    expect(playMoves([['b3', 'd5']])).toEqual(['Fxd5+']);
+  });
+
+  it('writes the + of the last check of a perpetual check that repeats the position', () => {
+    const cycle = [
+      ['f2', 'e3'],
+      ['h4', 'e7'],
+      ['e3', 'f2'],
+      ['e7', 'h4'],
+    ];
+    const notations = playMoves([
+      ['f2', 'f3'],
+      ['e7', 'e5'],
+      ['e1', 'f2'],
+      ['d8', 'h4'],
+      ...cycle,
+      ...cycle,
+    ]);
+
+    expect(notations.at(-1)).toBe('Dh4+');
+    expect(getGameOutcome({ game }).drawReason).toBe(DRAW_REASONS.threefoldRepetition);
+  });
+
+  it('writes the + of a check that reaches the fifty-move limit', () => {
+    game.board.clear();
+    game.board.set('e1', { ...WHITE_KING, hasMoved: true });
+    game.board.set('a1', { ...WHITE_ROOK, hasMoved: true });
+    game.board.set('h8', { type: 'king', color: 'black', hasMoved: true });
+    game.board.set('b7', { type: 'rook', color: 'black', hasMoved: true });
+    game.halfMoveClock = FIFTY_MOVE_RULE_HALF_MOVES - 1;
+
+    expect(playMoves([['a1', 'a8']])).toEqual(['Ta8+']);
+    expect(getGameOutcome({ game }).drawReason).toBe(DRAW_REASONS.fiftyMoveRule);
+  });
+
+  it('writes no sign for a draw that gives no check', () => {
+    const roundTrip = [
+      ['g1', 'f3'],
+      ['g8', 'f6'],
+      ['f3', 'g1'],
+      ['f6', 'g8'],
+    ];
+
+    expect(playMoves([...roundTrip, ...roundTrip]).at(-1)).toBe('Cg8');
   });
 });
 
