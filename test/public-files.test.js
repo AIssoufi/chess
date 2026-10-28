@@ -5,6 +5,8 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build } from 'vite';
 import { afterAll, beforeAll, describe, it, expect } from 'vitest';
+import { CSP_HEADER_NAME, EVERY_PAGE_PATTERN } from '../e2e/helpers/server/constants.js';
+import { findHeaderValue, parseHeaderRules } from '../e2e/helpers/server/utils.js';
 
 /** Folder whose files Vite copies to the root of the site. */
 const PUBLIC_DIR = fileURLToPath(import.meta.resolve('../app/public/'));
@@ -15,7 +17,6 @@ const ROOT_FILES = ['_headers', '404.html', '404.css', 'robots.txt', 'sitemap.xm
 /** A production build takes a few seconds, more than the default timeout of a hook. */
 const BUILD_TIMEOUT_MS = 60_000;
 const ONE_YEAR_IN_SECONDS = 31_536_000;
-const CSP_HEADER = 'Content-Security-Policy';
 /** Directives of the policy that only allow the files of the site. */
 const SELF_ONLY_DIRECTIVES = [
   'default-src',
@@ -38,35 +39,6 @@ const SAFE_SOURCES = ["'self'", "'none'"];
  */
 function readPublicFile(name) {
   return readFileSync(join(PUBLIC_DIR, name), 'utf8');
-}
-
-/**
- * Reads the rules of a Cloudflare Pages `_headers` file: each unindented line is a URL pattern,
- * and the indented lines below it are its headers. A pattern written twice keeps the headers of
- * both blocks, since Pages applies every block that matches.
- *
- * @param {string} text Content of the file.
- * @returns {Map<string, string[]>} The header lines of each URL pattern, trimmed.
- */
-function parseHeaderRules(text) {
-  const rules = new Map();
-  let headers = [];
-
-  for (const line of text.split('\n')) {
-    const isSkipped = line.trim() === '' || line.trim().startsWith('#');
-    if (isSkipped) continue;
-
-    const isUrlPattern = !/^\s/.test(line);
-    if (isUrlPattern) {
-      const pattern = line.trim();
-      headers = rules.get(pattern) ?? [];
-      rules.set(pattern, headers);
-    } else {
-      headers.push(line.trim());
-    }
-  }
-
-  return rules;
 }
 
 /**
@@ -143,7 +115,9 @@ describe('_headers', () => {
   const rules = parseHeaderRules(source);
 
   it('sends HSTS for one year on every page', () => {
-    expect(rules.get('/*')).toContain(`Strict-Transport-Security: max-age=${ONE_YEAR_IN_SECONDS}`);
+    expect(rules.get(EVERY_PAGE_PATTERN)).toContain(
+      `Strict-Transport-Security: max-age=${ONE_YEAR_IN_SECONDS}`
+    );
   });
 
   it('keeps HSTS to this host, without includeSubDomains or preload', () => {
@@ -156,15 +130,16 @@ describe('_headers', () => {
   describe('Content Security Policy', () => {
     const policyLines = source
       .split('\n')
-      .filter((line) => line.trim().startsWith(`${CSP_HEADER}:`));
-    const policy = (rules.get('/*') ?? [])
-      .find((line) => line.startsWith(`${CSP_HEADER}:`))
-      ?.slice(`${CSP_HEADER}:`.length);
+      .filter((line) => line.trim().startsWith(`${CSP_HEADER_NAME}:`));
+    const policy = findHeaderValue({
+      headers: rules.get(EVERY_PAGE_PATTERN),
+      name: CSP_HEADER_NAME,
+    });
     const directives = parseContentSecurityPolicy(policy ?? '');
 
     it('is sent once, on every page', () => {
       expect(policyLines).toHaveLength(1);
-      expect(policy).toBeDefined();
+      expect(policy).not.toBeNull();
     });
 
     it.each(SELF_ONLY_DIRECTIVES)('limits %s to the site itself', (name) => {
@@ -214,47 +189,5 @@ describe('parseContentSecurityPolicy', () => {
   it('returns no directive for an empty policy', () => {
     expect(parseContentSecurityPolicy('')).toEqual(new Map());
     expect(parseContentSecurityPolicy(' ; ')).toEqual(new Map());
-  });
-});
-
-describe('parseHeaderRules', () => {
-  it('groups the indented headers under their URL pattern', () => {
-    const text = '# comment\n/a\n  X-One: 1\n\n/b/*\n  X-Two: 2\n  X-Three: 3\n';
-
-    expect(parseHeaderRules(text)).toEqual(
-      new Map([
-        ['/a', ['X-One: 1']],
-        ['/b/*', ['X-Two: 2', 'X-Three: 3']],
-      ])
-    );
-  });
-
-  it('returns no rule for an empty file or a file of comments', () => {
-    expect(parseHeaderRules('')).toEqual(new Map());
-    expect(parseHeaderRules('# only a comment\n\n')).toEqual(new Map());
-    expect(parseHeaderRules('   \n\t\n')).toEqual(new Map());
-  });
-
-  it('skips indented comments and reads CRLF line endings', () => {
-    const text = '/a\r\n  # an indented comment\r\n  X-One: 1\r\n';
-
-    expect(parseHeaderRules(text)).toEqual(new Map([['/a', ['X-One: 1']]]));
-  });
-
-  it('ignores headers that come before any URL pattern', () => {
-    expect(parseHeaderRules('  X-Orphan: 1\n/a\n  X-One: 1')).toEqual(
-      new Map([['/a', ['X-One: 1']]])
-    );
-  });
-
-  it('keeps the headers of every block of a repeated pattern', () => {
-    const text = '/a\n  X-One: 1\n/b\n  X-Two: 2\n/a\n  X-Three: 3\n';
-
-    expect(parseHeaderRules(text)).toEqual(
-      new Map([
-        ['/a', ['X-One: 1', 'X-Three: 3']],
-        ['/b', ['X-Two: 2']],
-      ])
-    );
   });
 });

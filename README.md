@@ -94,6 +94,8 @@ HTML report in `coverage/`, which Git and Prettier ignore.
 
 `pnpm test:e2e` runs Playwright on the production build, in Chromium and WebKit. It builds the
 site, serves `dist/` with `vite preview` on a free port, and runs the `*.spec.js` files of `e2e/`.
+Each page gets the Content Security Policy of `app/public/_headers`, which `vite preview` does not
+send, and a test fails on any console error, a blocked script or style included.
 [ADR 0007](docs/decisions/0007-test-in-a-browser-with-playwright.md) lists what they check.
 `scrollbars.spec.js` runs in Chromium only, launched with the classic scrollbars of a desktop
 window, which take room from the page where overlay ones take none.
