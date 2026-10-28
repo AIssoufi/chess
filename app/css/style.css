@@ -12,9 +12,14 @@
 
 /*
  * Board sizing: a square is 70px at most, and shrinks so that the board and its coordinates fit
- * the screen width (with a 1rem gutter on each side) and, on short screens, the screen height
- * (leaving 12rem for the title and the padding around the board). The height never brings a
- * square under 40px, a comfortable touch target: a phone held sideways gets its own layout below.
+ * the page width and, on short screens, the screen height (leaving 12rem for the title and the
+ * padding around the board). The height never brings a square under 40px, a comfortable touch
+ * target: a phone held sideways gets its own layout below.
+ *
+ * The page width is the content width of `.main__wrapper`, inside its 1rem gutters: under 900px
+ * and on a phone held sideways it is a size container, and `100cqi` leaves out a classic vertical
+ * scrollbar, which `100vw` counts. Other screens have no container, so `100cqi` is the screen
+ * width, where squares reach 70px.
  */
 :root {
   --viewport-height: 100vh;
@@ -23,7 +28,7 @@
   --max-square: 70px;
   --square: min(
     var(--max-square),
-    calc((100vw - 2rem - var(--coordinates-size)) / 8),
+    calc((100cqi - var(--coordinates-size)) / 8),
     max(40px, calc((var(--stable-viewport-height) - 12rem) / 8))
   );
 }
@@ -75,7 +80,8 @@ h1 {
   padding: 26px 0;
   border-radius: 10px;
 }
-.wrapper::before {
+/* On the body, since the size container of `.main__wrapper` would hold a fixed box of the frame */
+body::before {
   content: '';
   position: fixed;
   top: 0;
@@ -521,6 +527,7 @@ h1 {
   .main__wrapper {
     width: 100%;
     padding: 0 1rem;
+    container-type: inline-size;
   }
 
   .wrapper {
@@ -553,7 +560,7 @@ h1 {
     --landscape-sides: 18rem;
     --square: min(
       var(--max-square),
-      calc((100vw - 2rem - var(--landscape-sides) - var(--coordinates-size)) / 8),
+      calc((100cqi - var(--landscape-sides) - var(--coordinates-size)) / 8),
       calc(
         (var(--stable-viewport-height) - 4 * var(--landscape-gutter) - var(--coordinates-size)) / 8
       )
@@ -570,6 +577,7 @@ h1 {
     width: 100%;
     min-height: var(--stable-viewport-height);
     padding: var(--landscape-gutter) 1rem;
+    container-type: inline-size;
   }
 
   h1 {
