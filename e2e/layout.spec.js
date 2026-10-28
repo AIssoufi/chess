@@ -12,6 +12,7 @@ import {
   GRID_TOLERANCE_PX,
   LANDSCAPE_VIEWPORTS,
   LAYOUT_VIEWPORTS,
+  NARROW_LAYOUT_MAX_WIDTH_PX,
   MAX_CAPTURED_PIECES,
   MAX_SQUARE_SIZE_PX,
   MIN_SQUARE_SIZE_PX,
@@ -31,6 +32,17 @@ const WHITE_PANEL_SELECTOR = `${CONTROL_SELECTOR}[data-color="white"]`;
 
 /** The whole move list, its title included, around the scrolling list of `MOVE_LIST_SELECTOR`. */
 const MOVE_LIST_PANEL_SELECTOR = '.move-list';
+
+/** The title of the move list, "Coups". */
+const MOVE_LIST_TITLE_SELECTOR = `${MOVE_LIST_PANEL_SELECTOR} h2`;
+
+/** How far two centered texts may sit apart, in CSS pixels: subpixel rounding only. */
+const TEXT_CENTER_TOLERANCE_PX = 1;
+
+/** The layout viewports under the 900px breakpoint, where the move list centers its texts. */
+const NARROW_VIEWPORTS = LAYOUT_VIEWPORTS.filter(
+  ({ width }) => width <= NARROW_LAYOUT_MAX_WIDTH_PX
+);
 
 /** Turns of a long game, more than the move list can show at once beside a phone's board. */
 const LONG_GAME_TURNS = 40;
@@ -163,6 +175,31 @@ for (const viewport of LANDSCAPE_VIEWPORTS) {
       expect(list.y + list.height).toBeLessThanOrEqual(clientHeight);
       expect(listRight).toBeLessThanOrEqual(clientWidth);
       expect(scrollHeight, 'the long list scrolls').toBeGreaterThan(listHeight);
+    });
+  });
+}
+
+for (const viewport of NARROW_VIEWPORTS) {
+  const viewportLabel = `${viewport.width}x${viewport.height}`;
+
+  test.describe(`before the first move at ${viewportLabel}`, () => {
+    test.use({ viewport });
+
+    test('centers the empty move list note under its title', async ({ page }) => {
+      await page.goto('/');
+
+      const [titleCenter, noteCenter] = await page.evaluate(
+        (selectors) =>
+          selectors.map((selector) => {
+            const range = document.createRange();
+            range.selectNodeContents(document.querySelector(selector));
+            const { left, right } = range.getBoundingClientRect();
+            return (left + right) / 2;
+          }),
+        [MOVE_LIST_TITLE_SELECTOR, MOVE_LIST_EMPTY_SELECTOR]
+      );
+
+      expect(Math.abs(noteCenter - titleCenter)).toBeLessThanOrEqual(TEXT_CENTER_TOLERANCE_PX);
     });
   });
 }

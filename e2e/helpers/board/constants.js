@@ -11,6 +11,9 @@ export const MAX_SQUARE_SIZE_PX = 70;
 /** How far a square may sit from its place on the grid, in CSS pixels: subpixel rounding only. */
 export const GRID_TOLERANCE_PX = 1;
 
+/** The `max-width` of the narrow screen rules of the styles, in CSS pixels. */
+export const NARROW_LAYOUT_MAX_WIDTH_PX = 899;
+
 /**
  * A phone held sideways, under the 900px breakpoint, where the landscape layout keeps the panels
  * beside the board.

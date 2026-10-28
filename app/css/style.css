@@ -294,7 +294,8 @@ h1 {
   }
 
   /* Centered, as the panels of the players */
-  .move-list h2 {
+  .move-list h2,
+  .move-list__empty {
     text-align: center;
   }
 
