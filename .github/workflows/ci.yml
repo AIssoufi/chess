@@ -38,7 +38,8 @@ jobs:
 
       - run: pnpm lint
 
-      - run: pnpm test
+      # Runs the tests and fails when the coverage drops under the thresholds of vitest.config.js.
+      - run: pnpm test:coverage
 
       - run: pnpm build
 
