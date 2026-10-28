@@ -67,6 +67,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  /* Dark like the photo of `body::before`, so the white text stays readable without it */
+  background-color: #2e3a2c;
 }
 h1 {
   text-align: center;
