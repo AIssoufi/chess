@@ -43,6 +43,11 @@ In the pull request that closes #78:
 - Update of 2026-10-28 (#74): `move-markers.spec.js` selects the pawn on e4 after 1. e4 d5 at
   each layout viewport, and checks that the empty e5 shows a dot and the pawn on d5 a ring, that
   this pawn is painted over its ring, and that no square moves when the markers show.
+- Update of 2026-10-28 (#105): `game.spec.js` also closes the checkmate dialog of the fool's mate
+  with "Voir la position", checks that the mating queen and the check marker stay on the board and
+  that hovering an empty square leaves its background as it was, then starts a new game from
+  "Nouvelle partie", where the hover darkens the square again. A last test checks that Escape
+  starts a new game at the end of a game played after a reviewed one.
 
 ## Alternatives considered
 

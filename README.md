@@ -2,7 +2,9 @@
 
 A chess game for two players in the browser, written in vanilla JavaScript, with castling, en
 passant, promotion, check, checkmate, stalemate and the draw rules (insufficient material, fifty
-moves, threefold repetition). The moves of the game show in a list, in French algebraic notation.
+moves, threefold repetition). The moves of the game show in a list, in French algebraic notation,
+above a button that starts a new game. Once a game ends, the players can replay at once or review
+the final position.
 
 **Live demo:** https://chess.issoufi.fr
 
@@ -59,8 +61,8 @@ pnpm preview    # serve dist/ on http://localhost:4173/
 - the tests that need no DOM run in Node.js:
   - `chessboard.test.js`, `fen.test.js` and `perft.test.js`: the board model and its rules, the
     FEN loader of the tests, and the move counts of reference positions;
-  - `board-navigation.test.js`, `castling.test.js`, `colors.test.js`, `draws.test.js`,
-    `game-over.test.js`, `labels.test.js`, `moves.test.js`, `notation.test.js`,
+  - `alert-choices.test.js`, `board-navigation.test.js`, `castling.test.js`, `colors.test.js`,
+    `draws.test.js`, `game-over.test.js`, `labels.test.js`, `moves.test.js`, `notation.test.js`,
     `squares.test.js` and `status.test.js`: the helpers of the game modules of `app/js/`;
   - `accessibility-style.test.js`: the reduced motion and the square focus of the stylesheet;
   - `not-found-page.test.js`: the French 404 page, parsed with happy-dom's `DOMParser`;
@@ -79,7 +81,8 @@ pnpm preview    # serve dist/ on http://localhost:4173/
   - `copyright.test.js`: the footer year;
   - `main.test.js`: the UI controller;
   - `piece-factory.test.js`: the piece factory;
-  - `rendering.test.js`: the pieces, square labels, status, captures, check and move list;
+  - `rendering.test.js`: the pieces, square labels, status, captures, check, game over board
+    and move list;
   - `selection.test.js`: the selected square, its moves and what a click does;
   - `roving-focus.test.js`: the keyboard focus of the board;
   - `promotion.test.js`: the promotion choice;
@@ -118,7 +121,8 @@ title, and shows as skipped until that issue is fixed. A failure writes its erro
 app/                 Vite root: the page, its styles and images
   css/               Styles and images
   js/                Game code
-    alerts/          Game over dialog: writes the winner or the draw reason, shows and hides it
+    alerts/          Game over dialog: writes the winner or the draw reason, shows and hides it,
+                     and tells whether the button that closed it starts a new game
     board-navigation/ Keyboard navigation of the board: the key moves and the roving focus
     castling/        Castling helpers, such as whether a rook may castle with its king
     Chessboard.js    Board model and rules, without DOM
@@ -127,8 +131,10 @@ app/                 Vite root: the page, its styles and images
     draws/           Draw reasons and their labels, insufficient material and the position key
     game-over/       Move outcome (check, mate, stalemate, draw) and its alert
     labels/          Screen reader names of the pieces and the squares, in French
-    main.js          Wiring: listens to the board, the promotion and the dialog, calls the modules
+    main.js          Wiring: listens to the board, the promotion, the dialog and the new game
+                     button, calls the modules
     moves/           Piece steps, special move names and labels, and the capture helper
+    new-game/        The selector of the button that starts a new game
     notation/        French algebraic notation of a move, its rival pieces and the turns of the list
     PieceFactory.js  Creates the DOM node of a piece from its type and color
     pieces/          Piece configs: Unicode symbol and starting squares
