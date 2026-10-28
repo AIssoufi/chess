@@ -320,7 +320,7 @@ describe('main.js promotion', () => {
   });
 
   it('opens the promotion choice with the symbols of the promoting color', () => {
-    expect(promotionModal().style.display).toBe('flex');
+    expect(promotionModal().hidden).toBe(false);
     const button = promotionModal().querySelector('[data-type="knight"]');
     expect(button.textContent).toBe(knight.piece.white);
     expect(pieceOn('d8')).toEqual({ type: 'pawn', color: 'white' });
@@ -337,7 +337,7 @@ describe('main.js promotion', () => {
   it('ignores a click on the modal outside the piece buttons', () => {
     promotionModal().querySelector('p').click();
 
-    expect(promotionModal().style.display).toBe('flex');
+    expect(promotionModal().hidden).toBe(false);
     expect(pieceOn('d8')).toEqual({ type: 'pawn', color: 'white' });
   });
 
@@ -345,7 +345,7 @@ describe('main.js promotion', () => {
     promotionModal().querySelector('[data-type="knight"]').click();
 
     expect(pieceOn('d8')).toEqual({ type: 'knight', color: 'white' });
-    expect(promotionModal().style.display).toBe('none');
+    expect(promotionModal().hidden).toBe(true);
     expect(currentPlayer()).toBe('black');
     expect(document.getElementById('white-capture-count').textContent).toBe('4');
     expect(moveListTurns().at(-1)).toBe('exd8=C');

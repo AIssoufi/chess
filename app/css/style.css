@@ -459,6 +459,11 @@ body::before {
   z-index: 100;
 }
 
+/* The display of the rule above would otherwise override the hidden attribute */
+.promotion__wrapper[hidden] {
+  display: none;
+}
+
 .promotion__wrapper p {
   color: #fff;
   font-size: 1.4rem;
