@@ -14,14 +14,15 @@
  * Board sizing: a square is 70px at most, and shrinks so that the board and its coordinates fit
  * the screen width (with a 1rem gutter on each side) and, on short screens, the screen height
  * (leaving 12rem for the title and the padding around the board). The height never brings a
- * square under 40px, a comfortable touch target: a phone held sideways scrolls to the board instead.
+ * square under 40px, a comfortable touch target: a phone held sideways gets its own layout below.
  */
 :root {
   --viewport-height: 100vh;
   --stable-viewport-height: 100vh;
   --coordinates-size: 15px;
+  --max-square: 70px;
   --square: min(
-    70px,
+    var(--max-square),
     calc((100vw - 2rem - var(--coordinates-size)) / 8),
     max(40px, calc((var(--stable-viewport-height) - 12rem) / 8))
   );
@@ -293,7 +294,8 @@ h1 {
   }
 
   /* Centered, as the panels of the players */
-  .move-list h2 {
+  .move-list h2,
+  .move-list__empty {
     text-align: center;
   }
 
@@ -535,5 +537,73 @@ h1 {
     margin: 0;
     padding: 0 1rem;
     text-align: center;
+  }
+}
+
+/*
+ * Phone held sideways: the height is too short for the stacked panels or the 40px squares. The
+ * title turns vertical on the left, the player panels go back beside the board, and the squares
+ * follow the screen height, without a floor, so that the whole board fits within the gutters of
+ * the page and of the game frame, above and below it. They also leave room in the width for the
+ * title and the two panels.
+ */
+@media (orientation: landscape) and (max-height: 500px) {
+  :root {
+    --landscape-gutter: 0.5rem;
+    --landscape-sides: 18rem;
+    --square: min(
+      var(--max-square),
+      calc((100vw - 2rem - var(--landscape-sides) - var(--coordinates-size)) / 8),
+      calc(
+        (var(--stable-viewport-height) - 4 * var(--landscape-gutter) - var(--coordinates-size)) / 8
+      )
+    );
+  }
+
+  body {
+    justify-content: flex-start;
+  }
+
+  .main__wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: var(--stable-viewport-height);
+    padding: var(--landscape-gutter) 1rem;
+  }
+
+  h1 {
+    margin: 0 var(--landscape-gutter) 0 0;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+
+  /*
+   * The frame is as high as the board: the panel of white takes up to half of it, and the move
+   * list under it takes the rest and scrolls.
+   */
+  .wrapper {
+    flex: 1;
+    grid-template-areas: 'black game white' 'black game moves';
+    grid-template-columns: 1fr min-content 1fr;
+    grid-template-rows: fit-content(50%) minmax(0, 1fr);
+    height: calc(var(--square) * 8 + var(--coordinates-size) + 2 * var(--landscape-gutter));
+    padding: var(--landscape-gutter) 0;
+  }
+
+  /* Captured pieces scroll inside their panel rather than make it taller than the board */
+  .control,
+  .control:first-of-type,
+  .control:last-of-type {
+    max-height: 100%;
+    overflow-y: auto;
+    padding: 0 var(--landscape-gutter);
+  }
+
+  .move-list {
+    min-height: 0;
+    max-height: none;
+    padding: 0 var(--landscape-gutter);
+    contain: size;
   }
 }

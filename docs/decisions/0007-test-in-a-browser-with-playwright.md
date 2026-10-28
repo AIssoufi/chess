@@ -30,6 +30,11 @@ In the pull request that closes #78:
   official `mcr.microsoft.com/playwright` image of the exact `@playwright/test` version that the
   `playwright-version` job reads from the lockfile. The image ships the browsers and their system
   libraries, so nothing is cached or installed from apt any more.
+- Update of 2026-10-28 (#33): the board height test at 844x390 is a plain test now, and a new one
+  fills the move list with 40 turns at 844x390 and 932x430, on both sides of the 900px
+  breakpoint, and checks that it stays beside the board, under the panel of white, inside the
+  screen, and scrolls. Below 900px, a third one checks that "Aucun coup joué" is centered under
+  the title of the move list.
 
 ## Alternatives considered
 
