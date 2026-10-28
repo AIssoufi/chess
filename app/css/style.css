@@ -247,6 +247,30 @@ body::before {
   cursor: crosshair;
 }
 
+/* The last move: a dark triangle in each corner of its two squares, a shape that neither the
+   selection, the dot and ring of the possible moves nor the check uses, so it shows in grayscale
+   too. It keeps the color of the square, scales with it and moves nothing around it. */
+.square.last-move {
+  position: relative;
+  /* Keeps the triangles over the background of the square, and under its piece and marker */
+  isolation: isolate;
+  /* The color of a triangle and its depth, 12% of the diagonal: each of its sides is about a
+     quarter of the square */
+  --last-move-corner: rgba(0, 0, 0, 0.55) 12%;
+}
+
+.square.last-move::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(135deg, var(--last-move-corner), transparent 0),
+    linear-gradient(225deg, var(--last-move-corner), transparent 0),
+    linear-gradient(315deg, var(--last-move-corner), transparent 0),
+    linear-gradient(45deg, var(--last-move-corner), transparent 0);
+}
+
 /* Only for the keyboard: a dark ring lined with white shows on every color of square */
 .square:focus-visible {
   outline: 3px solid #0d47a1;

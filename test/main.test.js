@@ -219,6 +219,30 @@ describe('main.js selection and moves', () => {
     expect(currentPlayer()).toBe('white');
   });
 
+  it('deselects a piece clicked a second time, then selects it again on a third click', () => {
+    square('g1').click();
+    square('g1').click();
+
+    expect(squaresWithClass('selected')).toEqual([]);
+    expect(squaresWithClass('possible-move')).toEqual([]);
+    expect(currentPlayer()).toBe('white');
+
+    square('g1').click();
+
+    expect(squaresWithClass('selected')).toEqual(['g1']);
+    expect(squaresWithClass('possible-move')).toEqual(['f3', 'h3']);
+  });
+
+  it('deselects a piece of black clicked a second time', () => {
+    play([['e2', 'e4']]);
+    square('d7').click();
+    square('d7').click();
+
+    expect(squaresWithClass('selected')).toEqual([]);
+    expect(squaresWithClass('possible-move')).toEqual([]);
+    expect(currentPlayer()).toBe('black');
+  });
+
   it('ignores a click on a piece of the side not to move', () => {
     square('e7').click();
 
@@ -311,6 +335,90 @@ describe('main.js selection and moves', () => {
   });
 });
 
+describe('main.js last move', () => {
+  it('marks no square before the first move', () => {
+    expect(squaresWithClass('last-move')).toEqual([]);
+  });
+
+  it('marks the start and target squares of each move, in place of the previous one', () => {
+    play([['e2', 'e4']]);
+    expect(squaresWithClass('last-move')).toEqual(['e2', 'e4']);
+
+    play([['d7', 'd5']]);
+    expect(squaresWithClass('last-move')).toEqual(['d5', 'd7']);
+  });
+
+  it('marks the squares of a capture', () => {
+    play([
+      ['e2', 'e4'],
+      ['d7', 'd5'],
+      ['e4', 'd5'],
+    ]);
+
+    expect(squaresWithClass('last-move')).toEqual(['d5', 'e4']);
+  });
+
+  it('keeps the last move marked while a piece is selected, then deselected', () => {
+    play([
+      ['e2', 'e4'],
+      ['d7', 'd5'],
+    ]);
+
+    square('e4').click();
+    expect(squaresWithClass('last-move')).toEqual(['d5', 'd7']);
+    expect(squaresWithClass('capture-move')).toEqual(['d5']);
+
+    square('e4').click();
+    expect(squaresWithClass('last-move')).toEqual(['d5', 'd7']);
+  });
+
+  it('keeps the last move marked on a click outside the possible moves', () => {
+    play([['e2', 'e4']]);
+    square('d7').click();
+    square('a4').click();
+
+    expect(squaresWithClass('last-move')).toEqual(['e2', 'e4']);
+  });
+
+  it('marks the squares of the king for a castling', () => {
+    play([
+      ['e2', 'e4'],
+      ['e7', 'e5'],
+      ['g1', 'f3'],
+      ['b8', 'c6'],
+      ['f1', 'c4'],
+      ['g8', 'f6'],
+      ['e1', 'g1'],
+    ]);
+
+    expect(squaresWithClass('last-move')).toEqual(['e1', 'g1']);
+  });
+
+  it('marks the squares of the capturing pawn for an en passant capture', () => {
+    play([
+      ['e2', 'e4'],
+      ['a7', 'a6'],
+      ['e4', 'e5'],
+      ['d7', 'd5'],
+      ['e5', 'd6'],
+    ]);
+
+    expect(pieceOn('d5')).toBeNull();
+    expect(squaresWithClass('last-move')).toEqual(['d6', 'e5']);
+  });
+
+  it('keeps the move that gives check marked beside the king in check', () => {
+    play([
+      ['e2', 'e4'],
+      ['f7', 'f5'],
+      ['d1', 'h5'],
+    ]);
+
+    expect(squaresWithClass('last-move')).toEqual(['d1', 'h5']);
+    expect(squaresWithClass('check')).toEqual(['e8']);
+  });
+});
+
 describe('main.js promotion', () => {
   const promotionModal = () => document.querySelector('.promotion__wrapper');
 
@@ -349,6 +457,14 @@ describe('main.js promotion', () => {
     expect(currentPlayer()).toBe('black');
     expect(document.getElementById('white-capture-count').textContent).toBe('4');
     expect(moveListTurns().at(-1)).toBe('exd8=C');
+  });
+
+  it('marks the squares of the promoting pawn while its piece is chosen, and after', () => {
+    expect(squaresWithClass('last-move')).toEqual(['d8', 'e7']);
+
+    promotionModal().querySelector('[data-type="rook"]').click();
+
+    expect(squaresWithClass('last-move')).toEqual(['d8', 'e7']);
   });
 
   it('marks the check given by the promoted piece', () => {
@@ -430,6 +546,7 @@ describe('main.js end of game', () => {
     expect(pieceOn('g4')).toEqual({ type: 'pawn', color: 'white' });
     expect(pieceOn('d8')).toBeNull();
     expect(squaresWithClass('check')).toEqual(['e1']);
+    expect(squaresWithClass('last-move')).toEqual(['d8', 'h4']);
     expect(moveListTurns()).toEqual(['f3 e5', 'g4 Dh4#']);
   });
 
@@ -462,6 +579,7 @@ describe('main.js end of game', () => {
     expect(isBoardOver()).toBe(false);
     expect(pieceOn('d8')).toEqual({ type: 'queen', color: 'black' });
     expect(squaresWithClass('check')).toEqual([]);
+    expect(squaresWithClass('last-move')).toEqual([]);
     expect(moveListTurns()).toEqual([]);
     play([['e2', 'e4']]);
     expect(pieceOn('e4')).toEqual({ type: 'pawn', color: 'white' });
@@ -610,6 +728,7 @@ describe('main.js new game', () => {
     expect(pieceOn('b5')).toBeNull();
     expect(squaresWithClass('check')).toEqual([]);
     expect(squaresWithClass('selected')).toEqual([]);
+    expect(squaresWithClass('last-move')).toEqual([]);
     expect(currentPlayer()).toBe('white');
     expect(moveListTurns()).toEqual([]);
     expect(isMoveListEmptyNoteShown()).toBe(true);
@@ -633,8 +752,10 @@ describe('main.js new game', () => {
 
     expect(document.querySelector('.promotion__wrapper').hidden).toBe(true);
     expect(pieceOn('d8')).toEqual({ type: 'queen', color: 'black' });
+    expect(squaresWithClass('last-move')).toEqual([]);
     play([['e2', 'e4']]);
     expect(pieceOn('e4')).toEqual({ type: 'pawn', color: 'white' });
+    expect(squaresWithClass('last-move')).toEqual(['e2', 'e4']);
   });
 
   it('keeps the game over dialog closed when it starts before the dialog opens', () => {

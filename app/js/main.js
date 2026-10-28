@@ -11,6 +11,7 @@ import { enableBoardNavigation, focusSquare } from './board-navigation/roving-fo
 import { showCopyrightYear } from './copyright/show-copyright-year.js';
 import { GAME_OVER_DIALOG_DELAY_MS } from './game-over/constants.js';
 import { getGameOutcome, getOutcomeAlert, isKingInCheck } from './game-over/utils.js';
+import { highlightLastMove } from './last-move/highlight.js';
 import { NEW_GAME_BUTTON_SELECTOR } from './new-game/constants.js';
 import { getMoveNotation, getRivalSquares } from './notation/utils.js';
 import { PROMOTION_CHOICE_SELECTOR } from './promotion/constants.js';
@@ -42,7 +43,7 @@ const gameOverDialog = document.querySelector(GAME_OVER_DIALOG_SELECTOR);
 
 // The selected square and the squares it can move to
 let selection = NO_SELECTION;
-// The last move played, as `game.move` returns it, which the status announces
+// The last move played, as `game.move` returns it, which the status announces and the board marks
 let lastMove = null;
 // The pieces that could also reach the target square of the last move, which its notation tells
 // apart, listed before it was played
@@ -60,6 +61,7 @@ function renderLabels() {
 
 function renderBoard() {
   renderPieces({ game, factory });
+  highlightLastMove({ lastMove });
   renderGameOver({ game });
   renderLabels();
 }
@@ -153,13 +155,13 @@ function playMove(to) {
   const result = game.move({ from, to });
   if (!result) return;
 
+  lastMove = result;
+  lastRivalSquares = rivalSquares;
+
   renderBoard();
   renderCaptures({ game, factory });
   setSelection(NO_SELECTION);
   hideCheck();
-
-  lastMove = result;
-  lastRivalSquares = rivalSquares;
 
   if (result.promotion) {
     showPromotionChoice({
