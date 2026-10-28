@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeEach } from 'vitest';
+import { ALERT_CHOICES } from '../app/js/alerts/constants.js';
 import {
   hideGameOverAlerts,
   showGameOverAlert,
@@ -16,12 +17,18 @@ beforeEach(() => {
         <div class="alert checkmate">
           <h2 id="checkmate-title">Échec et mat !</h2>
           <p><span class="winner-color"></span></p>
-          <button>Rejouer !</button>
+          <div class="alert__actions">
+            <button value="replay">Rejouer !</button>
+            <button value="review">Voir la position</button>
+          </div>
         </div>
         <div class="alert draw">
           <h2 id="draw-title">Match nul !</h2>
           <p><span class="draw-reason"></span></p>
-          <button>Rejouer !</button>
+          <div class="alert__actions">
+            <button value="replay">Rejouer !</button>
+            <button value="review">Voir la position</button>
+          </div>
         </div>
       </form>
     </dialog>`;
@@ -56,20 +63,35 @@ describe('writeAlertDetails', () => {
 });
 
 describe('showGameOverAlert', () => {
-  it('opens the dialog on the alert, named after its title, with its button focused', () => {
+  it('opens the dialog on the alert, named after its title, with "Rejouer !" focused', () => {
     showGameOverAlert({ dialog, alertName: 'draw' });
     const alert = dialog.querySelector('.draw');
     expect(dialog.open).toBe(true);
     expect(alert.classList.contains('shown')).toBe(true);
     expect(dialog.querySelector('.checkmate').classList.contains('shown')).toBe(false);
     expect(dialog.getAttribute('aria-labelledby')).toBe('draw-title');
-    expect(document.activeElement).toBe(alert.querySelector('button'));
+    expect(document.activeElement).toBe(alert.querySelector(`[value="${ALERT_CHOICES.replay}"]`));
   });
 
   it('keeps the dialog closed for an alert missing from it', () => {
     showGameOverAlert({ dialog, alertName: 'stalemate' });
     expect(dialog.open).toBe(false);
     expect(dialog.hasAttribute('aria-labelledby')).toBe(false);
+  });
+
+  it('forgets the choice that closed the dialog at the end of an earlier game', () => {
+    showGameOverAlert({ dialog, alertName: 'checkmate' });
+    dialog.close('review');
+    expect(dialog.returnValue).toBe('review');
+    showGameOverAlert({ dialog, alertName: 'draw' });
+    expect(dialog.returnValue).toBe('');
+  });
+
+  it('keeps the choice of the earlier game for an alert missing from the dialog', () => {
+    showGameOverAlert({ dialog, alertName: 'checkmate' });
+    dialog.close('review');
+    showGameOverAlert({ dialog, alertName: 'stalemate' });
+    expect(dialog.returnValue).toBe('review');
   });
 });
 

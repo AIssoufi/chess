@@ -373,6 +373,14 @@ body::before {
   display: none;
 }
 
+/* "Rejouer !" and "Voir la position" side by side, one above the other on a narrow screen */
+.alert__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
 .alert__wrapper h2 {
   color: #222;
   font-family: var(--display-font);
@@ -392,7 +400,7 @@ body::before {
   font-size: 1.2rem;
   line-height: 2rem;
   height: 2rem;
-  max-width: 150px;
+  max-width: 100%;
   padding: 0 1rem;
   font-family: var(--display-font);
   background-color: #ff9800;
@@ -405,7 +413,6 @@ body::before {
  * the same height on one line as the buttons of the dialog.
  */
 .new-game {
-  max-width: 100%;
   height: auto;
   min-height: 2rem;
   padding: 0.25rem 1rem;

@@ -13,5 +13,14 @@ export const DRAW_REASON_SELECTOR = '.draw-reason';
 /** The selector of the title of an alert, whose id names the dialog. */
 export const ALERT_TITLE_SELECTOR = 'h2';
 
-/** The selector of the button of an alert, which closes the dialog. */
+/** The selector of the first button of an alert, "Rejouer !", which the dialog focuses. */
 export const ALERT_BUTTON_SELECTOR = 'button';
+
+/**
+ * The values of the buttons of an alert, which the dialog keeps as its `returnValue` once one of
+ * them closed it: `replay` starts a new game, `review` leaves the final position on screen.
+ */
+export const ALERT_CHOICES = Object.freeze({
+  replay: 'replay',
+  review: 'review',
+});

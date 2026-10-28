@@ -28,7 +28,9 @@ export function writeAlertDetails({ dialog, winner, drawReason }) {
 }
 
 /**
- * Opens the game over dialog on one of its alerts, named after its title, and focuses its button.
+ * Opens the game over dialog on one of its alerts, named after its title, and focuses its first
+ * button. It empties the `returnValue` of the dialog, which Escape leaves as it was: a choice made
+ * at the end of an earlier game never counts for this one.
  *
  * @param {object} params
  * @param {HTMLDialogElement} params.dialog The game over dialog.
@@ -40,6 +42,7 @@ export function showGameOverAlert({ dialog, alertName }) {
 
   alertNode.classList.add(SHOWN_ALERT_CLASS);
   dialog.setAttribute('aria-labelledby', alertNode.querySelector(ALERT_TITLE_SELECTOR).id);
+  dialog.returnValue = '';
   dialog.showModal();
   alertNode.querySelector(ALERT_BUTTON_SELECTOR).focus();
 }

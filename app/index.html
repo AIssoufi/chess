@@ -161,17 +161,26 @@
         <div class="alert checkmate">
           <h2 id="checkmate-title">Échec et mat&nbsp;!</h2>
           <p>Le joueur de couleur <span class="winner-color"></span> a gagné la partie.</p>
-          <button>Rejouer&nbsp;!</button>
+          <div class="alert__actions">
+            <button value="replay">Rejouer&nbsp;!</button>
+            <button value="review">Voir la position</button>
+          </div>
         </div>
         <div class="alert stalemate">
           <h2 id="stalemate-title">Pat&nbsp;!</h2>
           <p>Aucun coup possible&nbsp;: match nul.</p>
-          <button>Rejouer&nbsp;!</button>
+          <div class="alert__actions">
+            <button value="replay">Rejouer&nbsp;!</button>
+            <button value="review">Voir la position</button>
+          </div>
         </div>
         <div class="alert draw">
           <h2 id="draw-title">Match nul&nbsp;!</h2>
           <p>Partie terminée&nbsp;: <span class="draw-reason"></span>.</p>
-          <button>Rejouer&nbsp;!</button>
+          <div class="alert__actions">
+            <button value="replay">Rejouer&nbsp;!</button>
+            <button value="review">Voir la position</button>
+          </div>
         </div>
       </form>
     </dialog>

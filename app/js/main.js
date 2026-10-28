@@ -6,6 +6,7 @@ import {
   showGameOverAlert,
   writeAlertDetails,
 } from './alerts/game-over-dialog.js';
+import { shouldStartNewGame } from './alerts/utils.js';
 import { enableBoardNavigation, focusSquare } from './board-navigation/roving-focus.js';
 import { showCopyrightYear } from './copyright/show-copyright-year.js';
 import { GAME_OVER_DIALOG_DELAY_MS } from './game-over/constants.js';
@@ -134,11 +135,12 @@ promotionWrapper.addEventListener('click', (event) => {
 
 // ─── Alerts ─────────────────────────────────────────────────────────────────
 
-// "Rejouer" and Escape both close the dialog: either way a new game starts, so the finished
-// game never stays on screen without a way to play again.
+// "Rejouer", Escape and any value other than the review start a new game. "Voir la position"
+// leaves the final position and its check marker on screen, where the board ignores clicks until
+// "Nouvelle partie".
 gameOverDialog.addEventListener('close', () => {
   hideGameOverAlerts(gameOverDialog);
-  initialize();
+  if (shouldStartNewGame(gameOverDialog.returnValue)) initialize();
 });
 
 // ─── Click handler (delegated to the board) ─────────────────────────────────

@@ -393,7 +393,7 @@ describe('main.js end of game', () => {
   it('starts a new game when "Rejouer" closes the dialog', () => {
     vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
 
-    dialog().querySelector('.checkmate button').click();
+    dialog().querySelector('.checkmate [value="replay"]').click();
 
     expect(dialog().open).toBe(false);
     expect(dialog().querySelectorAll('.shown')).toHaveLength(0);
@@ -409,6 +409,78 @@ describe('main.js end of game', () => {
     expect(moveListTurns()).toEqual(['e4']);
     expect(pieceOn('e4')).toEqual({ type: 'pawn', color: 'white' });
     expect(square('e4').querySelector('.piece').textContent).toBe(pawn.piece.white);
+  });
+
+  it('focuses "Rejouer !" when the dialog opens', () => {
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+
+    expect(document.activeElement).toBe(dialog().querySelector('.checkmate [value="replay"]'));
+  });
+
+  it('leaves the final position and the check on screen when "Voir la position" closes it', () => {
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+
+    dialog().querySelector('.checkmate [value="review"]').click();
+
+    expect(dialog().open).toBe(false);
+    expect(dialog().querySelectorAll('.shown')).toHaveLength(0);
+    expect(pieceOn('h4')).toEqual({ type: 'queen', color: 'black' });
+    expect(pieceOn('g4')).toEqual({ type: 'pawn', color: 'white' });
+    expect(pieceOn('d8')).toBeNull();
+    expect(squaresWithClass('check')).toEqual(['e1']);
+    expect(moveListTurns()).toEqual(['f3 e5', 'g4 Dh4#']);
+  });
+
+  it('ignores clicks on the board while the final position is reviewed', () => {
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+    dialog().querySelector('.checkmate [value="review"]').click();
+
+    square('a2').click();
+    square('a3').click();
+
+    expect(squaresWithClass('selected')).toEqual([]);
+    expect(squaresWithClass('possible-move')).toEqual([]);
+    expect(pieceOn('a2')).toEqual({ type: 'pawn', color: 'white' });
+    expect(pieceOn('a3')).toBeNull();
+  });
+
+  it('starts a new game with "Nouvelle partie" once the final position is reviewed', () => {
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+    dialog().querySelector('.checkmate [value="review"]').click();
+
+    document.querySelector('.new-game').click();
+
+    expect(pieceOn('d8')).toEqual({ type: 'queen', color: 'black' });
+    expect(squaresWithClass('check')).toEqual([]);
+    expect(moveListTurns()).toEqual([]);
+    play([['e2', 'e4']]);
+    expect(pieceOn('e4')).toEqual({ type: 'pawn', color: 'white' });
+  });
+
+  it('starts a new game on Escape at the end of a game after a reviewed one', () => {
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+    dialog().querySelector('.checkmate [value="review"]').click();
+    document.querySelector('.new-game').click();
+    play(FOOLS_MATE);
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+
+    // Escape closes the dialog without a value, as `close()` does
+    dialog().close();
+
+    expect(dialog().open).toBe(false);
+    expect(pieceOn('h4')).toBeNull();
+    expect(moveListTurns()).toEqual([]);
+    expect(currentPlayer()).toBe('white');
+  });
+
+  it('starts a new game when an unknown value closes the dialog', () => {
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+
+    dialog().close('cancel');
+
+    expect(pieceOn('h4')).toBeNull();
+    expect(squaresWithClass('check')).toEqual([]);
+    expect(moveListTurns()).toEqual([]);
   });
 });
 
@@ -434,11 +506,22 @@ describe('main.js stalemate', () => {
   it('starts a new game when "Rejouer" closes the dialog', () => {
     vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
 
-    dialog().querySelector('.stalemate button').click();
+    dialog().querySelector('.stalemate [value="replay"]').click();
 
     expect(dialog().open).toBe(false);
     expect(document.querySelectorAll('.container-squares .piece')).toHaveLength(32);
     expect(currentPlayer()).toBe('white');
+  });
+
+  it('leaves the final position on screen when "Voir la position" closes the dialog', () => {
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+
+    dialog().querySelector('.stalemate [value="review"]').click();
+
+    expect(dialog().open).toBe(false);
+    expect(pieceOn('e6')).toEqual({ type: 'queen', color: 'white' });
+    expect(pieceOn('d1')).toBeNull();
+    expect(moveListTurns()).toHaveLength(10);
   });
 });
 
@@ -472,13 +555,24 @@ describe('main.js draw', () => {
   it('starts a new game when "Rejouer" closes the dialog', () => {
     vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
 
-    dialog().querySelector('.draw button').click();
+    dialog().querySelector('.draw [value="replay"]').click();
 
     expect(dialog().open).toBe(false);
     expect(dialog().querySelectorAll('.shown')).toHaveLength(0);
     expect(moveListTurns()).toEqual([]);
     play([['g1', 'f3']]);
     expect(pieceOn('f3')).toEqual({ type: 'knight', color: 'white' });
+  });
+
+  it('leaves the final position and ignores the board when "Voir la position" closes it', () => {
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+
+    dialog().querySelector('.draw [value="review"]').click();
+    square('g1').click();
+
+    expect(dialog().open).toBe(false);
+    expect(moveListTurns()).toHaveLength(4);
+    expect(squaresWithClass('selected')).toEqual([]);
   });
 });
 
