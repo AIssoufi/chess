@@ -106,7 +106,7 @@ function recordLastMove({ outcome, isCheck }) {
 
 function afterMove() {
   const { outcome, color, winner, isCheck, drawReason } = getGameOutcome({ game });
-  renderStatus({ game, lastMove, outcome, color, winner, drawReason });
+  renderStatus({ game, lastMove, outcome, color, winner, isCheck, drawReason });
   recordLastMove({ outcome, isCheck });
   if (isCheck) showCheck(color);
 

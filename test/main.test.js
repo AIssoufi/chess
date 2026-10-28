@@ -739,6 +739,13 @@ describe('main.js draw by a perpetual check', () => {
     expect(squaresWithClass('check')).toEqual(['f2']);
   });
 
+  it('announces the check before the draw', () => {
+    expect(document.querySelector('.game-status').textContent).toBe(
+      'Dernier coup\u00a0: dame noire de e7 à h4. Les blancs sont en échec. ' +
+        'Match nul\u00a0: position répétée trois fois.'
+    );
+  });
+
   it('opens the draw dialog after the delay', () => {
     vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
 

@@ -141,6 +141,61 @@ describe('getStatusMessage', () => {
     }
   );
 
+  it.each([
+    [
+      'black',
+      'insufficient-material',
+      'Les noirs sont en échec. Match nul\u00a0: matériel insuffisant pour mater.',
+    ],
+    [
+      'white',
+      'threefold-repetition',
+      'Les blancs sont en échec. Match nul\u00a0: position répétée trois fois.',
+    ],
+    ['black', 'unknown', 'Les noirs sont en échec. Match nul.'],
+  ])('announces the check of %s before a draw by %s', (color, drawReason, expected) => {
+    const lastMove = { from: 'b3', to: 'd5', piece: { type: 'bishop', color: 'white' } };
+
+    expect(getStatusMessage({ outcome: 'draw', color, isCheck: true, drawReason })).toBe(expected);
+    expect(getStatusMessage({ lastMove, outcome: 'draw', color, isCheck: true, drawReason })).toBe(
+      `Dernier coup\u00a0: fou blanc de b3 à d5. ${expected}`
+    );
+  });
+
+  it.each([[false], ['true'], [1], [null], [undefined]])(
+    'announces no check before a draw when isCheck is %j',
+    (isCheck) => {
+      expect(
+        getStatusMessage({
+          outcome: 'draw',
+          color: 'black',
+          isCheck,
+          drawReason: 'insufficient-material',
+        })
+      ).toBe('Match nul\u00a0: matériel insuffisant pour mater.');
+    }
+  );
+
+  it.each([['red'], ['toString'], [''], [undefined], [null]])(
+    'announces the draw without its check when the side to play %j is no color',
+    (color) => {
+      expect(
+        getStatusMessage({
+          outcome: 'draw',
+          color,
+          isCheck: true,
+          drawReason: 'insufficient-material',
+        })
+      ).toBe('Match nul\u00a0: matériel insuffisant pour mater.');
+    }
+  );
+
+  it('announces a checkmate without a check sentence when isCheck is true', () => {
+    expect(
+      getStatusMessage({ outcome: 'checkmate', color: 'white', winner: 'black', isCheck: true })
+    ).toBe('Échec et mat, les noirs gagnent.');
+  });
+
   it.each([['red'], ['toString'], [''], [undefined], [null]])(
     'leaves out the winner %j, which is no color',
     (winner) => {

@@ -202,6 +202,20 @@ describe('renderStatus', () => {
     );
   });
 
+  it('announces the check of a move that draws before the draw', () => {
+    renderStatus({
+      game,
+      lastMove: null,
+      outcome: GAME_OUTCOMES.draw,
+      color: 'black',
+      isCheck: true,
+      drawReason: 'insufficient-material',
+    });
+    expect(document.querySelector('.game-status').textContent).toBe(
+      'Les noirs sont en échec. Match nul\u00a0: matériel insuffisant pour mater.'
+    );
+  });
+
   it('announces a promotion without its piece when the square is empty', () => {
     game.board.delete('g8');
     renderStatus({
