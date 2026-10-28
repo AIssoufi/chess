@@ -32,6 +32,9 @@ export const OUTCOME_SIGNS = Object.freeze({
   [GAME_OUTCOMES.checkmate]: '#',
 });
 
+/** The sign written after a move that gives check, whatever else it does, such as a draw. */
+export const CHECK_SIGN = OUTCOME_SIGNS[GAME_OUTCOMES.check];
+
 /** The number of moves of a turn in the move list: one for white, then one for black. */
 export const MOVES_PER_TURN = 2;
 

@@ -5,6 +5,7 @@ import { isSquare } from '../squares/utils.js';
 import {
   CAPTURE_SIGN,
   CASTLING_NOTATIONS,
+  CHECK_SIGN,
   FIRST_TURN_NUMBER,
   MOVES_PER_TURN,
   OUTCOME_SIGNS,
@@ -69,6 +70,22 @@ function getPromotionSuffix({ promotion, promotedType }) {
 }
 
 /**
+ * Returns the sign written after a move: `#` for a checkmate, `+` for a check, even one that ends
+ * the game in a draw, and nothing otherwise.
+ *
+ * @param {object} params
+ * @param {string} [params.outcome] What the move leaves the side to play in, one of
+ *   `GAME_OUTCOMES`.
+ * @param {boolean} [params.isCheck] Whether the move leaves the other king in check.
+ * @returns {string} The sign, or an empty string.
+ */
+function getOutcomeSign({ outcome, isCheck }) {
+  const outcomeSign = getLabel({ labels: OUTCOME_SIGNS, key: outcome });
+  if (outcomeSign) return outcomeSign;
+  return isCheck === true ? CHECK_SIGN : '';
+}
+
+/**
  * Writes a move in French algebraic notation: the letter of the piece (`R`, `D`, `T`, `F`, `C`,
  * none for a pawn), what tells it apart from a piece of the same kind, `x` for a capture, the
  * target square, the new piece of a promotion, then `+` for check or `#` for checkmate. Castling
@@ -79,6 +96,8 @@ function getPromotionSuffix({ promotion, promotedType }) {
  * @param {string} [params.promotedType] The type the pawn of the move was promoted to, if it was.
  * @param {string} [params.outcome] What the move leaves the side to play in, one of
  *   `GAME_OUTCOMES`, as `getGameOutcome` returns it once the move and its promotion are played.
+ * @param {boolean} [params.isCheck] Whether the move leaves the other king in check, as
+ *   `getGameOutcome` returns it: a check that also ends the game in a draw still takes its `+`.
  * @param {string[]} [params.rivalSquares] The squares of the other pieces of the same type and
  *   color that could also reach the target square before the move, as `getRivalSquares` returns
  *   them.
@@ -89,9 +108,11 @@ function getPromotionSuffix({ promotion, promotedType }) {
  * // 'Cf3'
  * // The pawn of e7 takes on d8, becomes a queen and mates:
  * getMoveNotation({ move, promotedType: 'queen', outcome: 'checkmate' }); // 'exd8=D#'
+ * // A bishop takes the last rook with check, a draw by insufficient material:
+ * getMoveNotation({ move, outcome: 'draw', isCheck: true }); // 'Fxd5+'
  */
 export function getMoveNotation(params) {
-  const { move, promotedType, outcome, rivalSquares } = params ?? {};
+  const { move, promotedType, outcome, isCheck, rivalSquares } = params ?? {};
   const hasMove = typeof move === 'object' && move !== null;
   if (!hasMove) return null;
 
@@ -101,7 +122,7 @@ export function getMoveNotation(params) {
   const isKnownMove = areSquares && letter !== null;
   if (!isKnownMove) return null;
 
-  const outcomeSign = getLabel({ labels: OUTCOME_SIGNS, key: outcome }) ?? '';
+  const outcomeSign = getOutcomeSign({ outcome, isCheck });
   const castling = getLabel({ labels: CASTLING_NOTATIONS, key: specialMove });
   if (castling) return `${castling}${outcomeSign}`;
 

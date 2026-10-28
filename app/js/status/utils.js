@@ -75,6 +75,27 @@ function describeMove({ lastMove, promotedType }) {
 }
 
 /**
+ * Describes a draw, after the check of the move that drew, if it gave one.
+ *
+ * @param {object} params
+ * @param {string} [params.color] The color to play, whose king the move may check.
+ * @param {unknown} [params.isCheck] Whether the move leaves that king in check, `true` only.
+ * @param {string} [params.drawReason] Why the game is drawn, one of `DRAW_REASONS`.
+ * @returns {string[]} The check sentence, only when `isCheck` is `true` and the color is known,
+ *   then the draw.
+ */
+function describeDraw({ color, isCheck, drawReason }) {
+  const reason = getLabel({ labels: DRAW_REASON_LABELS, key: drawReason });
+  const draw = reason
+    ? fillText({ text: STATUS_TEXTS.draw, values: { reason } })
+    : STATUS_TEXTS.unexplainedDraw;
+  const side = getLabel({ labels: SIDE_LABELS, key: color });
+  const isAnnouncedCheck = isCheck === true && side !== null;
+  if (!isAnnouncedCheck) return [draw];
+  return [fillText({ text: STATUS_TEXTS.check, values: { side } }), draw];
+}
+
+/**
  * Describes the position after a move: the end of the game, or the side to play and whether it
  * is in check.
  *
@@ -82,18 +103,14 @@ function describeMove({ lastMove, promotedType }) {
  * @param {string} [params.outcome] One of `GAME_OUTCOMES`; anything else reads as `ongoing`.
  * @param {string} [params.color] The color to play.
  * @param {string} [params.winner] The winning color, after a checkmate.
+ * @param {unknown} [params.isCheck] Whether the move leaves the king to play in check, which a
+ *   draw announces first.
  * @param {string} [params.drawReason] Why the game is drawn, one of `DRAW_REASONS`, after a draw.
  * @returns {string[]} The sentences, none when a color they need is missing.
  */
-function describeOutcome({ outcome, color, winner, drawReason }) {
+function describeOutcome({ outcome, color, winner, isCheck, drawReason }) {
   if (outcome === GAME_OUTCOMES.stalemate) return [STATUS_TEXTS.stalemate];
-
-  if (outcome === GAME_OUTCOMES.draw) {
-    const reason = getLabel({ labels: DRAW_REASON_LABELS, key: drawReason });
-    return reason
-      ? [fillText({ text: STATUS_TEXTS.draw, values: { reason } })]
-      : [STATUS_TEXTS.unexplainedDraw];
-  }
+  if (outcome === GAME_OUTCOMES.draw) return describeDraw({ color, isCheck, drawReason });
 
   if (outcome === GAME_OUTCOMES.checkmate) {
     const winnerLabel = getLabel({ labels: SIDE_LABELS, key: winner });
@@ -120,6 +137,8 @@ function describeOutcome({ outcome, color, winner, drawReason }) {
  *   `GAME_OUTCOMES`, as `getGameOutcome` returns it.
  * @param {'white' | 'black'} [params.color] The color to play.
  * @param {'white' | 'black'} [params.winner] The winning color, after a checkmate.
+ * @param {boolean} [params.isCheck] Whether the move leaves the king to play in check, as
+ *   `getGameOutcome` returns it: a draw given with check announces the check first.
  * @param {string} [params.drawReason] Why the game is drawn, one of `DRAW_REASONS`, as
  *   `getGameOutcome` returns it after a draw.
  * @returns {string} The announcement, or an empty string when nothing valid is given.
@@ -130,6 +149,12 @@ function describeOutcome({ outcome, color, winner, drawReason }) {
  *   outcome: 'ongoing',
  *   color: 'black',
  * }); // 'Dernier coup : pion blanc de e2 à e4. Aux noirs de jouer.'
+ * getStatusMessage({
+ *   outcome: 'draw',
+ *   color: 'black',
+ *   isCheck: true,
+ *   drawReason: 'insufficient-material',
+ * }); // 'Les noirs sont en échec. Match nul : matériel insuffisant pour mater.'
  */
 export function getStatusMessage({
   lastMove,
@@ -137,10 +162,11 @@ export function getStatusMessage({
   outcome,
   color,
   winner,
+  isCheck,
   drawReason,
 } = {}) {
   const moveSentence = describeMove({ lastMove, promotedType });
   const sentences = moveSentence ? [moveSentence] : [];
-  sentences.push(...describeOutcome({ outcome, color, winner, drawReason }));
+  sentences.push(...describeOutcome({ outcome, color, winner, isCheck, drawReason }));
   return sentences.join(SENTENCE_SEPARATOR);
 }

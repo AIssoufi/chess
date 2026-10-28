@@ -10,7 +10,7 @@ import { shouldStartNewGame } from './alerts/utils.js';
 import { enableBoardNavigation, focusSquare } from './board-navigation/roving-focus.js';
 import { showCopyrightYear } from './copyright/show-copyright-year.js';
 import { GAME_OVER_DIALOG_DELAY_MS } from './game-over/constants.js';
-import { getGameOutcome, getOutcomeAlert, isKingInCheck } from './game-over/utils.js';
+import { getGameOutcome, getOutcomeAlert } from './game-over/utils.js';
 import { highlightLastMove } from './last-move/highlight.js';
 import { NEW_GAME_BUTTON_SELECTOR } from './new-game/constants.js';
 import { getMoveNotation, getRivalSquares } from './notation/utils.js';
@@ -89,12 +89,13 @@ function hideCheck() {
 // ─── Move list ──────────────────────────────────────────────────────────────
 
 // Writes the last move, once its promotion is chosen, at the end of the move list
-function recordLastMove(outcome) {
+function recordLastMove({ outcome, isCheck }) {
   const promotedType = lastMove.promotion ? game.getPiece(lastMove.to)?.type : undefined;
   const notation = getMoveNotation({
     move: lastMove,
     promotedType,
     outcome,
+    isCheck,
     rivalSquares: lastRivalSquares,
   });
   if (notation) notations.push(notation);
@@ -104,10 +105,10 @@ function recordLastMove(outcome) {
 // ─── After each move ────────────────────────────────────────────────────────
 
 function afterMove() {
-  const { outcome, color, winner, drawReason } = getGameOutcome({ game });
-  renderStatus({ game, lastMove, outcome, color, winner, drawReason });
-  recordLastMove(outcome);
-  if (isKingInCheck(outcome)) showCheck(color);
+  const { outcome, color, winner, isCheck, drawReason } = getGameOutcome({ game });
+  renderStatus({ game, lastMove, outcome, color, winner, isCheck, drawReason });
+  recordLastMove({ outcome, isCheck });
+  if (isCheck) showCheck(color);
 
   const alertName = getOutcomeAlert(outcome);
   if (!alertName) return;

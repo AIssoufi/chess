@@ -89,6 +89,8 @@ export function renderSquareLabels({ game, selection, root = document }) {
  * @param {string} params.outcome The outcome of the move, one of `GAME_OUTCOMES`.
  * @param {string | null} params.color The color to play.
  * @param {string | null} params.winner The winning color, after a checkmate.
+ * @param {boolean} [params.isCheck] Whether the move leaves the king to play in check, which a
+ *   draw announces before itself.
  * @param {string} [params.drawReason] The reason of a draw, one of `DRAW_REASONS`.
  * @param {ParentNode} [params.root] The node that holds the live region, the document by default.
  */
@@ -98,6 +100,7 @@ export function renderStatus({
   outcome,
   color,
   winner,
+  isCheck,
   drawReason,
   root = document,
 }) {
@@ -108,6 +111,7 @@ export function renderStatus({
     outcome,
     color,
     winner,
+    isCheck,
     drawReason,
   });
 }
