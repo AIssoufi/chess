@@ -34,6 +34,12 @@ const MATING_QUEEN_SQUARE = 'h4';
 /** The square of the king of white, mated by `FOOLS_MATE_MOVES`. */
 const MATED_KING_SQUARE = 'e1';
 
+/** A square left empty from the start to the end of `FOOLS_MATE_MOVES`. */
+const EMPTY_SQUARE = 'a3';
+
+/** The background that the styles give to a hovered square during a game. */
+const HOVERED_SQUARE_BACKGROUND = 'rgba(0, 0, 0, 0.5)';
+
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
 });
@@ -74,6 +80,27 @@ test('leaves the final position on screen, then starts a new game from the butto
   await expect(
     getSquare({ page, square: STARTING_PAWN_SQUARE }).locator(PIECE_SELECTOR)
   ).toHaveText(pawn.piece.white);
+});
+
+test('keeps the squares of the reviewed final position as they are on hover', async ({ page }) => {
+  await playMoves({ page, moves: FOOLS_MATE_MOVES });
+  const dialog = page.getByRole('dialog', { name: CHECKMATE_TITLE });
+  await dialog.getByRole('button', { name: REVIEW_BUTTON_NAME }).click();
+  await expect(dialog).toBeHidden();
+  const emptySquare = getSquare({ page, square: EMPTY_SQUARE });
+  await page.mouse.move(0, 0);
+  const restingBackground = await emptySquare.evaluate(
+    (node) => getComputedStyle(node).backgroundColor
+  );
+
+  await emptySquare.hover();
+
+  await expect(emptySquare).toHaveCSS('background-color', restingBackground);
+
+  await page.getByRole('button', { name: NEW_GAME_BUTTON_NAME }).click();
+  await emptySquare.hover();
+
+  await expect(emptySquare).toHaveCSS('background-color', HOVERED_SQUARE_BACKGROUND);
 });
 
 test('starts a new game on Escape, even after a reviewed game', async ({ page }) => {

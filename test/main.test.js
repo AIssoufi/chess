@@ -361,6 +361,8 @@ describe('main.js promotion', () => {
 
 describe('main.js end of game', () => {
   const dialog = () => document.querySelector('.alert__wrapper');
+  const isBoardOver = () =>
+    document.querySelector('.container-squares').classList.contains('game-over');
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -444,12 +446,20 @@ describe('main.js end of game', () => {
     expect(pieceOn('a3')).toBeNull();
   });
 
+  it('turns off the hover of the squares while the final position is reviewed', () => {
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+    dialog().querySelector('.checkmate [value="review"]').click();
+
+    expect(isBoardOver()).toBe(true);
+  });
+
   it('starts a new game with "Nouvelle partie" once the final position is reviewed', () => {
     vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
     dialog().querySelector('.checkmate [value="review"]').click();
 
     document.querySelector('.new-game').click();
 
+    expect(isBoardOver()).toBe(false);
     expect(pieceOn('d8')).toEqual({ type: 'queen', color: 'black' });
     expect(squaresWithClass('check')).toEqual([]);
     expect(moveListTurns()).toEqual([]);

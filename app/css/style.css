@@ -175,9 +175,11 @@ body::before {
   background-color: #d18b46;
 }
 
-/* Only on devices with a real pointer: a touch screen would keep the last tapped square dark */
+/* Only on devices with a real pointer: a touch screen would keep the last tapped square dark. The
+   board of a game over ignores clicks, so its squares no longer darken; `:where` keeps the weight
+   of `.square:hover`, which `.square.possible-move` overrides. */
 @media (hover: hover) {
-  .square:hover {
+  :where(.container-squares:not(.game-over)) .square:hover {
     background-color: rgba(0, 0, 0, 0.5) !important;
   }
 }

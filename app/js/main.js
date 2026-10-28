@@ -24,6 +24,7 @@ import {
   markCheck,
   renderCaptures,
   renderCurrentPlayer,
+  renderGameOver,
   renderMoveList,
   renderPieces,
   renderSquareLabels,
@@ -59,6 +60,7 @@ function renderLabels() {
 
 function renderBoard() {
   renderPieces({ game, factory });
+  renderGameOver({ game });
   renderLabels();
 }
 

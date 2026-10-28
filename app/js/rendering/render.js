@@ -1,7 +1,7 @@
 import { COLORS } from '../colors/constants.js';
 import { getSquareLabel } from '../labels/utils.js';
 import { getMoveTurns } from '../notation/utils.js';
-import { SQUARE_SELECTOR } from '../squares/constants.js';
+import { BOARD_SELECTOR, SQUARE_SELECTOR } from '../squares/constants.js';
 import { isSquare } from '../squares/utils.js';
 import { getStatusMessage } from '../status/utils.js';
 import {
@@ -11,6 +11,7 @@ import {
   CHECK_CLASS,
   CONTROL_SELECTOR,
   CURRENT_PLAYER_CLASS,
+  GAME_OVER_BOARD_CLASS,
   MOVE_CLASS,
   MOVE_LIST_EMPTY_SELECTOR,
   MOVE_LIST_SELECTOR,
@@ -146,6 +147,19 @@ export function renderCurrentPlayer({ color, root = document }) {
   root
     .querySelector(`${CONTROL_SELECTOR}[data-color="${color}"]`)
     ?.classList.add(CURRENT_PLAYER_CLASS);
+}
+
+/**
+ * Marks the board as over once the game ends, so that its squares no longer darken on hover
+ * while the players review the final position, and removes the mark for a game that goes on.
+ *
+ * @param {object} [params]
+ * @param {{ isOver?: boolean } | null} [params.game] The game; a missing one counts as going on.
+ * @param {ParentNode} [params.root] The node that holds the board, the document by default.
+ */
+export function renderGameOver({ game, root = document } = {}) {
+  const isOver = game?.isOver === true;
+  root.querySelector(BOARD_SELECTOR)?.classList.toggle(GAME_OVER_BOARD_CLASS, isOver);
 }
 
 /**
