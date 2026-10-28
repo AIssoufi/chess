@@ -38,9 +38,10 @@
  * Tablet held upright: under 900px the player panels, the move list and the footer stack around
  * the board, about 33rem with the title and the new game button on macOS, and up to 35rem with the
  * fallback fonts of Linux, so the reserve counts them and the whole page fits the screen height.
- * Only from 56rem high, where 40px squares leave room for that reserve: a shorter screen scrolls
- * anyway, and keeps its squares. Only from 600px wide too: a phone upright keeps the squares of its
- * width, which this reserve would shrink to 40px from 56rem high.
+ * The panels and the move list keep that height as the game goes on (see the tablet rule of the
+ * panels below). Only from 56rem high, where 40px squares leave room for that reserve: a shorter
+ * screen scrolls anyway, and keeps its squares. Only from 600px wide too: a phone upright keeps the
+ * squares of its width, which this reserve would shrink to 40px from 56rem high.
  */
 @media (min-width: 600px) and (max-width: 899px) and (min-height: 56rem) {
   :root {
@@ -650,6 +651,57 @@ body::before {
     margin: 0;
     padding: 0 1rem;
     text-align: center;
+  }
+}
+
+/*
+ * Tablet held upright: the player panels and the move list keep the height they have before the
+ * first move, which the height reserve counts, so that the page does not scroll as the game goes
+ * on. The captured pieces go on the line of their count, in one row narrow enough for 15 pieces
+ * from 600px wide beside a count of two digits, so that no classic scrollbar adds its height, and
+ * the move list shows about two turns and scrolls to the last one. The query is the one of the
+ * height reserve at the top of this file.
+ */
+@media (min-width: 600px) and (max-width: 899px) and (min-height: 56rem) {
+  .control {
+    display: grid;
+    grid-template-columns: auto minmax(0, max-content);
+    justify-content: center;
+    align-items: center;
+  }
+
+  .control h2 {
+    grid-column: 1 / -1;
+    margin: 0.5em 0;
+  }
+
+  .control p {
+    margin: 0.5rem 0;
+    white-space: nowrap;
+  }
+
+  #black-captures,
+  #white-captures {
+    grid-auto-flow: column;
+    grid-template-columns: none;
+    grid-auto-columns: 1.625rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  #black-captures:not(:empty),
+  #white-captures:not(:empty) {
+    padding-left: 0.5rem;
+  }
+
+  #black-captures .piece,
+  #white-captures .piece {
+    font-size: 1.5rem;
+  }
+
+  .move-list {
+    height: 8.5rem;
+    max-height: none;
   }
 }
 

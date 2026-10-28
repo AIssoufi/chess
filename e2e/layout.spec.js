@@ -1,5 +1,7 @@
+import { COLORS } from '../app/js/colors/constants.js';
 import { BOARD_SIZE } from '../app/js/squares/constants.js';
 import {
+  CAPTURES_ID_SUFFIX,
   CONTROL_SELECTOR,
   MOVE_LIST_EMPTY_SELECTOR,
   MOVE_LIST_SELECTOR,
@@ -155,6 +157,40 @@ for (const viewport of UPRIGHT_TABLET_VIEWPORTS) {
 
       expect(scrollHeight).toBeLessThanOrEqual(clientHeight);
       expect(squares[0].width).toBeGreaterThanOrEqual(MIN_SQUARE_SIZE_PX);
+    });
+
+    test(`still fits with ${MAX_CAPTURED_PIECES} captured pieces on each side and ${LONG_GAME_TURNS} turns`, async ({
+      page,
+    }) => {
+      await page.goto('/');
+      for (const color of COLORS) {
+        await addCapturedPieces({ page, color, count: MAX_CAPTURED_PIECES });
+      }
+      await addMoves({ page, turns: LONG_GAME_TURNS });
+
+      const { scrollWidth, scrollHeight, clientWidth, clientHeight } = await readLayout(page);
+      const { listHeight, listScrollHeight, turnHeight } = await page
+        .locator(MOVE_LIST_SELECTOR)
+        .evaluate((list) => ({
+          listHeight: list.clientHeight,
+          listScrollHeight: list.scrollHeight,
+          turnHeight: list.firstElementChild.offsetHeight,
+        }));
+
+      expect(scrollHeight).toBeLessThanOrEqual(clientHeight);
+      expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+      expect(listHeight, 'the move list shows a whole turn').toBeGreaterThanOrEqual(turnHeight);
+      expect(listScrollHeight, 'the long list scrolls').toBeGreaterThan(listHeight);
+      for (const color of COLORS) {
+        const zone = page.locator(`#${color}${CAPTURES_ID_SUFFIX}`);
+        const { zoneScrollWidth, zoneClientWidth } = await zone.evaluate((node) => ({
+          zoneScrollWidth: node.scrollWidth,
+          zoneClientWidth: node.clientWidth,
+        }));
+        expect(zoneScrollWidth, `the captures of ${color} fit their row`).toBeLessThanOrEqual(
+          zoneClientWidth
+        );
+      }
     });
   });
 }
