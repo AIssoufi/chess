@@ -60,7 +60,8 @@ export function getSelection(params) {
 
 /**
  * Tells what a click on a square of the board does: play the selected piece there, select the
- * piece of the side to move it holds, drop the selection, or nothing.
+ * piece of the side to move it holds, drop the selection, as a second click on the selected piece
+ * does, or nothing.
  *
  * @param {object | null} [params]
  * @param {import('../Chessboard.js').default} params.game The game.
@@ -79,6 +80,8 @@ export function getClickAction(params) {
   const isPlayable = Boolean(game) && !game.isOver && !game.promotionSquare;
   if (!isPlayable || !isSquare(square)) return CLICK_ACTIONS.none;
 
+  const isSelectedSquare = Boolean(selection?.square) && square === selection.square;
+  if (isSelectedSquare) return CLICK_ACTIONS.deselect;
   const isPossibleMove = Boolean(selection?.square) && selection.moves.includes(square);
   if (isPossibleMove) return CLICK_ACTIONS.move;
   if (hasPieceToMove({ game, square })) return CLICK_ACTIONS.select;

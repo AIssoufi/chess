@@ -151,6 +151,18 @@ describe('getClickAction', () => {
     );
   });
 
+  it('drops the selection on a second click on the selected piece', () => {
+    expect(getClickAction({ game, selection: PAWN_SELECTION, square: 'e2' })).toBe(
+      CLICK_ACTIONS.deselect
+    );
+  });
+
+  it('selects a piece again once its selection is dropped', () => {
+    expect(getClickAction({ game, selection: NO_SELECTION, square: 'e2' })).toBe(
+      CLICK_ACTIONS.select
+    );
+  });
+
   it('does nothing on an empty square or a piece of the other color without a selection', () => {
     expect(getClickAction({ game, square: 'e4' })).toBe(CLICK_ACTIONS.none);
     expect(getClickAction({ game, selection: NO_SELECTION, square: 'e7' })).toBe(

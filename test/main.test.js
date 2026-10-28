@@ -219,6 +219,30 @@ describe('main.js selection and moves', () => {
     expect(currentPlayer()).toBe('white');
   });
 
+  it('deselects a piece clicked a second time, then selects it again on a third click', () => {
+    square('g1').click();
+    square('g1').click();
+
+    expect(squaresWithClass('selected')).toEqual([]);
+    expect(squaresWithClass('possible-move')).toEqual([]);
+    expect(currentPlayer()).toBe('white');
+
+    square('g1').click();
+
+    expect(squaresWithClass('selected')).toEqual(['g1']);
+    expect(squaresWithClass('possible-move')).toEqual(['f3', 'h3']);
+  });
+
+  it('deselects a piece of black clicked a second time', () => {
+    play([['e2', 'e4']]);
+    square('d7').click();
+    square('d7').click();
+
+    expect(squaresWithClass('selected')).toEqual([]);
+    expect(squaresWithClass('possible-move')).toEqual([]);
+    expect(currentPlayer()).toBe('black');
+  });
+
   it('ignores a click on a piece of the side not to move', () => {
     square('e7').click();
 
