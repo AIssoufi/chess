@@ -196,6 +196,35 @@ body::before {
 .square.possible-move {
   background-color: rgba(139, 195, 74, 1) !important;
   animation: blink 0.5s linear 1s infinite alternate;
+  /* Holds its marker, drawn inside the square so that nothing around it moves */
+  position: relative;
+  --move-marker-color: rgba(0, 0, 0, 0.5);
+}
+
+/* A shape besides the color, for players who do not tell colors apart: a dot on an empty square,
+   a ring around a piece to capture, both scaled with the square and 3:1 against the green */
+.square.possible-move::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 30%;
+  height: 30%;
+  border-radius: 50%;
+  background-color: var(--move-marker-color);
+}
+
+.square.possible-move.capture-move::before {
+  box-sizing: border-box;
+  width: 92%;
+  height: 92%;
+  border: calc(var(--square) * 0.08) solid var(--move-marker-color);
+  background-color: transparent;
+}
+
+/* Positioned after the marker, the piece is painted over its ring and stays readable */
+.square.possible-move .piece {
+  position: relative;
 }
 
 .square.possible-move:hover {
