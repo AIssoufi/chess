@@ -11,7 +11,7 @@ const PUBLIC_DIR = fileURLToPath(import.meta.resolve('../app/public/'));
 const VITE_CONFIG = fileURLToPath(import.meta.resolve('../vite.config.js'));
 const SITE_URL = 'https://chess.issoufi.fr/';
 /** Files that Cloudflare Pages and crawlers read at the root of the site. */
-const ROOT_FILES = ['_headers', 'robots.txt', 'sitemap.xml'];
+const ROOT_FILES = ['_headers', '404.html', 'robots.txt', 'sitemap.xml'];
 /** A production build takes a few seconds, more than the default timeout of a hook. */
 const BUILD_TIMEOUT_MS = 60_000;
 const ONE_YEAR_IN_SECONDS = 31_536_000;

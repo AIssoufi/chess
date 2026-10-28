@@ -63,6 +63,7 @@ pnpm preview    # serve dist/ on http://localhost:4173/
     `game-over.test.js`, `labels.test.js`, `moves.test.js`, `notation.test.js`,
     `squares.test.js` and `status.test.js`: the helpers of the game modules of `app/js/`;
   - `accessibility-style.test.js`: the reduced motion and the square focus of the stylesheet;
+  - `not-found-page.test.js`: the French 404 page, parsed with happy-dom's `DOMParser`;
   - `redirect.test.js`: the page that redirects the old GitHub Pages URL;
   - `public-files.test.js`: the build copy of the root files, `robots.txt`, the sitemap and the
     HSTS header;
@@ -166,7 +167,9 @@ test/                Unit tests
   using the official actionlint binary checked against its SHA-256.
 - **Cloudflare Pages** deploys the game from its Git integration: `master` to
   https://chess.issoufi.fr, and every other branch to a preview URL, linked from its pull request.
-  The build is served from the root of the domain, so Vite keeps its default `base` of `/`.
+  The build is served from the root of the domain, so Vite keeps its default `base` of `/`. An
+  unknown path answers 404 with `app/public/404.html`, a French page that links back to the game;
+  `pnpm preview` serves the game page there instead.
 - **GitHub Pages redirect** (`deploy.yml`): on a push to `master` that changes `redirect/` or the
   workflow, or when run by hand, publishes `redirect/` to the old URL,
   https://aissoufi.github.io/chess/, with a copy of its `index.html` as `404.html`. The page sends
