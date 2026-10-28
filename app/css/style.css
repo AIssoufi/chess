@@ -175,9 +175,11 @@ body::before {
   background-color: #d18b46;
 }
 
-/* Only on devices with a real pointer: a touch screen would keep the last tapped square dark */
+/* Only on devices with a real pointer: a touch screen would keep the last tapped square dark. The
+   board of a game over ignores clicks, so its squares no longer darken; `:where` keeps the weight
+   of `.square:hover`, which `.square.possible-move` overrides. */
 @media (hover: hover) {
-  .square:hover {
+  :where(.container-squares:not(.game-over)) .square:hover {
     background-color: rgba(0, 0, 0, 0.5) !important;
   }
 }
@@ -305,6 +307,13 @@ body::before {
   line-height: 1.6;
 }
 
+/* Under the moves, which shrink and scroll rather than push it out of the frame */
+.new-game {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 0.75rem;
+}
+
 /* The move of white keeps its width, so that the moves of black line up */
 .move-list__move:first-child {
   display: inline-block;
@@ -333,7 +342,8 @@ body::before {
     text-align: center;
   }
 
-  .move-list__moves {
+  .move-list__moves,
+  .new-game {
     align-self: center;
   }
 }
@@ -365,6 +375,14 @@ body::before {
   display: none;
 }
 
+/* "Rejouer !" and "Voir la position" side by side, one above the other on a narrow screen */
+.alert__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
 .alert__wrapper h2 {
   color: #222;
   font-family: var(--display-font);
@@ -378,18 +396,33 @@ body::before {
   margin: 0;
 }
 
-.alert__wrapper button {
+/* The buttons of the dialog, and the new game button under the move list, which looks like them */
+.alert__wrapper button,
+.new-game {
   font-size: 1.2rem;
   line-height: 2rem;
   height: 2rem;
-  max-width: 150px;
+  max-width: 100%;
   padding: 0 1rem;
   font-family: var(--display-font);
   background-color: #ff9800;
   border-radius: 5px;
   border: none;
 }
+
+/*
+ * The move list can be narrower than the button, on a phone held sideways: its label wraps, with
+ * the same height on one line as the buttons of the dialog.
+ */
+.new-game {
+  height: auto;
+  min-height: 2rem;
+  padding: 0.25rem 1rem;
+  line-height: 1.5rem;
+}
+
 .alert__wrapper button:hover,
+.new-game:hover,
 .piece {
   cursor: pointer;
 }

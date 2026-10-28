@@ -21,6 +21,9 @@ export const CURRENT_PLAYER_CLASS = 'current-player';
 /** The class of the square of a king in check. */
 export const CHECK_CLASS = 'check';
 
+/** The class of the board once the game is over, whose squares then ignore the hover. */
+export const GAME_OVER_BOARD_CLASS = 'game-over';
+
 /** The selector of the list of the moves played, one item per turn. */
 export const MOVE_LIST_SELECTOR = '.move-list__moves';
 

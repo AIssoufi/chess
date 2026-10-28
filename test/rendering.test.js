@@ -9,6 +9,7 @@ import {
   markCheck,
   renderCaptures,
   renderCurrentPlayer,
+  renderGameOver,
   renderMoveList,
   renderPieces,
   renderSquareLabels,
@@ -249,6 +250,35 @@ describe('renderCurrentPlayer', () => {
   it('highlights no panel for an unknown color', () => {
     renderCurrentPlayer({ color: 'red' });
     expect(document.querySelectorAll('.current-player')).toHaveLength(0);
+  });
+});
+
+describe('renderGameOver', () => {
+  const isBoardOver = () =>
+    document.querySelector('.container-squares').classList.contains('game-over');
+
+  it('marks the board of a game over, then clears the mark for a game that goes on', () => {
+    renderGameOver({ game: { isOver: true } });
+    expect(isBoardOver()).toBe(true);
+    renderGameOver({ game });
+    expect(isBoardOver()).toBe(false);
+  });
+
+  it.each([
+    ['a missing game', undefined],
+    ['a null game', null],
+    ['a game without isOver', {}],
+    ['a truthy isOver that is not true', { isOver: 'yes' }],
+  ])('leaves the board unmarked for %s', (_name, value) => {
+    renderGameOver({ game: { isOver: true } });
+    renderGameOver({ game: value });
+    expect(isBoardOver()).toBe(false);
+  });
+
+  it('skips a page without a board or a call without parameters', () => {
+    document.body.innerHTML = '';
+    expect(() => renderGameOver({ game: { isOver: true } })).not.toThrow();
+    expect(() => renderGameOver()).not.toThrow();
   });
 });
 

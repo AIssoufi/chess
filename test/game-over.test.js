@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, it, expect, beforeEach } from 'vitest';
 import Chessboard from '../app/js/Chessboard.js';
+import { ALERT_CHOICES } from '../app/js/alerts/constants.js';
 import { DRAW_REASONS } from '../app/js/draws/constants.js';
 import { GAME_OUTCOMES, GAME_OVER_ALERTS } from '../app/js/game-over/constants.js';
 import { getGameOutcome, getOutcomeAlert, isKingInCheck } from '../app/js/game-over/utils.js';
@@ -175,7 +176,7 @@ describe('game over dialog', () => {
   });
 
   it.each(Object.entries(GAME_OVER_ALERTS))(
-    'has the %s alert "%s", with a titled heading',
+    'has the %s alert "%s", with a titled heading and its replay and review buttons',
     (_outcome, alertName) => {
       const alert = INDEX_PAGE.match(
         new RegExp(`<div class="alert ${alertName}">([\\s\\S]*?)</div>`)
@@ -183,7 +184,10 @@ describe('game over dialog', () => {
 
       expect(alert).not.toBeNull();
       expect(alert[1]).toMatch(/<h2 id="[a-z-]+">/);
-      expect(alert[1]).toContain('<button>Rejouer&nbsp;!</button>');
+      expect(alert[1]).toContain(`<button value="${ALERT_CHOICES.replay}">Rejouer&nbsp;!</button>`);
+      expect(alert[1]).toContain(
+        `<button value="${ALERT_CHOICES.review}">Voir la position</button>`
+      );
     }
   );
 });

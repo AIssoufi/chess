@@ -6,10 +6,12 @@ import {
   showGameOverAlert,
   writeAlertDetails,
 } from './alerts/game-over-dialog.js';
+import { shouldStartNewGame } from './alerts/utils.js';
 import { enableBoardNavigation, focusSquare } from './board-navigation/roving-focus.js';
 import { showCopyrightYear } from './copyright/show-copyright-year.js';
 import { GAME_OVER_DIALOG_DELAY_MS } from './game-over/constants.js';
 import { getGameOutcome, getOutcomeAlert, isKingInCheck } from './game-over/utils.js';
+import { NEW_GAME_BUTTON_SELECTOR } from './new-game/constants.js';
 import { getMoveNotation, getRivalSquares } from './notation/utils.js';
 import { PROMOTION_CHOICE_SELECTOR } from './promotion/constants.js';
 import {
@@ -22,6 +24,7 @@ import {
   markCheck,
   renderCaptures,
   renderCurrentPlayer,
+  renderGameOver,
   renderMoveList,
   renderPieces,
   renderSquareLabels,
@@ -46,6 +49,8 @@ let lastMove = null;
 let lastRivalSquares = [];
 // The notation of each move of the game, in the order they were played
 let notations = [];
+// The timer that opens the game over dialog, which a new game started meanwhile cancels
+let gameOverTimer = null;
 
 // ─── DOM rendering ──────────────────────────────────────────────────────────
 
@@ -55,6 +60,7 @@ function renderLabels() {
 
 function renderBoard() {
   renderPieces({ game, factory });
+  renderGameOver({ game });
   renderLabels();
 }
 
@@ -104,7 +110,7 @@ function afterMove() {
   const alertName = getOutcomeAlert(outcome);
   if (!alertName) return;
   writeAlertDetails({ dialog: gameOverDialog, winner, drawReason });
-  setTimeout(
+  gameOverTimer = setTimeout(
     () => showGameOverAlert({ dialog: gameOverDialog, alertName }),
     GAME_OVER_DIALOG_DELAY_MS
   );
@@ -131,11 +137,12 @@ promotionWrapper.addEventListener('click', (event) => {
 
 // ─── Alerts ─────────────────────────────────────────────────────────────────
 
-// "Rejouer" and Escape both close the dialog: either way a new game starts, so the finished
-// game never stays on screen without a way to play again.
+// "Rejouer", Escape and any value other than the review start a new game. "Voir la position"
+// leaves the final position and its check marker on screen, where the board ignores clicks until
+// "Nouvelle partie".
 gameOverDialog.addEventListener('close', () => {
   hideGameOverAlerts(gameOverDialog);
-  initialize();
+  if (shouldStartNewGame(gameOverDialog.returnValue)) initialize();
 });
 
 // ─── Click handler (delegated to the board) ─────────────────────────────────
@@ -175,9 +182,15 @@ boardNode.addEventListener('click', (event) => {
   else if (action === CLICK_ACTIONS.deselect) setSelection(NO_SELECTION);
 });
 
+// ─── New game ───────────────────────────────────────────────────────────────
+
+document.querySelector(NEW_GAME_BUTTON_SELECTOR).addEventListener('click', () => initialize());
+
 // ─── Initialization ─────────────────────────────────────────────────────────
 
 function initialize() {
+  clearTimeout(gameOverTimer);
+  hidePromotionChoice(promotionWrapper);
   game.initialize();
   lastMove = null;
   lastRivalSquares = [];
