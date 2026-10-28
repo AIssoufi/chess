@@ -40,6 +40,31 @@ export const LAYOUT_VIEWPORTS = Object.freeze([
   { width: 1280, height: 800 },
 ]);
 
+/**
+ * Tablets held upright, under the 900px breakpoint, where the player panels stack above and below
+ * the board: the 600px and 56rem thresholds of the tablet rule of the styles where the page starts
+ * to fit, a short height and the most common one.
+ */
+export const UPRIGHT_TABLET_VIEWPORTS = Object.freeze([
+  { width: 600, height: 896 },
+  { width: 768, height: 896 },
+  { width: 768, height: 900 },
+  { width: 768, height: 1024 },
+]);
+
+/** A tablet held upright one pixel under the 56rem threshold, too short for the stacked page. */
+export const SHORT_TABLET_VIEWPORT = Object.freeze({ width: 768, height: 895 });
+
+/**
+ * Screens held upright past the 56rem threshold but under the 600px of the tablet rule of the
+ * styles: a phone at the threshold, a tall phone, and the widest screen left out.
+ */
+export const NARROW_UPRIGHT_VIEWPORTS = Object.freeze([
+  { width: 390, height: 896 },
+  { width: 430, height: 932 },
+  { width: 599, height: 896 },
+]);
+
 /** The fool's mate, the shortest checkmate: black mates on its second move. */
 export const FOOLS_MATE_MOVES = Object.freeze([
   { from: 'f2', to: 'f3' },
