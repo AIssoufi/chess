@@ -1,4 +1,4 @@
-import { HIDDEN_DISPLAY, PIECE_BUTTON_SELECTOR, SHOWN_DISPLAY } from './constants.js';
+import { PIECE_BUTTON_SELECTOR } from './constants.js';
 
 /**
  * Shows the promotion choice with the symbols of the promoting color, and focuses its first piece.
@@ -12,7 +12,7 @@ export function showPromotionChoice({ wrapper, factory, color }) {
   wrapper.querySelectorAll(PIECE_BUTTON_SELECTOR).forEach((button) => {
     button.textContent = factory.getSymbol(button.dataset.type, color);
   });
-  wrapper.style.display = SHOWN_DISPLAY;
+  wrapper.hidden = false;
   wrapper.querySelector(PIECE_BUTTON_SELECTOR)?.focus();
 }
 
@@ -22,7 +22,7 @@ export function showPromotionChoice({ wrapper, factory, color }) {
  * @param {HTMLElement} wrapper The node of the promotion choice.
  */
 export function hidePromotionChoice(wrapper) {
-  wrapper.style.display = HIDDEN_DISPLAY;
+  wrapper.hidden = true;
 }
 
 /**

@@ -23,7 +23,7 @@ function buttonOf(type) {
 
 beforeEach(() => {
   document.body.innerHTML = `
-    <div class="promotion__wrapper" style="display: none">
+    <div class="promotion__wrapper" hidden>
       <p>Promouvoir le pion en :</p>
       <div>${PROMOTION_PIECE_TYPES.map((type) => `<button data-type="${type}"></button>`).join('')}</div>
     </div>`;
@@ -40,14 +40,14 @@ describe('showPromotionChoice', () => {
 
   it('shows the choice and focuses its first piece', () => {
     showPromotionChoice({ wrapper, factory, color: 'white' });
-    expect(wrapper.style.display).toBe('flex');
+    expect(wrapper.hidden).toBe(false);
     expect(document.activeElement).toBe(buttonOf('queen'));
   });
 
   it('shows a choice without pieces, focusing nothing', () => {
     wrapper.innerHTML = '';
     showPromotionChoice({ wrapper, factory, color: 'white' });
-    expect(wrapper.style.display).toBe('flex');
+    expect(wrapper.hidden).toBe(false);
     expect(document.activeElement).toBe(document.body);
   });
 });
@@ -56,7 +56,7 @@ describe('hidePromotionChoice', () => {
   it('hides the choice', () => {
     showPromotionChoice({ wrapper, factory, color: 'white' });
     hidePromotionChoice(wrapper);
-    expect(wrapper.style.display).toBe('none');
+    expect(wrapper.hidden).toBe(true);
   });
 });
 

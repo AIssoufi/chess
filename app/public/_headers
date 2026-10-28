@@ -7,9 +7,19 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
-# frame-ancestors forbids embedding the game in a frame of another site. HSTS covers this host
-# only: no includeSubDomains or preload, since this repository does not serve the parent issoufi.fr.
+# The Content Security Policy only lets the site load what it serves itself, with no inline script
+# or style, so an injected tag runs nothing:
+# - default-src 'self' covers every kind of resource that no other directive names (fonts, media);
+# - script-src 'self' runs the module script of /assets/ only, never an inline script or eval;
+# - style-src 'self' applies the stylesheets of the site only, never a style element or attribute;
+# - img-src 'self' loads the favicon and the background of the board;
+# - connect-src 'self' keeps a script from sending anything to another site;
+# - base-uri 'self' keeps an injected <base> from moving the relative URLs to another site;
+# - frame-ancestors 'none' forbids embedding the game in a frame of another site;
+# - object-src 'none' forbids plugins (<object>, <embed>).
+# HSTS covers this host only: no includeSubDomains or preload, since this repository does not
+# serve the parent issoufi.fr.
 /*
-  Content-Security-Policy: base-uri 'self'; frame-ancestors 'none'; object-src 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'
   Permissions-Policy: camera=(), geolocation=(), microphone=()
   Strict-Transport-Security: max-age=31536000

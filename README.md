@@ -94,6 +94,8 @@ HTML report in `coverage/`, which Git and Prettier ignore.
 
 `pnpm test:e2e` runs Playwright on the production build, in Chromium and WebKit. It builds the
 site, serves `dist/` with `vite preview` on a free port, and runs the `*.spec.js` files of `e2e/`.
+Each page gets the Content Security Policy of `app/public/_headers`, which `vite preview` does not
+send, and a test fails on any console error, a blocked script or style included.
 [ADR 0007](docs/decisions/0007-test-in-a-browser-with-playwright.md) lists what they check.
 `scrollbars.spec.js` runs in Chromium only, launched with the classic scrollbars of a desktop
 window, which take room from the page where overlay ones take none.
@@ -136,8 +138,8 @@ app/                 Vite root: the page, its styles and images
     squares/         Board size and square helpers, such as the square an en passant capture takes
     status/          Status announcement: the last move, whose turn it is and the game outcome
   public/            Files copied as they are to dist/: the Cloudflare Pages _headers, the
-                     favicon, the 1200x630 social preview image (og-image.jpg), robots.txt
-                     and the sitemap
+                     404 page and its stylesheet, the favicon, the 1200x630 social preview
+                     image (og-image.jpg), robots.txt and the sitemap
 commitlint/          Ticket reference rule, bot commits and the pull request title config
 docs/                README screenshot, decisions (ADRs), the evolution of the stack and
                      ai-workflow/ (how agents work on the project)
@@ -207,7 +209,9 @@ repository:
 | Custom domain          | `chess.issoufi.fr`, a CNAME to the project's `.pages.dev` |
 
 `app/public/_headers` sets the response headers: a one-year immutable cache for the hashed files
-of `/assets/`, and a Content Security Policy, a Permissions Policy and HSTS on every page. Pages
+of `/assets/`, and a Content Security Policy, a Permissions Policy and HSTS on every page. The
+policy only allows the scripts, styles, images and requests of the site itself, never inline code:
+a page must hold no `<style>`, `style` attribute, inline script or event handler attribute. Pages
 already sends `X-Content-Type-Options` and `Referrer-Policy`. Change `frame-ancestors` in that file
 to embed the game in another site. HSTS lasts one year and covers this host only, without
 `includeSubDomains` or `preload`, since this repository does not serve the parent `issoufi.fr`.
