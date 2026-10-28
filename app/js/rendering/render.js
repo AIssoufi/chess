@@ -1,5 +1,6 @@
 import { COLORS } from '../colors/constants.js';
 import { getSquareLabel } from '../labels/utils.js';
+import { getMoveTurns } from '../notation/utils.js';
 import { SQUARE_SELECTOR } from '../squares/constants.js';
 import { isSquare } from '../squares/utils.js';
 import { getStatusMessage } from '../status/utils.js';
@@ -10,6 +11,9 @@ import {
   CHECK_CLASS,
   CONTROL_SELECTOR,
   CURRENT_PLAYER_CLASS,
+  MOVE_CLASS,
+  MOVE_LIST_EMPTY_SELECTOR,
+  MOVE_LIST_SELECTOR,
   PIECE_SELECTOR,
   STATUS_SELECTOR,
 } from './constants.js';
@@ -168,4 +172,48 @@ export function clearCheck({ root = document } = {}) {
   root
     .querySelectorAll(`${SQUARE_SELECTOR}.${CHECK_CLASS}`)
     .forEach((squareNode) => squareNode.classList.remove(CHECK_CLASS));
+}
+
+/**
+ * Builds the item of a turn of the move list: white's move, then black's once played. The list
+ * numbers the item with the number of the turn.
+ *
+ * @param {{ number: number, white: string | null, black: string | null }} turn The turn, as
+ *   `getMoveTurns` returns it.
+ * @returns {HTMLLIElement} The item.
+ */
+function createTurnNode(turn) {
+  const item = document.createElement('li');
+  item.value = turn.number;
+  const moves = [turn.white, turn.black].filter((notation) => notation !== null);
+  for (const notation of moves) {
+    const moveNode = document.createElement('span');
+    moveNode.className = MOVE_CLASS;
+    moveNode.textContent = notation;
+    // A space between the two moves, so that screen readers read them apart
+    if (item.childNodes.length > 0) item.append(' ');
+    item.append(moveNode);
+  }
+  return item;
+}
+
+/**
+ * Shows the moves of the game in the move list, numbered by turn, in place of the ones shown
+ * before, and scrolls the list to the last one. The note that no move was played shows only
+ * while the list is empty.
+ *
+ * @param {object} [params]
+ * @param {unknown} [params.notations] The notation of each move, in the order they were played;
+ *   a value that is not an array empties the list.
+ * @param {ParentNode} [params.root] The node that holds the move list, the document by default.
+ */
+export function renderMoveList({ notations, root = document } = {}) {
+  const list = root.querySelector(MOVE_LIST_SELECTOR);
+  if (!list) return;
+
+  const turns = getMoveTurns(notations);
+  list.replaceChildren(...turns.map(createTurnNode));
+  list.scrollTop = list.scrollHeight;
+  const emptyNote = root.querySelector(MOVE_LIST_EMPTY_SELECTOR);
+  if (emptyNote) emptyNote.hidden = turns.length > 0;
 }

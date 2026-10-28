@@ -3,12 +3,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import Chessboard from '../app/js/Chessboard.js';
 import { DRAW_REASONS } from '../app/js/draws/constants.js';
 import { GAME_OUTCOMES, GAME_OVER_ALERTS } from '../app/js/game-over/constants.js';
-import {
-  getGameOutcome,
-  getOutcomeAlert,
-  getOutcomeLog,
-  isKingInCheck,
-} from '../app/js/game-over/utils.js';
+import { getGameOutcome, getOutcomeAlert, isKingInCheck } from '../app/js/game-over/utils.js';
 
 const INDEX_PAGE = readFileSync(new URL('../app/index.html', import.meta.url), 'utf8');
 const FOOLS_MATE = [
@@ -191,45 +186,6 @@ describe('game over dialog', () => {
       expect(alert[1]).toContain('<button>Rejouer&nbsp;!</button>');
     }
   );
-});
-
-describe('getOutcomeLog', () => {
-  it('logs the winner of a checkmate', () => {
-    expect(
-      getOutcomeLog({ outcome: GAME_OUTCOMES.checkmate, color: 'white', winner: 'black' })
-    ).toBe('Échec et mat ! noire gagne.');
-  });
-
-  it('logs a stalemate', () => {
-    expect(getOutcomeLog({ outcome: GAME_OUTCOMES.stalemate, color: 'white' })).toBe(
-      'Pat — match nul.'
-    );
-  });
-
-  it('logs the reason of a draw', () => {
-    expect(
-      getOutcomeLog({ outcome: GAME_OUTCOMES.draw, drawReason: DRAW_REASONS.threefoldRepetition })
-    ).toBe('Match nul : position répétée trois fois.');
-  });
-
-  it('logs the color in check', () => {
-    expect(getOutcomeLog({ outcome: GAME_OUTCOMES.check, color: 'white' })).toBe(
-      'blanche est en échec !'
-    );
-  });
-
-  it.each([
-    ['a game that goes on', { outcome: GAME_OUTCOMES.ongoing, color: 'white' }],
-    ['an unknown outcome', { outcome: 'resignation', color: 'white' }],
-    ['a checkmate without winner', { outcome: GAME_OUTCOMES.checkmate, winner: null }],
-    ['a draw with an unknown reason', { outcome: GAME_OUTCOMES.draw, drawReason: 'agreement' }],
-    ['a check of an unknown color', { outcome: GAME_OUTCOMES.check, color: 'red' }],
-    ['no outcome', {}],
-    ['null', null],
-    ['no parameters', undefined],
-  ])('logs nothing for %s', (_label, params) => {
-    expect(getOutcomeLog(params)).toBeNull();
-  });
 });
 
 describe('getOutcomeAlert', () => {

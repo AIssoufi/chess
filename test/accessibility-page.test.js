@@ -81,6 +81,24 @@ describe('announcements and names of the page', () => {
     expect(status[0].closest('main')).not.toBeNull();
   });
 
+  it('names the move list by its title, inside the main landmark, without announcing it', () => {
+    const section = document.querySelector('.move-list');
+    const list = section.querySelector('.move-list__moves');
+    const title = document.getElementById(section.getAttribute('aria-labelledby'));
+
+    expect(title?.tagName).toBe('H2');
+    expect(title.textContent).toBe('Coups');
+    expect(list.tagName).toBe('OL');
+    expect(list.getAttribute('aria-labelledby')).toBe(title.id);
+    expect(section.closest('main')).not.toBeNull();
+    expect(section.querySelector('[aria-live]')).toBeNull();
+    expect(section.hasAttribute('aria-live')).toBe(false);
+  });
+
+  it('lets the keyboard reach the move list, so that it scrolls without a mouse', () => {
+    expect(document.querySelector('.move-list__moves').tabIndex).toBe(0);
+  });
+
   it('names the promotion dialog by its title', () => {
     const dialog = document.querySelector('.promotion__wrapper');
     const titleId = dialog.getAttribute('aria-labelledby');

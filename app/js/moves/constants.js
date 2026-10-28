@@ -7,7 +7,7 @@ export const SPECIAL_MOVES = Object.freeze({
   enPassant: 'en-passant',
 });
 
-/** The name of each special move written in the move log shown to the players, in French. */
+/** The name of each special move, in French, that the status announces to screen readers. */
 export const SPECIAL_MOVE_LABELS = Object.freeze({
   [SPECIAL_MOVES.kingsideCastling]: 'petit-roque',
   [SPECIAL_MOVES.queensideCastling]: 'grand-roque',

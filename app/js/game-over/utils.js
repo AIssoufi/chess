@@ -1,6 +1,4 @@
-import { COLOR_LABELS } from '../colors/constants.js';
 import { getOpponent } from '../colors/utils.js';
-import { DRAW_REASON_LABELS } from '../draws/constants.js';
 import { getLabel } from '../labels/utils.js';
 import { CHECKED_KING_OUTCOMES, GAME_OUTCOMES, GAME_OVER_ALERTS } from './constants.js';
 
@@ -30,34 +28,6 @@ export function getGameOutcome({ game } = {}) {
   if (drawReason) return { outcome: GAME_OUTCOMES.draw, color, winner: null, drawReason };
   if (game.isInCheck(color)) return { outcome: GAME_OUTCOMES.check, color, winner: null };
   return { outcome: GAME_OUTCOMES.ongoing, color, winner: null };
-}
-
-/**
- * Returns the French message that the console logs for an outcome.
- *
- * @param {object | null} [params]
- * @param {string} params.outcome The outcome, one of `GAME_OUTCOMES`.
- * @param {string | null} [params.color] The color to play.
- * @param {string | null} [params.winner] The winning color, after a checkmate.
- * @param {string} [params.drawReason] The reason of a draw, one of `DRAW_REASONS`.
- * @returns {string | null} The message, or `null` for a game that goes on, an unknown outcome and
- *   a color or a draw reason without a label.
- * @example
- * getOutcomeLog({ outcome: 'check', color: 'white' }); // 'blanche est en échec !'
- */
-export function getOutcomeLog(params) {
-  const { outcome, color, winner, drawReason } = params ?? {};
-  const colorLabel = getLabel({ labels: COLOR_LABELS, key: color });
-  const winnerLabel = getLabel({ labels: COLOR_LABELS, key: winner });
-  const drawLabel = getLabel({ labels: DRAW_REASON_LABELS, key: drawReason });
-
-  if (outcome === GAME_OUTCOMES.checkmate) {
-    return winnerLabel ? `Échec et mat ! ${winnerLabel} gagne.` : null;
-  }
-  if (outcome === GAME_OUTCOMES.stalemate) return 'Pat — match nul.';
-  if (outcome === GAME_OUTCOMES.draw) return drawLabel ? `Match nul : ${drawLabel}.` : null;
-  if (outcome === GAME_OUTCOMES.check) return colorLabel ? `${colorLabel} est en échec !` : null;
-  return null;
 }
 
 /**

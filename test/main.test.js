@@ -56,8 +56,6 @@ const KNIGHT_ROUND_TRIP = [
 ];
 const THREEFOLD_REPETITION = [...KNIGHT_ROUND_TRIP, ...KNIGHT_ROUND_TRIP];
 
-const originalConsoleLog = console.log;
-
 /**
  * Returns the square of the board at a position.
  *
@@ -97,6 +95,16 @@ function currentPlayer() {
   return document.querySelector('.control.current-player')?.dataset.color;
 }
 
+/** @returns {string[]} The text of each turn of the move list, such as `'f3 e5'`. */
+function moveListTurns() {
+  return [...document.querySelectorAll('.move-list__moves li')].map((item) => item.textContent);
+}
+
+/** @returns {boolean} Whether the move list shows its note for a game without moves. */
+function isMoveListEmptyNoteShown() {
+  return !document.querySelector('.move-list__empty').hidden;
+}
+
 /**
  * Plays moves by clicking their start square, then their target square.
  *
@@ -122,8 +130,6 @@ async function loadPage({ beforeMain } = {}) {
   template.innerHTML = PAGE_BODY;
   template.content.querySelectorAll('script').forEach((script) => script.remove());
   document.body.replaceChildren(template.content);
-  // main.js copies every log into the page and prints it: keep the test output quiet.
-  console.log = vi.fn();
   vi.resetModules();
   await beforeMain?.();
   await import('../app/js/main.js');
@@ -132,7 +138,6 @@ async function loadPage({ beforeMain } = {}) {
 beforeEach(() => loadPage());
 
 afterEach(() => {
-  console.log = originalConsoleLog;
   vi.useRealTimers();
 });
 
@@ -254,7 +259,31 @@ describe('main.js selection and moves', () => {
     expect(prisoner.dataset).toMatchObject({ type: 'pawn', color: 'black' });
   });
 
-  it('writes the special move in French in the move log', () => {
+  it('starts with an empty move list and its note', () => {
+    expect(moveListTurns()).toEqual([]);
+    expect(isMoveListEmptyNoteShown()).toBe(true);
+  });
+
+  it('numbers the moves by turn in the move list, and hides its note', () => {
+    play([
+      ['e2', 'e4'],
+      ['e7', 'e5'],
+      ['g1', 'f3'],
+    ]);
+
+    expect(moveListTurns()).toEqual(['e4 e5', 'Cf3']);
+    expect(document.querySelector('.move-list__moves li:last-child').value).toBe(2);
+    expect(isMoveListEmptyNoteShown()).toBe(false);
+  });
+
+  it('adds nothing to the move list for a selection without a move', () => {
+    square('e2').click();
+    square('e2').click();
+
+    expect(moveListTurns()).toEqual([]);
+  });
+
+  it('writes the castling in the move list', () => {
     play([
       ['e2', 'e4'],
       ['e7', 'e5'],
@@ -265,8 +294,7 @@ describe('main.js selection and moves', () => {
       ['e1', 'g1'],
     ]);
 
-    const lastLine = document.querySelector('.console-log').lastElementChild.textContent;
-    expect(lastLine).toMatch(/> e1 → g1 \(petit-roque\)$/);
+    expect(moveListTurns()).toEqual(['e4 e5', 'Cf3 Cc6', 'Fc4 Cf6', 'O-O']);
   });
 
   it('marks the king in check, then clears the mark once the check is parried', () => {
@@ -297,6 +325,7 @@ describe('main.js promotion', () => {
     expect(button.textContent).toBe(knight.piece.white);
     expect(pieceOn('d8')).toEqual({ type: 'pawn', color: 'white' });
     expect(currentPlayer()).toBe('white');
+    expect(moveListTurns()).toEqual(['h4 g5', 'hxg5 Cf6', 'gxf6 a6', 'fxe7 a5']);
   });
 
   it('ignores clicks on the board while the choice is open', () => {
@@ -319,12 +348,14 @@ describe('main.js promotion', () => {
     expect(promotionModal().style.display).toBe('none');
     expect(currentPlayer()).toBe('black');
     expect(document.getElementById('white-capture-count').textContent).toBe('4');
+    expect(moveListTurns().at(-1)).toBe('exd8=C');
   });
 
   it('marks the check given by the promoted piece', () => {
     promotionModal().querySelector('[data-type="queen"]').click();
 
     expect(squaresWithClass('check')).toEqual(['e8']);
+    expect(moveListTurns().at(-1)).toBe('exd8=D+');
   });
 });
 
@@ -339,8 +370,7 @@ describe('main.js end of game', () => {
   it('marks the mated king and names the winner', () => {
     expect(squaresWithClass('check')).toEqual(['e1']);
     expect(document.querySelector('.winner-color').textContent).toBe('noire');
-    const lastLine = document.querySelector('.console-log').lastElementChild.textContent;
-    expect(lastLine).toMatch(/> Échec et mat ! noire gagne\.$/);
+    expect(moveListTurns()).toEqual(['f3 e5', 'g4 Dh4#']);
   });
 
   it('opens the checkmate dialog after the delay, not before', () => {
@@ -372,8 +402,11 @@ describe('main.js end of game', () => {
     expect(pieceOn('h4')).toBeNull();
     expect(squaresWithClass('check')).toEqual([]);
     expect(currentPlayer()).toBe('white');
+    expect(moveListTurns()).toEqual([]);
+    expect(isMoveListEmptyNoteShown()).toBe(true);
 
     play([['e2', 'e4']]);
+    expect(moveListTurns()).toEqual(['e4']);
     expect(pieceOn('e4')).toEqual({ type: 'pawn', color: 'white' });
     expect(square('e4').querySelector('.piece').textContent).toBe(pawn.piece.white);
   });
@@ -427,8 +460,7 @@ describe('main.js draw', () => {
     expect(dialog().querySelector('.stalemate').classList).not.toContain('shown');
     expect(dialog().getAttribute('aria-labelledby')).toBe('draw-title');
     expect(dialog().querySelector('.draw-reason').textContent).toBe('position répétée trois fois');
-    const lastLine = document.querySelector('.console-log').lastElementChild.textContent;
-    expect(lastLine).toMatch(/> Match nul : position répétée trois fois\.$/);
+    expect(moveListTurns()).toHaveLength(4);
   });
 
   it('ignores clicks on the board once the game is drawn', () => {
@@ -444,6 +476,7 @@ describe('main.js draw', () => {
 
     expect(dialog().open).toBe(false);
     expect(dialog().querySelectorAll('.shown')).toHaveLength(0);
+    expect(moveListTurns()).toEqual([]);
     play([['g1', 'f3']]);
     expect(pieceOn('f3')).toEqual({ type: 'knight', color: 'white' });
   });
