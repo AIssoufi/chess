@@ -482,6 +482,69 @@ describe('main.js draw', () => {
   });
 });
 
+describe('main.js new game', () => {
+  const newGameButton = () => document.querySelector('.new-game');
+  const dialog = () => document.querySelector('.alert__wrapper');
+
+  it('resets the board, the move list, the captures and the check during a game', () => {
+    play([
+      ['e2', 'e4'],
+      ['d7', 'd5'],
+      ['e4', 'd5'],
+      ['e7', 'e6'],
+      ['f1', 'b5'],
+    ]);
+    square('c8').click();
+    expect(squaresWithClass('check')).toEqual(['e8']);
+    expect(squaresWithClass('selected')).toEqual(['c8']);
+
+    newGameButton().click();
+
+    expect(document.querySelectorAll('.container-squares .piece')).toHaveLength(32);
+    expect(pieceOn('e2')).toEqual({ type: 'pawn', color: 'white' });
+    expect(pieceOn('d7')).toEqual({ type: 'pawn', color: 'black' });
+    expect(pieceOn('b5')).toBeNull();
+    expect(squaresWithClass('check')).toEqual([]);
+    expect(squaresWithClass('selected')).toEqual([]);
+    expect(currentPlayer()).toBe('white');
+    expect(moveListTurns()).toEqual([]);
+    expect(isMoveListEmptyNoteShown()).toBe(true);
+    expect(document.getElementById('white-capture-count').textContent).toBe('0');
+    expect(document.querySelectorAll('#white-captures .piece')).toHaveLength(0);
+  });
+
+  it('does nothing visible on a game without moves, which stays playable', () => {
+    newGameButton().click();
+
+    expect(document.querySelectorAll('.container-squares .piece')).toHaveLength(32);
+    play([['e2', 'e4']]);
+    expect(moveListTurns()).toEqual(['e4']);
+  });
+
+  it('hides a pending promotion choice and lets white play again', () => {
+    play(MOVES_BEFORE_PROMOTION);
+    play([['e7', 'd8']]);
+
+    newGameButton().click();
+
+    expect(document.querySelector('.promotion__wrapper').hidden).toBe(true);
+    expect(pieceOn('d8')).toEqual({ type: 'queen', color: 'black' });
+    play([['e2', 'e4']]);
+    expect(pieceOn('e4')).toEqual({ type: 'pawn', color: 'white' });
+  });
+
+  it('keeps the game over dialog closed when it starts before the dialog opens', () => {
+    vi.useFakeTimers();
+    play(FOOLS_MATE);
+
+    newGameButton().click();
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+
+    expect(dialog().open).toBe(false);
+    expect(currentPlayer()).toBe('white');
+  });
+});
+
 describe('main.js keyboard and screen readers', () => {
   const status = () => document.querySelector('.game-status').textContent;
   const label = (position) => square(position).getAttribute('aria-label');

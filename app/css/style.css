@@ -305,6 +305,13 @@ body::before {
   line-height: 1.6;
 }
 
+/* Under the moves, which shrink and scroll rather than push it out of the frame */
+.new-game {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 0.75rem;
+}
+
 /* The move of white keeps its width, so that the moves of black line up */
 .move-list__move:first-child {
   display: inline-block;
@@ -333,7 +340,8 @@ body::before {
     text-align: center;
   }
 
-  .move-list__moves {
+  .move-list__moves,
+  .new-game {
     align-self: center;
   }
 }
@@ -378,7 +386,9 @@ body::before {
   margin: 0;
 }
 
-.alert__wrapper button {
+/* The buttons of the dialog, and the new game button under the move list, which looks like them */
+.alert__wrapper button,
+.new-game {
   font-size: 1.2rem;
   line-height: 2rem;
   height: 2rem;
@@ -389,7 +399,21 @@ body::before {
   border-radius: 5px;
   border: none;
 }
+
+/*
+ * The move list can be narrower than the button, on a phone held sideways: its label wraps, with
+ * the same height on one line as the buttons of the dialog.
+ */
+.new-game {
+  max-width: 100%;
+  height: auto;
+  min-height: 2rem;
+  padding: 0.25rem 1rem;
+  line-height: 1.5rem;
+}
+
 .alert__wrapper button:hover,
+.new-game:hover,
 .piece {
   cursor: pointer;
 }
