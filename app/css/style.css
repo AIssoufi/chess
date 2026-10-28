@@ -195,7 +195,6 @@ body::before {
 
 .square.possible-move {
   background-color: rgba(139, 195, 74, 1) !important;
-  animation: blink 0.5s linear 1s infinite alternate;
   /* Holds its marker, drawn inside the square so that nothing around it moves */
   position: relative;
   --move-marker-color: rgba(0, 0, 0, 0.5);
@@ -460,7 +459,6 @@ body::before {
 
 /* Without motion, the highlights keep their color and the side to play its first background */
 @media (prefers-reduced-motion: reduce) {
-  .square.possible-move,
   .square.check,
   .current-player h2 {
     animation: none;
