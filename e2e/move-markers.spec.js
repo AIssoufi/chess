@@ -1,3 +1,4 @@
+import { LAST_MOVE_CLASS } from '../app/js/last-move/constants.js';
 import { BOARD_SQUARE_SELECTOR, PIECE_SELECTOR } from '../app/js/rendering/constants.js';
 import { CAPTURE_MOVE_CLASS, POSSIBLE_MOVE_CLASS } from '../app/js/selection/constants.js';
 import { LAYOUT_VIEWPORTS } from './helpers/board/constants.js';
@@ -18,6 +19,12 @@ const EMPTY_TARGET = 'e5';
 
 /** The square of the pawn that the selected pawn can take, marked with a ring. */
 const CAPTURE_TARGET = 'd5';
+
+/** The start and target squares of the last move of `CAPTURE_OPENING_MOVES`. */
+const LAST_MOVE_SQUARES = Object.freeze(['d7', 'd5']);
+
+/** The triangles that mark a square of the last move, one per corner. */
+const CORNER_COUNT = 4;
 
 /** The computed `content` of a pseudo-element drawn with an empty string. */
 const EMPTY_CONTENT = '""';
@@ -107,6 +114,45 @@ for (const { width, height } of LAYOUT_VIEWPORTS) {
       await getSquare({ page, square: SELECTED_SQUARE }).click();
 
       expect(await readLayout(page)).toEqual(before);
+    });
+  });
+
+  test.describe(`last move at ${width}x${height}`, () => {
+    test.use({ viewport: { width, height } });
+
+    test.beforeEach(async ({ page }) => {
+      await page.goto('/');
+    });
+
+    test('marks both squares of the last move with corners', async ({ page }) => {
+      await playMoves({ page, moves: CAPTURE_OPENING_MOVES });
+
+      for (const square of LAST_MOVE_SQUARES) {
+        const squareNode = getSquare({ page, square });
+        await expect(squareNode).toContainClass(LAST_MOVE_CLASS);
+        const corners = await squareNode.evaluate((node) => {
+          const style = getComputedStyle(node, '::after');
+          return { content: style.content, image: style.backgroundImage };
+        });
+        expect(corners.content).toBe(EMPTY_CONTENT);
+        expect(corners.image.match(/linear-gradient/g)).toHaveLength(CORNER_COUNT);
+      }
+    });
+
+    test('moves no square when the last move is marked', async ({ page }) => {
+      await playMoves({ page, moves: CAPTURE_OPENING_MOVES });
+      await getSquare({ page, square: SELECTED_SQUARE }).click();
+      const marked = await readLayout(page);
+
+      // The moves themselves may lengthen the page, so compare with the same position unmarked.
+      await page.evaluate((className) => {
+        document
+          .querySelectorAll(`.${className}`)
+          .forEach((node) => node.classList.remove(className));
+      }, LAST_MOVE_CLASS);
+      await expect(page.locator(`.${LAST_MOVE_CLASS}`)).toHaveCount(0);
+
+      expect(await readLayout(page)).toEqual(marked);
     });
   });
 }

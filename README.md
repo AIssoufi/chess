@@ -84,6 +84,7 @@ pnpm preview    # serve dist/ on http://localhost:4173/
   - `rendering.test.js`: the pieces, square labels, status, captures, check, game over board
     and move list;
   - `selection.test.js`: the selected square, its moves and what a click does;
+  - `last-move.test.js`: the squares of the last move and their mark on the board;
   - `roving-focus.test.js`: the keyboard focus of the board;
   - `promotion.test.js`: the promotion choice;
   - `alerts.test.js`: the game over dialog;
@@ -133,6 +134,7 @@ app/                 Vite root: the page, its styles and images
     draws/           Draw reasons and their labels, insufficient material and the position key
     game-over/       Move outcome (check, mate, stalemate, draw) and its alert
     labels/          Screen reader names of the pieces and the squares, in French
+    last-move/       Marks the start and target squares of the last move on the board
     main.js          Wiring: listens to the board, the promotion, the dialog and the new game
                      button, calls the modules
     moves/           Piece steps, special move names and labels, and the capture helper
