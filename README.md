@@ -136,8 +136,8 @@ app/                 Vite root: the page, its styles and images
     squares/         Board size and square helpers, such as the square an en passant capture takes
     status/          Status announcement: the last move, whose turn it is and the game outcome
   public/            Files copied as they are to dist/: the Cloudflare Pages _headers, the
-                     favicon, the 1200x630 social preview image (og-image.jpg), robots.txt
-                     and the sitemap
+                     404 page and its stylesheet, the favicon, the 1200x630 social preview
+                     image (og-image.jpg), robots.txt and the sitemap
 commitlint/          Ticket reference rule, bot commits and the pull request title config
 docs/                README screenshot, decisions (ADRs), the evolution of the stack and
                      ai-workflow/ (how agents work on the project)

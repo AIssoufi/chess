@@ -44,9 +44,26 @@ describe('404 page', () => {
     }
   });
 
-  it('stands alone, with inline styles and no script or stylesheet to load', () => {
-    expect(page.querySelector('style')).not.toBeNull();
-    expect(page.querySelectorAll('script, link[rel="stylesheet"]')).toHaveLength(0);
+  it('loads its own stylesheet of the public folder, with no script', () => {
+    const stylesheets = [...page.querySelectorAll('link[rel="stylesheet"]')].map((link) =>
+      link.getAttribute('href')
+    );
+
+    expect(stylesheets).toEqual(['/404.css']);
+    expect(existsSync(join(PUBLIC_DIR, '404.css'))).toBe(true);
+    expect(page.querySelectorAll('script')).toHaveLength(0);
+  });
+
+  it('holds no inline style, which the Content Security Policy blocks', () => {
+    expect(page.querySelectorAll('style, [style]')).toHaveLength(0);
+  });
+
+  it('holds no event handler attribute, which the Content Security Policy blocks', () => {
+    const handlerAttributes = [...page.querySelectorAll('*')].flatMap((element) =>
+      element.getAttributeNames().filter((name) => name.startsWith('on'))
+    );
+
+    expect(handlerAttributes).toEqual([]);
   });
 
   it('holds no em dash, written or as an entity', () => {
