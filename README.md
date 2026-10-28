@@ -9,7 +9,7 @@ the final position.
 **Live demo:** https://chess.issoufi.fr
 
 <p align="center">
-  <img src="docs/screenshot.webp" alt="A game after 1. e4 d5: the white pawn on e4 is selected, a dot marks its empty target e5 and a ring marks its capture on d5, and the new game button shows beside the board" width="800">
+  <img src="docs/screenshot.webp" alt="A game after 1. e4 d5: corners mark d7 and d5, the squares of the last move; the white pawn on e4 is selected, a dot marks its empty target e5 and a ring marks its capture on d5, and the new game button shows beside the board" width="800">
 </p>
 
 ## Tech stack
