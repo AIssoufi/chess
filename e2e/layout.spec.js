@@ -54,7 +54,7 @@ const LONG_GAME_TURNS = 40;
 const TURN_MOVES = Object.freeze(['Cxe4+', 'Dxh8#']);
 
 for (const viewport of LAYOUT_VIEWPORTS) {
-  const { width, height, boardOverflowIssue } = viewport;
+  const { width, height } = viewport;
 
   test.describe(`at ${width}x${height}`, () => {
     test.use({ viewport: { width, height } });
@@ -94,18 +94,12 @@ for (const viewport of LAYOUT_VIEWPORTS) {
       expect(board.right).toBeLessThanOrEqual(clientWidth);
     });
 
-    const declareBoardFitTest = boardOverflowIssue ? test.fixme : test;
-    const issueSuffix = boardOverflowIssue ? ` (#${boardOverflowIssue})` : '';
+    test('shows the whole board without scrolling', async ({ page }) => {
+      const { board, clientHeight } = await readLayout(page);
 
-    declareBoardFitTest(
-      `shows the whole board without scrolling${issueSuffix}`,
-      async ({ page }) => {
-        const { board, clientHeight } = await readLayout(page);
-
-        expect(board.top).toBeGreaterThanOrEqual(0);
-        expect(board.bottom).toBeLessThanOrEqual(clientHeight);
-      }
-    );
+      expect(board.top).toBeGreaterThanOrEqual(0);
+      expect(board.bottom).toBeLessThanOrEqual(clientHeight);
+    });
   });
 }
 
