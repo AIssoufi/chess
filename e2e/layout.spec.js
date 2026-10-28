@@ -99,7 +99,7 @@ for (const viewport of LAYOUT_VIEWPORTS) {
 test.describe(`with ${MAX_CAPTURED_PIECES} captured pieces at ${CAPTURES_VIEWPORT_LABEL}`, () => {
   test.use({ viewport: CAPTURES_VIEWPORT });
 
-  test.fixme('keeps the game inside the screen (#49)', async ({ page }) => {
+  test('keeps the game inside the screen (#49)', async ({ page }) => {
     await page.goto('/');
     await addCapturedPieces({ page, color: 'white', count: MAX_CAPTURED_PIECES });
 
