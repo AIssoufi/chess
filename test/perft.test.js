@@ -4,6 +4,12 @@ import { STARTING_FEN } from './helpers/fen/constants.js';
 import { loadFen } from './helpers/fen/utils.js';
 
 /**
+ * The V8 coverage of `pnpm test:coverage` slows the deepest counts past the default 5 s timeout
+ * on a CI runner.
+ */
+const PERFT_TIMEOUT_MS = 30_000;
+
+/**
  * The reference positions of https://www.chessprogramming.org/Perft_Results, with their leaf node
  * counts from depth 1. Each depth stops where the run stays near a second in total.
  */
@@ -101,6 +107,7 @@ describe('Perft', () => {
     'counts $nodeCount nodes in $name at depth $depth',
     ({ fen, depth, nodeCount }) => {
       expect(countLeafNodes({ game: loadFen(fen), depth })).toBe(nodeCount);
-    }
+    },
+    PERFT_TIMEOUT_MS
   );
 });
