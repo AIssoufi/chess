@@ -94,3 +94,6 @@ export const PROMOTION_SQUARE = 'h8';
 
 /** The number of pieces one side can capture: every piece of the opponent but its king. */
 export const MAX_CAPTURED_PIECES = 15;
+
+/** A turn of the move list, both moves played. */
+export const TURN_MOVES = Object.freeze(['Cxe4+', 'Dxh8#']);
