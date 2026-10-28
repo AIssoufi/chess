@@ -10,6 +10,8 @@ export default defineConfig({
       provider: 'v8',
       include: ['app/js/**/*.js'],
       reporter: ['text', 'html'],
+      // Just under the measured figures, so a change that leaves code untested fails the CI.
+      thresholds: { lines: 100, functions: 100, statements: 99, branches: 98 },
     },
   },
 });

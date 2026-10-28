@@ -91,7 +91,9 @@ pnpm preview    # serve dist/ on http://localhost:4173/
   ticket trailer.
 
 `pnpm test:coverage` adds a V8 coverage report of `app/js/`: a summary in the terminal and an
-HTML report in `coverage/`, which Git and Prettier ignore.
+HTML report in `coverage/`, which Git and Prettier ignore. It fails under the thresholds of
+`vitest.config.js` (100% of lines and functions, 99% of statements, 98% of branches), and the CI
+runs it in the `check` job.
 
 ### Browser tests
 
@@ -163,7 +165,8 @@ test/                Unit tests
 - **CI** (`ci.yml`): on every pull request and push to `master`, runs four jobs; `check`,
   `test (node 26)` and `e2e` install with the frozen lockfile first:
   - `check`: `pnpm audit --audit-level high` (which fails on an advisory of high or critical
-    severity), `pnpm format:check`, `pnpm lint`, `pnpm test` and `pnpm build`, on the Node.js
+    severity), `pnpm format:check`, `pnpm lint`, `pnpm test:coverage` (which fails under the
+    coverage thresholds) and `pnpm build`, on the Node.js
     version of `.nvmrc` (24);
   - `test (node 26)`: `pnpm test` again on Node.js 26;
   - `playwright-version`: reads the exact `@playwright/test` version of the lockfile;
