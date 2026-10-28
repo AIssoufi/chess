@@ -35,6 +35,11 @@ In the pull request that closes #78:
   breakpoint, and checks that it stays beside the board, under the panel of white, inside the
   screen, and scrolls. Below 900px, a third one checks that "Aucun coup joué" is centered under
   the title of the move list.
+- Update of 2026-10-28 (#48): `scrollbars.spec.js` launches Chromium with the classic scrollbars
+  of a desktop window and checks, at 320x568, 390x800, 600x800 and 844x390, that the page does not
+  scroll sideways and that the board stays inside the game frame. It runs in Chromium only, the
+  one engine that takes classic scrollbars from the command line; the other specs still run in
+  both engines.
 
 ## Alternatives considered
 

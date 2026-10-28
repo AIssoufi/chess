@@ -95,6 +95,8 @@ HTML report in `coverage/`, which Git and Prettier ignore.
 `pnpm test:e2e` runs Playwright on the production build, in Chromium and WebKit. It builds the
 site, serves `dist/` with `vite preview` on a free port, and runs the `*.spec.js` files of `e2e/`.
 [ADR 0007](docs/decisions/0007-test-in-a-browser-with-playwright.md) lists what they check.
+`scrollbars.spec.js` runs in Chromium only, launched with the classic scrollbars of a desktop
+window, which take room from the page where overlay ones take none.
 
 Install the two browsers once, and again after an upgrade of `@playwright/test`:
 
@@ -139,7 +141,7 @@ app/                 Vite root: the page, its styles and images
 commitlint/          Ticket reference rule, bot commits and the pull request title config
 docs/                README screenshot, decisions (ADRs), the evolution of the stack and
                      ai-workflow/ (how agents work on the project)
-e2e/                 Browser tests (Playwright): the layout and game specs, and their helpers
+e2e/                 Browser tests (Playwright): the layout, scrollbar and game specs, and helpers
 playwright.config.js Playwright config: the browsers, and the preview server on a free port
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests
