@@ -12,9 +12,9 @@
 
 /*
  * Board sizing: a square is 70px at most, and shrinks so that the board and its coordinates fit
- * the page width and, on short screens, the screen height (leaving 12rem for the title and the
- * padding around the board). The height never brings a square under 40px, a comfortable touch
- * target: a phone held sideways gets its own layout below.
+ * the page width and, on short screens, the screen height (leaving `--height-reserve` for the
+ * title and the padding around the board). The height never brings a square under 40px, a
+ * comfortable touch target: a phone held sideways gets its own layout below.
  *
  * The page width is the content width of `.main__wrapper`, inside its 1rem gutters: under 900px
  * and on a phone held sideways it is a size container, and `100cqi` leaves out a classic vertical
@@ -26,11 +26,26 @@
   --stable-viewport-height: 100vh;
   --coordinates-size: 15px;
   --max-square: 70px;
+  --height-reserve: 12rem;
   --square: min(
     var(--max-square),
     calc((100cqi - var(--coordinates-size)) / 8),
-    max(40px, calc((var(--stable-viewport-height) - 12rem) / 8))
+    max(40px, calc((var(--stable-viewport-height) - var(--height-reserve)) / 8))
   );
+}
+
+/*
+ * Tablet held upright: under 900px the player panels, the move list and the footer stack around
+ * the board, about 33rem with the title and the new game button on macOS, and up to 35rem with the
+ * fallback fonts of Linux, so the reserve counts them and the whole page fits the screen height.
+ * Only from 56rem high, where 40px squares leave room for that reserve: a shorter screen scrolls
+ * anyway, and keeps its squares. Only from 600px wide too: a phone upright keeps the squares of its
+ * width, which this reserve would shrink to 40px from 56rem high.
+ */
+@media (min-width: 600px) and (max-width: 899px) and (min-height: 56rem) {
+  :root {
+    --height-reserve: 36rem;
+  }
 }
 
 /*

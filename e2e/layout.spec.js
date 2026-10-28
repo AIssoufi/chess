@@ -16,6 +16,9 @@ import {
   MAX_CAPTURED_PIECES,
   MAX_SQUARE_SIZE_PX,
   MIN_SQUARE_SIZE_PX,
+  NARROW_UPRIGHT_VIEWPORTS,
+  SHORT_TABLET_VIEWPORT,
+  UPRIGHT_TABLET_VIEWPORTS,
 } from './helpers/board/constants.js';
 import { getGridPlace, readLayout } from './helpers/board/utils.js';
 import { expect, test } from './helpers/fixtures.js';
@@ -175,6 +178,54 @@ for (const viewport of LANDSCAPE_VIEWPORTS) {
       expect(list.y + list.height).toBeLessThanOrEqual(clientHeight);
       expect(listRight).toBeLessThanOrEqual(clientWidth);
       expect(scrollHeight, 'the long list scrolls').toBeGreaterThan(listHeight);
+    });
+  });
+}
+
+for (const viewport of UPRIGHT_TABLET_VIEWPORTS) {
+  const viewportLabel = `${viewport.width}x${viewport.height}`;
+
+  test.describe(`on a tablet held upright at ${viewportLabel}`, () => {
+    test.use({ viewport });
+
+    test('fits the board and both stacked panels without scrolling', async ({ page }) => {
+      await page.goto('/');
+
+      const { scrollHeight, clientHeight, squares } = await readLayout(page);
+
+      expect(scrollHeight).toBeLessThanOrEqual(clientHeight);
+      expect(squares[0].width).toBeGreaterThanOrEqual(MIN_SQUARE_SIZE_PX);
+    });
+  });
+}
+
+test.describe(`on a tablet held upright at ${SHORT_TABLET_VIEWPORT.width}x${SHORT_TABLET_VIEWPORT.height}`, () => {
+  test.use({ viewport: SHORT_TABLET_VIEWPORT });
+
+  test('keeps the largest squares, since the stacked page scrolls anyway', async ({ page }) => {
+    await page.goto('/');
+
+    const { squares } = await readLayout(page);
+
+    expect(squares[0].width).toBe(MAX_SQUARE_SIZE_PX);
+  });
+});
+
+for (const viewport of NARROW_UPRIGHT_VIEWPORTS) {
+  const viewportLabel = `${viewport.width}x${viewport.height}`;
+
+  test.describe(`on a narrow screen held upright at ${viewportLabel}`, () => {
+    test.use({ viewport });
+
+    test('keeps the squares of a shorter screen as wide, bound by the width', async ({ page }) => {
+      await page.goto('/');
+      const { squares: tallSquares } = await readLayout(page);
+      await page.setViewportSize({ width: viewport.width, height: SHORT_TABLET_VIEWPORT.height });
+      const { squares: shortSquares } = await readLayout(page);
+
+      expect(Math.abs(tallSquares[0].width - shortSquares[0].width)).toBeLessThanOrEqual(
+        GRID_TOLERANCE_PX
+      );
     });
   });
 }

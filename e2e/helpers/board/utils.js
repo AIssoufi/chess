@@ -57,6 +57,7 @@ export function getGridPlace(square) {
  * @param {import('@playwright/test').Page} page The page of the game.
  * @returns {Promise<{
  *   scrollWidth: number,
+ *   scrollHeight: number,
  *   clientWidth: number,
  *   clientHeight: number,
  *   board: { left: number, top: number, right: number, bottom: number },
@@ -74,6 +75,7 @@ export function readLayout(page) {
       const squareNodes = [...document.querySelectorAll(squareSelector)];
       return {
         scrollWidth: root.scrollWidth,
+        scrollHeight: root.scrollHeight,
         clientWidth: root.clientWidth,
         clientHeight: root.clientHeight,
         board: toBox(document.querySelector(boardSelector)),
