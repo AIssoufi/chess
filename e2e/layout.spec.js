@@ -1,8 +1,16 @@
 import { BOARD_SIZE } from '../app/js/squares/constants.js';
 import pawn from '../app/js/pieces/pawn.js';
-import { CAPTURES_ID_SUFFIX, PIECE_CLASS } from '../app/js/rendering/constants.js';
+import {
+  CAPTURES_ID_SUFFIX,
+  CONTROL_SELECTOR,
+  MOVE_CLASS,
+  MOVE_LIST_EMPTY_SELECTOR,
+  MOVE_LIST_SELECTOR,
+  PIECE_CLASS,
+} from '../app/js/rendering/constants.js';
 import {
   GRID_TOLERANCE_PX,
+  LANDSCAPE_VIEWPORTS,
   LAYOUT_VIEWPORTS,
   MAX_CAPTURED_PIECES,
   MAX_SQUARE_SIZE_PX,
@@ -17,6 +25,18 @@ const SQUARE_COUNT = BOARD_SIZE * BOARD_SIZE;
 const CAPTURES_VIEWPORT = { width: 1280, height: 800 };
 
 const CAPTURES_VIEWPORT_LABEL = `${CAPTURES_VIEWPORT.width}x${CAPTURES_VIEWPORT.height}`;
+
+/** The panel of white, which #33 puts above the move list on a phone held sideways. */
+const WHITE_PANEL_SELECTOR = `${CONTROL_SELECTOR}[data-color="white"]`;
+
+/** The whole move list, its title included, around the scrolling list of `MOVE_LIST_SELECTOR`. */
+const MOVE_LIST_PANEL_SELECTOR = '.move-list';
+
+/** Turns of a long game, more than the move list can show at once beside a phone's board. */
+const LONG_GAME_TURNS = 40;
+
+/** A turn of the move list, both moves played. */
+const TURN_MOVES = Object.freeze(['Cxe4+', 'Dxh8#']);
 
 for (const viewport of LAYOUT_VIEWPORTS) {
   const { width, height, boardOverflowIssue } = viewport;
@@ -95,3 +115,54 @@ test.describe(`with ${MAX_CAPTURED_PIECES} captured pieces at ${CAPTURES_VIEWPOR
     expect(scrollHeight).toBeLessThanOrEqual(CAPTURES_VIEWPORT.height);
   });
 });
+
+for (const viewport of LANDSCAPE_VIEWPORTS) {
+  const viewportLabel = `${viewport.width}x${viewport.height}`;
+
+  test.describe(`with ${LONG_GAME_TURNS} turns in the move list at ${viewportLabel}`, () => {
+    test.use({ viewport });
+
+    test('keeps the move list beside the board, under white, inside the screen', async ({
+      page,
+    }) => {
+      await page.goto('/');
+      await page.locator(MOVE_LIST_SELECTOR).evaluate(
+        (list, { count, moveClass, moves }) => {
+          for (let turn = 1; turn <= count; turn += 1) {
+            const item = document.createElement('li');
+            for (const notation of moves) {
+              const move = document.createElement('span');
+              move.className = moveClass;
+              move.textContent = notation;
+              item.append(move, ' ');
+            }
+            list.appendChild(item);
+          }
+        },
+        { count: LONG_GAME_TURNS, moveClass: MOVE_CLASS, moves: TURN_MOVES }
+      );
+      await page.locator(MOVE_LIST_EMPTY_SELECTOR).evaluate((note) => {
+        note.hidden = true;
+      });
+
+      const { board, clientWidth, clientHeight } = await readLayout(page);
+      const listNode = page.locator(MOVE_LIST_SELECTOR);
+      const list = await page.locator(MOVE_LIST_PANEL_SELECTOR).boundingBox();
+      const whitePanel = await page.locator(WHITE_PANEL_SELECTOR).boundingBox();
+      const { scrollHeight, clientHeight: listHeight } = await listNode.evaluate((node) => ({
+        scrollHeight: node.scrollHeight,
+        clientHeight: node.clientHeight,
+      }));
+      const listRight = list.x + list.width;
+      const isBesideBoard = list.x >= board.right || listRight <= board.left;
+
+      expect(board.top).toBeGreaterThanOrEqual(0);
+      expect(board.bottom).toBeLessThanOrEqual(clientHeight);
+      expect(isBesideBoard, 'the move list does not cover the board').toBe(true);
+      expect(list.y).toBeGreaterThanOrEqual(whitePanel.y + whitePanel.height);
+      expect(list.y + list.height).toBeLessThanOrEqual(clientHeight);
+      expect(listRight).toBeLessThanOrEqual(clientWidth);
+      expect(scrollHeight, 'the long list scrolls').toBeGreaterThan(listHeight);
+    });
+  });
+}

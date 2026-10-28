@@ -1,6 +1,7 @@
 /**
  * The floor of the height term of the `--square` rule of the styles, in CSS pixels: the smallest
- * side of a square on a screen wide enough for the board.
+ * side of a square on a screen wide enough for the board. A phone held sideways has no floor: its
+ * squares follow the screen height, about 43px at 844x390.
  */
 export const MIN_SQUARE_SIZE_PX = 40;
 
@@ -11,13 +12,28 @@ export const MAX_SQUARE_SIZE_PX = 70;
 export const GRID_TOLERANCE_PX = 1;
 
 /**
+ * A phone held sideways, under the 900px breakpoint, where the landscape layout keeps the panels
+ * beside the board.
+ */
+export const PHONE_LANDSCAPE_VIEWPORT = Object.freeze({ width: 844, height: 390 });
+
+/** The largest phone held sideways, above the 900px breakpoint, with the desktop panel rules. */
+export const LARGE_PHONE_LANDSCAPE_VIEWPORT = Object.freeze({ width: 932, height: 430 });
+
+/** The viewports of the landscape layout of phones, on both sides of the 900px breakpoint. */
+export const LANDSCAPE_VIEWPORTS = Object.freeze([
+  PHONE_LANDSCAPE_VIEWPORT,
+  LARGE_PHONE_LANDSCAPE_VIEWPORT,
+]);
+
+/**
  * The viewports of the layout tests: a phone upright, a tablet upright, a phone sideways and a
  * laptop. `boardOverflowIssue` names the open issue of a viewport whose board does not fit yet.
  */
 export const LAYOUT_VIEWPORTS = Object.freeze([
   { width: 390, height: 800 },
   { width: 768, height: 1024 },
-  { width: 844, height: 390, boardOverflowIssue: 33 },
+  PHONE_LANDSCAPE_VIEWPORT,
   { width: 1280, height: 800 },
 ]);
 
