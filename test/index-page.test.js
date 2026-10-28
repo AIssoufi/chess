@@ -19,6 +19,8 @@ const OTHER_ATTRIBUTE_SELECTOR = /\[(?!id\b)[^\]]*\]/g;
 const RULE_PRELUDE = /[^{};]+(?=\{)/g;
 /** A CSS comment, which may hold braces and `#`. */
 const CSS_COMMENT = /\/\*[\s\S]*?\*\//g;
+/** The rule that lets the hidden attribute override the `display: flex` of the promotion choice. */
+const HIDDEN_PROMOTION_RULE = /\.promotion__wrapper\[hidden\]\s*\{\s*display:\s*none;?\s*\}/;
 /** Ids of the areas that list the pieces captured by each player. */
 const CAPTURE_AREA_IDS = ['black-captures', 'white-captures'];
 /** The head of the page, in a template so that happy-dom does not try to load the stylesheet. */
@@ -141,6 +143,29 @@ describe('index.html head', () => {
     expect(Number(meta('[property="og:image:width"]'))).toBe(SOCIAL_IMAGE_SIZE.width);
     expect(Number(meta('[property="og:image:height"]'))).toBe(SOCIAL_IMAGE_SIZE.height);
     expect(meta('[property="og:image:alt"]')).toBeTruthy();
+  });
+});
+
+describe('index.html under the Content Security Policy of _headers', () => {
+  const page = new DOMParser().parseFromString(INDEX_PAGE, 'text/html');
+  const elements = [...page.querySelectorAll('*')];
+
+  it('holds no style element or attribute, which style-src blocks', () => {
+    expect(page.querySelectorAll('style, [style]')).toHaveLength(0);
+  });
+
+  it('holds no inline script or event handler attribute, which script-src blocks', () => {
+    const handlerAttributes = elements.flatMap((element) =>
+      element.getAttributeNames().filter((name) => name.startsWith('on'))
+    );
+
+    expect(page.querySelectorAll('script:not([src])')).toHaveLength(0);
+    expect(handlerAttributes).toEqual([]);
+  });
+
+  it('hides the promotion choice until a pawn promotes, despite the display of its rule', () => {
+    expect(page.querySelector('.promotion__wrapper').hidden).toBe(true);
+    expect(STYLESHEET).toMatch(HIDDEN_PROMOTION_RULE);
   });
 });
 

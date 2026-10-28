@@ -207,7 +207,9 @@ repository:
 | Custom domain          | `chess.issoufi.fr`, a CNAME to the project's `.pages.dev` |
 
 `app/public/_headers` sets the response headers: a one-year immutable cache for the hashed files
-of `/assets/`, and a Content Security Policy, a Permissions Policy and HSTS on every page. Pages
+of `/assets/`, and a Content Security Policy, a Permissions Policy and HSTS on every page. The
+policy only allows the scripts, styles, images and requests of the site itself, never inline code:
+a page must hold no `<style>`, `style` attribute, inline script or event handler attribute. Pages
 already sends `X-Content-Type-Options` and `Referrer-Policy`. Change `frame-ancestors` in that file
 to embed the game in another site. HSTS lasts one year and covers this host only, without
 `includeSubDomains` or `preload`, since this repository does not serve the parent `issoufi.fr`.
