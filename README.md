@@ -9,7 +9,7 @@ the final position.
 **Live demo:** https://chess.issoufi.fr
 
 <p align="center">
-  <img src="docs/screenshot.webp" alt="A game in progress: the white knight on f3 is selected, its legal moves are highlighted and the move list shows the first three turns" width="800">
+  <img src="docs/screenshot.webp" alt="A game after 1. e4 d5: the white pawn on e4 is selected, a dot marks its empty target e5 and a ring marks its capture on d5, and the new game button shows beside the board" width="800">
 </p>
 
 ## Tech stack
@@ -149,7 +149,8 @@ app/                 Vite root: the page, its styles and images
 commitlint/          Ticket reference rule, bot commits and the pull request title config
 docs/                README screenshot, decisions (ADRs), the evolution of the stack and
                      ai-workflow/ (how agents work on the project)
-e2e/                 Browser tests (Playwright): the layout, scrollbar and game specs, and helpers
+e2e/                 Browser tests (Playwright): the layout, scrollbar, move marker and game
+                     specs, and helpers
 playwright.config.js Playwright config: the browsers, and the preview server on a free port
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests
