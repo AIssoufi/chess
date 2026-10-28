@@ -149,7 +149,8 @@ app/                 Vite root: the page, its styles and images
 commitlint/          Ticket reference rule, bot commits and the pull request title config
 docs/                README screenshot, decisions (ADRs), the evolution of the stack and
                      ai-workflow/ (how agents work on the project)
-e2e/                 Browser tests (Playwright): the layout, scrollbar and game specs, and helpers
+e2e/                 Browser tests (Playwright): the layout, scrollbar, move marker and game
+                     specs, and helpers
 playwright.config.js Playwright config: the browsers, and the preview server on a free port
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests
