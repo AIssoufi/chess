@@ -15,9 +15,9 @@ import {
   renderStatus,
 } from '../app/js/rendering/render.js';
 import { getKingSquare } from '../app/js/rendering/utils.js';
+import { NO_SELECTION } from '../app/js/selection/constants.js';
 import { BOARD_FILES, BOARD_SIZE, FIRST_RANK } from '../app/js/squares/constants.js';
 
-const NO_SELECTION = { square: null, moves: [] };
 const WHITE_KING = { type: 'king', color: 'white' };
 const BLACK_KING = { type: 'king', color: 'black' };
 const PROMOTION_MOVE = {
