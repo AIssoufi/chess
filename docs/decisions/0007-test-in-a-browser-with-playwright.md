@@ -40,6 +40,9 @@ In the pull request that closes #78:
   scroll sideways and that the board stays inside the game frame. It runs in Chromium only, the
   one engine that takes classic scrollbars from the command line; the other specs still run in
   both engines.
+- Update of 2026-10-28 (#74): `move-markers.spec.js` selects the pawn on e4 after 1. e4 d5 at
+  each layout viewport, and checks that the empty e5 shows a dot and the pawn on d5 a ring, that
+  this pawn is painted over its ring, and that no square moves when the markers show.
 
 ## Alternatives considered
 

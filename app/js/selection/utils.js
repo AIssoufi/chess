@@ -1,3 +1,4 @@
+import { isOpponentPiece } from '../moves/utils.js';
 import { isSquare } from '../squares/utils.js';
 import { CLICK_ACTIONS, NO_SELECTION } from './constants.js';
 
@@ -15,17 +16,34 @@ function hasPieceToMove({ game, square }) {
 }
 
 /**
- * Returns the selection that a click on a square makes: the square and its legal moves, when it
- * holds a piece of the color to move that can move.
+ * Tells whether a move of a piece captures: its target holds a piece of the other color, or the
+ * piece is a pawn taking en passant, whose target square is empty.
+ *
+ * @param {object} params
+ * @param {import('../Chessboard.js').default} params.game The game.
+ * @param {{ type: string, color: string }} params.piece The moving piece.
+ * @param {string} params.target The square the piece moves to, such as `'d5'`.
+ * @returns {boolean} Whether the move takes a piece.
+ */
+function isCapture({ game, piece, target }) {
+  const isOpponentTarget = isOpponentPiece({ piece: game.getPiece(target), color: piece.color });
+  const isEnPassant = piece.type === 'pawn' && target === game.enPassantSquare;
+  return isOpponentTarget || isEnPassant;
+}
+
+/**
+ * Returns the selection that a click on a square makes: the square, its legal moves and those of
+ * them that capture, when it holds a piece of the color to move that can move.
  *
  * @param {object | null} [params]
  * @param {import('../Chessboard.js').default} params.game The game.
  * @param {string} params.square The clicked square, such as `'e2'`.
- * @returns {{ square: string | null, moves: readonly string[] }} The selection, or `NO_SELECTION`
- *   for a square that is not a square, is empty, holds a piece of the other color or a piece
- *   without legal moves, and without a game.
+ * @returns {{ square: string | null, moves: readonly string[], captures: readonly string[] }} The
+ *   selection, or `NO_SELECTION` for a square that is not a square, is empty, holds a piece of the
+ *   other color or a piece without legal moves, and without a game.
  * @example
- * getSelection({ game, square: 'e2' }); // { square: 'e2', moves: ['e3', 'e4'] } at the start
+ * getSelection({ game, square: 'e4' }); // { square: 'e4', moves: ['e5', 'd5'], captures: ['d5'] }
+ * // after 1. e4 d5
  */
 export function getSelection(params) {
   const { game, square } = params ?? {};
@@ -33,7 +51,11 @@ export function getSelection(params) {
   if (!canSelect) return NO_SELECTION;
 
   const moves = game.getMoves(square);
-  return moves.length > 0 ? { square, moves } : NO_SELECTION;
+  if (moves.length === 0) return NO_SELECTION;
+
+  const piece = game.getPiece(square);
+  const captures = moves.filter((target) => isCapture({ game, piece, target }));
+  return { square, moves, captures };
 }
 
 /**

@@ -98,12 +98,17 @@ describe('motion of the page', () => {
   it('finds the animations and transitions of the page', () => {
     expect(MOVING_SELECTORS).toEqual(
       expect.arrayContaining([
-        { selector: '.square.possible-move', property: 'animation' },
         { selector: '.square.check', property: 'animation' },
         { selector: '.current-player h2', property: 'animation' },
         { selector: '.promotion__pieces button', property: 'transition' },
       ])
     );
+  });
+
+  it('keeps the possible moves still, their dot or ring showing them without blinking', () => {
+    const movingSelectors = MOVING_SELECTORS.map(({ selector }) => selector);
+
+    expect(movingSelectors).not.toContain('.square.possible-move');
   });
 
   it.each(MOVING_SELECTORS)('stops the $property of $selector with reduced motion', (moving) => {
