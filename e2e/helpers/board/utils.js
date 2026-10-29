@@ -1,3 +1,4 @@
+import { test } from '@playwright/test';
 import { getOpponent } from '../../../app/js/colors/utils.js';
 import pawn from '../../../app/js/pieces/pawn.js';
 import {
@@ -30,7 +31,19 @@ export function getSquare({ page, square }) {
 }
 
 /**
- * Plays moves by clicking the square of each piece, then its destination, as a player would.
+ * Presses an element as a player of the running project would: a tap on a touch screen project,
+ * a click elsewhere. It reads the `hasTouch` of the project, not a `test.use` override.
+ *
+ * @param {import('@playwright/test').Locator} locator The element to press.
+ * @returns {Promise<void>} Resolves once the element is pressed.
+ */
+export function press(locator) {
+  const isTouchProject = Boolean(test.info().project.use.hasTouch);
+  return isTouchProject ? locator.tap() : locator.click();
+}
+
+/**
+ * Plays moves by pressing the square of each piece, then its destination, as a player would.
  *
  * @param {object} params
  * @param {import('@playwright/test').Page} params.page The page of the game.
@@ -38,8 +51,8 @@ export function getSquare({ page, square }) {
  */
 export async function playMoves({ page, moves }) {
   for (const { from, to } of moves) {
-    await getSquare({ page, square: from }).click();
-    await getSquare({ page, square: to }).click();
+    await press(getSquare({ page, square: from }));
+    await press(getSquare({ page, square: to }));
   }
 }
 

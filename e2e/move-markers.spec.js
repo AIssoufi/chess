@@ -2,7 +2,7 @@ import { LAST_MOVE_CLASS } from '../app/js/last-move/constants.js';
 import { BOARD_SQUARE_SELECTOR, PIECE_SELECTOR } from '../app/js/rendering/constants.js';
 import { CAPTURE_MOVE_CLASS, POSSIBLE_MOVE_CLASS } from '../app/js/selection/constants.js';
 import { LAYOUT_VIEWPORTS } from './helpers/board/constants.js';
-import { getSquare, playMoves, readLayout } from './helpers/board/utils.js';
+import { getSquare, playMoves, press, readLayout } from './helpers/board/utils.js';
 import { expect, test } from './helpers/fixtures.js';
 
 /** 1. e4 d5: the pawn of white on e4 may then move to the empty e5 or take the pawn on d5. */
@@ -69,7 +69,7 @@ for (const { width, height } of LAYOUT_VIEWPORTS) {
     });
 
     test('marks an empty target with a dot and a capture with a ring', async ({ page }) => {
-      await getSquare({ page, square: SELECTED_SQUARE }).click();
+      await press(getSquare({ page, square: SELECTED_SQUARE }));
 
       const emptyTarget = getSquare({ page, square: EMPTY_TARGET });
       const captureTarget = getSquare({ page, square: CAPTURE_TARGET });
@@ -91,7 +91,7 @@ for (const { width, height } of LAYOUT_VIEWPORTS) {
     });
 
     test('paints the piece to capture over its ring', async ({ page }) => {
-      await getSquare({ page, square: SELECTED_SQUARE }).click();
+      await press(getSquare({ page, square: SELECTED_SQUARE }));
 
       const box = await getSquare({ page, square: CAPTURE_TARGET }).boundingBox();
       const squareOfTopPiece = await page.evaluate(
@@ -111,7 +111,7 @@ for (const { width, height } of LAYOUT_VIEWPORTS) {
 
     test('moves no square when the markers show', async ({ page }) => {
       const before = await readLayout(page);
-      await getSquare({ page, square: SELECTED_SQUARE }).click();
+      await press(getSquare({ page, square: SELECTED_SQUARE }));
 
       expect(await readLayout(page)).toEqual(before);
     });
@@ -141,7 +141,7 @@ for (const { width, height } of LAYOUT_VIEWPORTS) {
 
     test('moves no square when the last move is marked', async ({ page }) => {
       await playMoves({ page, moves: CAPTURE_OPENING_MOVES });
-      await getSquare({ page, square: SELECTED_SQUARE }).click();
+      await press(getSquare({ page, square: SELECTED_SQUARE }));
       const marked = await readLayout(page);
 
       // The moves themselves may lengthen the page, so compare with the same position unmarked.

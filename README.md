@@ -98,13 +98,15 @@ runs it in the `check` job.
 
 ### Browser tests
 
-`pnpm test:e2e` runs Playwright on the production build, in Chromium and WebKit. It builds the
-site, serves `dist/` with `vite preview` on a free port, and runs the `*.spec.js` files of `e2e/`.
-Each page gets the Content Security Policy of `app/public/_headers`, which `vite preview` does not
-send, and a test fails on any console error, a blocked script or style included.
-[ADR 0007](docs/decisions/0007-test-in-a-browser-with-playwright.md) lists what they check.
-`scrollbars.spec.js` runs in Chromium only, launched with the classic scrollbars of a desktop
-window, which take room from the page where overlay ones take none.
+`pnpm test:e2e` runs Playwright on the production build, in Chromium, WebKit and a WebKit phone.
+It builds the site, serves `dist/` with `vite preview` on a free port, and runs the `*.spec.js`
+files of `e2e/`. Each page gets the Content Security Policy of `app/public/_headers`, which
+`vite preview` does not send, and a test fails on any console error, a blocked script or style
+included. [ADR 0007](docs/decisions/0007-test-in-a-browser-with-playwright.md) lists what they
+check. `scrollbars.spec.js` runs in Chromium only, launched with the classic scrollbars of a
+desktop window, which take room from the page where overlay ones take none. The `mobile-webkit`
+project runs the other specs on an emulated iPhone SE (320x568, touch), where the helpers tap
+the squares and buttons instead of clicking them, and skips the hover test.
 
 Install the two browsers once, and again after an upgrade of `@playwright/test`:
 
