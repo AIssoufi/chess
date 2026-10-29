@@ -71,7 +71,8 @@ pnpm preview    # serve dist/ on http://localhost:4173/
     HSTS header;
   - `commitlint.test.js`: the ticket reference rule, the bot commits and the pull
     request titles of commitlint;
-  - `e2e-helpers.test.js`: the helpers of the browser tests;
+  - `e2e-helpers.test.js`: the helpers of the browser tests, the contrast ratios of WCAG
+    included;
 - the tests that need a DOM run in happy-dom, chosen by a `// @vitest-environment happy-dom`
   comment on their first line:
   - `index-page.test.js`: the head of the page and its social preview image;
