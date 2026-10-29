@@ -49,6 +49,15 @@ describe('landmarks of the page', () => {
       'https://github.com/AIssoufi/chess/blob/master/LICENSE'
     );
   });
+
+  it('glues the separator to the author so a wrapped license line never starts with it', () => {
+    const copyright = document.querySelector('footer .copyright');
+    const author = copyright.querySelector('a[href="https://www.issoufi.fr"]');
+    const license = copyright.querySelector('.copyright__license');
+
+    expect(author.nextSibling.textContent).toMatch(/^\u00a0·\s+$/);
+    expect(license.textContent).toMatch(/^code sous licence\s+MIT$/);
+  });
 });
 
 describe('board of the page', () => {
