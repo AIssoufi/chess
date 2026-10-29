@@ -501,11 +501,23 @@ body::before {
   }
 }
 
+/*
+ * The footer sits on the photo, whose light parts leave the white text near 3.4:1 and the orange
+ * links near 1.7:1: a 60% black backdrop keeps them over WCAG AA, and the icons over its 3:1.
+ */
+.copyright,
+.social-links {
+  background-color: #00000099;
+  border-radius: 10px;
+}
+
 .copyright {
   color: #fff;
   position: fixed;
   top: 20px;
   right: 0;
+  padding-block: 0.25rem;
+  padding-inline: 0.5rem;
   font-size: 1rem;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
@@ -525,14 +537,15 @@ body::before {
   bottom: 20px;
   right: 20px;
   display: flex;
+  gap: 1.2rem;
   align-items: center;
+  padding: 0.25rem 0.5rem;
 }
 
 .social-links svg {
   fill: #ffffff70;
   height: 3rem;
   width: 3rem;
-  margin-right: 1.2rem;
 }
 
 .social-links svg:hover {
@@ -619,18 +632,17 @@ body::before {
     position: static;
     writing-mode: horizontal-tb;
     transform: none;
-    margin: 1rem 1rem 0;
+    /* Margins halved for the padding of the backdrops: the tablet height reserve counts the
+       footer */
+    margin: 0.5rem 1rem 0;
     text-align: center;
   }
 
   .social-links {
     position: static;
     justify-content: center;
-    margin-bottom: 1rem;
-  }
-
-  .social-links svg {
-    margin: 0 0.6rem;
+    width: fit-content;
+    margin: 0.25rem auto 0.5rem;
   }
 }
 
