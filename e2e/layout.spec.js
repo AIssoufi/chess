@@ -48,6 +48,22 @@ const NARROW_VIEWPORTS = LAYOUT_VIEWPORTS.filter(
 /** Turns of a long game, more than the move list can show at once beside a phone's board. */
 const LONG_GAME_TURNS = 40;
 
+/** The copyright of the footer, which wraps on a phone. */
+const COPYRIGHT_SELECTOR = 'footer .copyright';
+
+/** The separator between the author and the license mention of the copyright. */
+const COPYRIGHT_SEPARATOR = '·';
+
+/** Phone widths where #148 saw the copyright wrap, or nearly, before the license mention. */
+const FOOTER_VIEWPORTS = Object.freeze([
+  { width: 360, height: 780 },
+  { width: 390, height: 844 },
+  { width: 430, height: 932 },
+]);
+
+/** How far down a character must sit to start a new line, in CSS pixels: past subpixel rounding. */
+const NEW_LINE_MIN_OFFSET_PX = 1;
+
 for (const viewport of LAYOUT_VIEWPORTS) {
   const { width, height } = viewport;
 
@@ -247,6 +263,43 @@ for (const viewport of NARROW_VIEWPORTS) {
       );
 
       expect(Math.abs(noteCenter - titleCenter)).toBeLessThanOrEqual(TEXT_CENTER_TOLERANCE_PX);
+    });
+  });
+}
+
+for (const viewport of FOOTER_VIEWPORTS) {
+  const viewportLabel = `${viewport.width}x${viewport.height}`;
+
+  test.describe(`in the footer at ${viewportLabel}`, () => {
+    test.use({ viewport });
+
+    test('never starts a line of the copyright with its separator (#148)', async ({ page }) => {
+      await page.goto('/');
+
+      const lineStarts = await page.locator(COPYRIGHT_SELECTOR).evaluate((copyright, minOffset) => {
+        const starts = [];
+        let lineTop = -Infinity;
+        const walker = document.createTreeWalker(copyright, NodeFilter.SHOW_TEXT);
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+          for (let offset = 0; offset < node.length; offset += 1) {
+            const character = node.data[offset];
+            const isBlank = /\s/.test(character);
+            if (isBlank) continue;
+            const range = document.createRange();
+            range.setStart(node, offset);
+            range.setEnd(node, offset + 1);
+            const { top } = range.getBoundingClientRect();
+            const startsNewLine = top - lineTop > minOffset;
+            if (!startsNewLine) continue;
+            starts.push(character);
+            lineTop = top;
+          }
+        }
+        return starts;
+      }, NEW_LINE_MIN_OFFSET_PX);
+
+      expect(lineStarts.length).toBeGreaterThan(0);
+      expect(lineStarts).not.toContain(COPYRIGHT_SEPARATOR);
     });
   });
 }
