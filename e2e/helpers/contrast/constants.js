@@ -1,6 +1,21 @@
 /** The lowest contrast ratio of WCAG AA for text under the large size (1.4.3, Contrast Minimum). */
 export const AA_TEXT_CONTRAST_RATIO = 4.5;
 
+/**
+ * The lowest contrast ratio of WCAG AA for large text, from 24px or 18.66px bold (1.4.3, Contrast
+ * Minimum).
+ */
+export const AA_LARGE_TEXT_CONTRAST_RATIO = 3;
+
+/**
+ * The lowest contrast ratio of WCAG AA for the graphics that convey something, such as an icon
+ * link (1.4.11, Non-text Contrast).
+ */
+export const AA_NON_TEXT_CONTRAST_RATIO = 3;
+
+/** The number of values of each pixel in the data of a canvas image: red, green, blue, alpha. */
+export const RGBA_VALUES_PER_PIXEL = 4;
+
 /** The largest value of a red, green or blue channel of a CSS color. */
 export const CHANNEL_MAX = 255;
 
