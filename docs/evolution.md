@@ -148,11 +148,34 @@ official Playwright image of the lockfile's version, with no apt step.
 Decision: [0007. Test the layout and a game in a browser
 with Playwright](decisions/0007-test-in-a-browser-with-playwright.md)
 
+## October 2026: Node.js 26
+
+Node.js 24 entered maintenance and Node.js 26 became Active LTS, so `.nvmrc`, the CI and the
+Cloudflare Pages build moved to 26, and a second CI job keeps the tests running on 24.
+
+Measured on 2026-10-29.
+
+| Figure                       | Before (Node.js 24) | After (Node.js 26)                   |
+| ---------------------------- | ------------------- | ------------------------------------ |
+| Install (warm store)         | 0.4 s               | 0.4 s                                |
+| Build                        | 0.2 s               | 0.2 s                                |
+| JavaScript built, raw / gzip | 24,488 B / 8,048 B  | 24,488 B / 8,048 B                   |
+| CSS built, raw / gzip        | 10,658 B / 3,383 B  | 10,658 B / 3,383 B                   |
+| `pnpm test` run time         | 4.4 s               | 3.9 s, within the range of the runs  |
+| Duration of the CI           | not measured        | see the pull request that closes #94 |
+
+Decision: [0008. Move the project to Node.js 26](decisions/0008-move-to-node-26.md)
+
 ## How the figures were measured
 
 - Each commit was checked out in a detached worktree outside the repository, then removed.
 - Machine: macOS on Apple silicon, Node.js 24.22.0, npm 12.2.0 for the npm commits, pnpm 12.14.0
-  for the pnpm commits. The machine was shared with other jobs, so the times vary between runs.
+  for the pnpm commits. The Node.js 26 section ran the branch on Node.js 26.13.0. The machine was
+  shared with other jobs, so the times vary between runs.
+- The Node.js 26 section comes from `measure-migration.mjs` instead of the method of the other
+  bullets: it runs the base in a detached worktree and the branch in its own, in turn, three times
+  each, and gives the median time of the runs (`performance.now()`) and the sizes of the builds
+  (`zlib.gzipSync`).
 - Times are the median of three runs of `/usr/bin/time -p`, with a warm cache: the npm cache and
   the pnpm store already held the packages. The install deletes `node_modules` before each run,
   then runs `npm ci` or `pnpm install --frozen-lockfile`.
