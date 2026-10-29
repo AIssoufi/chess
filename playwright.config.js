@@ -10,9 +10,9 @@ const PORT = process.env.E2E_PORT;
 const BASE_URL = `http://${PREVIEW_HOST}:${PORT}/`;
 
 /**
- * End-to-end tests of the built game in Chromium and WebKit: the suite builds the site, serves
- * `dist/` with `vite preview` on a free port, and plays it in a real browser, which computes the
- * layout that happy-dom does not.
+ * End-to-end tests of the built game in Chromium and WebKit, on desktop and on a touch phone: the
+ * suite builds the site, serves `dist/` with `vite preview` on a free port, and plays it in a real
+ * browser, which computes the layout that happy-dom does not.
  */
 export default defineConfig({
   testDir: 'e2e',
@@ -21,6 +21,8 @@ export default defineConfig({
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    // The narrowest supported phone, with touch, so the specs play it with taps.
+    { name: 'mobile-webkit', use: { ...devices['iPhone SE'] } },
   ],
   webServer: {
     command: `pnpm build && pnpm preview --host ${PREVIEW_HOST} --port ${PORT} --strictPort`,

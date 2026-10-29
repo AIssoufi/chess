@@ -250,3 +250,17 @@ for (const viewport of NARROW_VIEWPORTS) {
     });
   });
 }
+
+test.describe("at the screen size of the project's touch phone", () => {
+  test.skip(({ hasTouch }) => !hasTouch, 'the desktop projects test their sizes above');
+
+  test('fits the board in the width, without scrolling sideways', async ({ page }) => {
+    await page.goto('/');
+
+    const { board, scrollWidth, clientWidth } = await readLayout(page);
+
+    expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+    expect(board.left).toBeGreaterThanOrEqual(0);
+    expect(board.right).toBeLessThanOrEqual(clientWidth);
+  });
+});

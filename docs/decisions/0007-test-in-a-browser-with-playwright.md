@@ -48,6 +48,10 @@ In the pull request that closes #78:
   that hovering an empty square leaves its background as it was, then starts a new game from
   "Nouvelle partie", where the hover darkens the square again. A last test checks that Escape
   starts a new game at the end of a game played after a reviewed one.
+- Update of 2026-10-29 (#131): a `mobile-webkit` project runs the other specs on an emulated
+  iPhone SE (320x568, `isMobile` and `hasTouch`), where the `press` helper taps the squares and
+  buttons, so the promotion and the mate are played with taps. The hover test skips it, and a
+  layout test checks that the board fits the phone's own width without scrolling sideways.
 
 ## Alternatives considered
 

@@ -4,7 +4,7 @@ import pawn from '../app/js/pieces/pawn.js';
 import queen from '../app/js/pieces/queen.js';
 import { CHECK_CLASS, PIECE_SELECTOR } from '../app/js/rendering/constants.js';
 import { FOOLS_MATE_MOVES, PROMOTION_MOVES, PROMOTION_SQUARE } from './helpers/board/constants.js';
-import { getSquare, playMoves } from './helpers/board/utils.js';
+import { getSquare, playMoves, press } from './helpers/board/utils.js';
 import { expect, test } from './helpers/fixtures.js';
 
 /** The title of the checkmate alert, which names the game over dialog. */
@@ -51,7 +51,7 @@ test("ends the fool's mate on the checkmate dialog, then starts a new game", asy
   await expect(dialog).toBeVisible();
   await expect(dialog.locator(WINNER_COLOR_SELECTOR)).toHaveText(COLOR_LABELS.black);
 
-  await dialog.getByRole('button', { name: REPLAY_BUTTON_NAME }).click();
+  await press(dialog.getByRole('button', { name: REPLAY_BUTTON_NAME }));
 
   await expect(dialog).toBeHidden();
   await expect(
@@ -65,7 +65,7 @@ test('leaves the final position on screen, then starts a new game from the butto
   await playMoves({ page, moves: FOOLS_MATE_MOVES });
   const dialog = page.getByRole('dialog', { name: CHECKMATE_TITLE });
 
-  await dialog.getByRole('button', { name: REVIEW_BUTTON_NAME }).click();
+  await press(dialog.getByRole('button', { name: REVIEW_BUTTON_NAME }));
 
   await expect(dialog).toBeHidden();
   const matingQueenSquare = getSquare({ page, square: MATING_QUEEN_SQUARE });
@@ -74,7 +74,7 @@ test('leaves the final position on screen, then starts a new game from the butto
     new RegExp(`\\b${CHECK_CLASS}\\b`)
   );
 
-  await page.getByRole('button', { name: NEW_GAME_BUTTON_NAME }).click();
+  await press(page.getByRole('button', { name: NEW_GAME_BUTTON_NAME }));
 
   await expect(matingQueenSquare.locator(PIECE_SELECTOR)).toHaveCount(0);
   await expect(
@@ -82,10 +82,14 @@ test('leaves the final position on screen, then starts a new game from the butto
   ).toHaveText(pawn.piece.white);
 });
 
-test('keeps the squares of the reviewed final position as they are on hover', async ({ page }) => {
+test('keeps the squares of the reviewed final position as they are on hover', async ({
+  page,
+  hasTouch,
+}) => {
+  test.skip(hasTouch, 'a touch screen has no pointer to hover the squares with');
   await playMoves({ page, moves: FOOLS_MATE_MOVES });
   const dialog = page.getByRole('dialog', { name: CHECKMATE_TITLE });
-  await dialog.getByRole('button', { name: REVIEW_BUTTON_NAME }).click();
+  await press(dialog.getByRole('button', { name: REVIEW_BUTTON_NAME }));
   await expect(dialog).toBeHidden();
   const emptySquare = getSquare({ page, square: EMPTY_SQUARE });
   await page.mouse.move(0, 0);
@@ -97,7 +101,7 @@ test('keeps the squares of the reviewed final position as they are on hover', as
 
   await expect(emptySquare).toHaveCSS('background-color', restingBackground);
 
-  await page.getByRole('button', { name: NEW_GAME_BUTTON_NAME }).click();
+  await press(page.getByRole('button', { name: NEW_GAME_BUTTON_NAME }));
   await emptySquare.hover();
 
   await expect(emptySquare).toHaveCSS('background-color', HOVERED_SQUARE_BACKGROUND);
@@ -106,8 +110,8 @@ test('keeps the squares of the reviewed final position as they are on hover', as
 test('starts a new game on Escape, even after a reviewed game', async ({ page }) => {
   await playMoves({ page, moves: FOOLS_MATE_MOVES });
   const dialog = page.getByRole('dialog', { name: CHECKMATE_TITLE });
-  await dialog.getByRole('button', { name: REVIEW_BUTTON_NAME }).click();
-  await page.getByRole('button', { name: NEW_GAME_BUTTON_NAME }).click();
+  await press(dialog.getByRole('button', { name: REVIEW_BUTTON_NAME }));
+  await press(page.getByRole('button', { name: NEW_GAME_BUTTON_NAME }));
   await playMoves({ page, moves: FOOLS_MATE_MOVES });
   await expect(dialog).toBeVisible();
 
@@ -125,7 +129,7 @@ test('promotes a pawn that reaches the last rank to a queen', async ({ page }) =
   const promotionChoice = page.getByRole('dialog', { name: PROMOTION_TITLE });
   await expect(promotionChoice).toBeVisible();
 
-  await promotionChoice.getByRole('button', { name: QUEEN_BUTTON_NAME }).click();
+  await press(promotionChoice.getByRole('button', { name: QUEEN_BUTTON_NAME }));
 
   await expect(promotionChoice).toBeHidden();
   await expect(getSquare({ page, square: PROMOTION_SQUARE }).locator(PIECE_SELECTOR)).toHaveText(
