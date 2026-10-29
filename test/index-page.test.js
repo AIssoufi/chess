@@ -147,7 +147,12 @@ describe('index.html head', () => {
 });
 
 describe('index.html under the Content Security Policy of _headers', () => {
-  const page = new DOMParser().parseFromString(INDEX_PAGE, 'text/html');
+  // Without its stylesheet link, which happy-dom would try to load; a template would drop the
+  // attributes of html, head and body, which these tests must also check.
+  const page = new DOMParser().parseFromString(
+    INDEX_PAGE.replace(/<link[^>]*rel="stylesheet"[^>]*>/g, ''),
+    'text/html'
+  );
   const elements = [...page.querySelectorAll('*')];
 
   it('holds no style element or attribute, which style-src blocks', () => {
