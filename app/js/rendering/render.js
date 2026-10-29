@@ -225,8 +225,8 @@ function createTurnNode(turn) {
 
 /**
  * Shows the moves of the game in the move list, numbered by turn, in place of the ones shown
- * before, and scrolls the list to the last one. The note that no move was played shows only
- * while the list is empty.
+ * before, and scrolls the list to the last one. While there is no move, the list is hidden, so
+ * that its keyboard stop goes with it, and the note that no move was played shows instead.
  *
  * @param {object} [params]
  * @param {unknown} [params.notations] The notation of each move, in the order they were played;
@@ -238,8 +238,10 @@ export function renderMoveList({ notations, root = document } = {}) {
   if (!list) return;
 
   const turns = getMoveTurns(notations);
+  const hasMoves = turns.length > 0;
   list.replaceChildren(...turns.map(createTurnNode));
+  list.hidden = !hasMoves;
   list.scrollTop = list.scrollHeight;
   const emptyNote = root.querySelector(MOVE_LIST_EMPTY_SELECTOR);
-  if (emptyNote) emptyNote.hidden = turns.length > 0;
+  if (emptyNote) emptyNote.hidden = hasMoves;
 }

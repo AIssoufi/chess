@@ -372,6 +372,7 @@ describe('markCheck and clearCheck', () => {
 describe('renderMoveList', () => {
   const list = () => document.querySelector('.move-list__moves');
   const isEmptyNoteShown = () => !document.querySelector('.move-list__empty').hidden;
+  const isListShown = () => !list().hidden;
   /** @returns {{ number: number, moves: string[] }[]} Each turn, with its number and its moves. */
   const shownTurns = () =>
     [...list().children].map((item) => ({
@@ -387,6 +388,22 @@ describe('renderMoveList', () => {
       { number: 2, moves: ['Cf3'] },
     ]);
     expect(list().children[0].textContent).toBe('e4 e5');
+    expect(isListShown()).toBe(true);
+    expect(isEmptyNoteShown()).toBe(false);
+  });
+
+  it('hides the list, and its keyboard stop with it, while no move was played', () => {
+    renderMoveList({ notations: [] });
+
+    expect(isListShown()).toBe(false);
+    expect(isEmptyNoteShown()).toBe(true);
+  });
+
+  it('shows the list again from the first move', () => {
+    renderMoveList({ notations: [] });
+    renderMoveList({ notations: ['e4'] });
+
+    expect(isListShown()).toBe(true);
     expect(isEmptyNoteShown()).toBe(false);
   });
 
@@ -397,11 +414,12 @@ describe('renderMoveList', () => {
     expect(shownTurns()).toEqual([{ number: 1, moves: ['d4'] }]);
   });
 
-  it('empties the list and shows the note again for a game without moves', () => {
+  it('empties and hides the list and shows the note again for a game without moves', () => {
     renderMoveList({ notations: ['e4'] });
     renderMoveList({ notations: [] });
 
     expect(list().children).toHaveLength(0);
+    expect(isListShown()).toBe(false);
     expect(isEmptyNoteShown()).toBe(true);
   });
 
@@ -410,11 +428,12 @@ describe('renderMoveList', () => {
     ['null', null],
     ['a string', 'e4 e5'],
     ['an object', { white: 'e4' }],
-  ])('empties the list for %s instead of an array', (_name, notations) => {
+  ])('empties and hides the list for %s instead of an array', (_name, notations) => {
     renderMoveList({ notations: ['e4'] });
     renderMoveList({ notations });
 
     expect(list().children).toHaveLength(0);
+    expect(isListShown()).toBe(false);
     expect(isEmptyNoteShown()).toBe(true);
   });
 
@@ -427,11 +446,12 @@ describe('renderMoveList', () => {
     ]);
   });
 
-  it('empties the list when called without parameters', () => {
+  it('empties and hides the list when called without parameters', () => {
     renderMoveList({ notations: ['e4'] });
     renderMoveList();
 
     expect(list().children).toHaveLength(0);
+    expect(isListShown()).toBe(false);
   });
 
   it('scrolls the list to the last move', () => {
