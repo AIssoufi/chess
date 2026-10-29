@@ -51,6 +51,31 @@ jobs:
           check_type "$HOST$js" javascript
           check_type "$HOST$css" text/css
 
+          # The headers of a URL hold a line matching an extended regular expression, any case.
+          check_header() {
+            local url="$1" pattern="$2" headers
+            # Read in full first: a pipe into grep would hide a failed curl.
+            headers=$(fetch --head "$url")
+            if ! grep --quiet --ignore-case --extended-regexp "$pattern" <<< "$headers"; then
+              echo "::error::$url misses the header /$pattern/"
+              return 1
+            fi
+            echo "$url: /$pattern/ found"
+          }
+
+          check_header "$HOST/" "^content-security-policy:.*script-src 'self'"
+          check_header "$HOST/" '^strict-transport-security:'
+          check_header "$HOST/" '^x-content-type-options:[[:space:]]*nosniff'
+          check_header "$HOST$js" '^cache-control:.*immutable'
+
+          status=$(curl --silent --show-error --retry 3 --max-time 30 --output /dev/null \
+            --write-out '%{http_code}' "$HOST/does-not-exist")
+          echo "$HOST/does-not-exist: $status"
+          if [[ "$status" != 404 ]]; then
+            echo "::error::$HOST/does-not-exist answers $status instead of 404"
+            exit 1
+          fi
+
           check_type "$HOST/og-image.jpg" image/jpeg
           check_type "$HOST/favicon.svg" image/svg+xml
 

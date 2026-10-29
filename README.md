@@ -194,7 +194,9 @@ test/                Unit tests
   falls back to the home page without JavaScript.
 - **Live check** (`live-check.yml`): every hour on https://chess.issoufi.fr, or by hand on any
   host, checks that the site serves its home page, the scripts and styles it links, the social
-  preview image and the favicon, and that the old GitHub Pages URL still redirects to it. GitHub
+  preview image and the favicon, the security headers (CSP with `script-src 'self'` and HSTS
+  from `app/public/_headers`, `nosniff` from Pages), an `immutable` cache on the hashed
+  script, a 404 on an unknown path, and that the old GitHub Pages URL still redirects to it. GitHub
   emails a failed scheduled run to the last person who changed its `cron` line. GitHub pauses
   the schedule after 60 days without repository activity; re-enable it from the Actions tab.
 - **Dependabot** (`.github/dependabot.yml`): each week, one pull request bumps the GitHub Actions,
