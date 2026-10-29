@@ -94,7 +94,8 @@ h1 {
   grid-template-columns: 1fr min-content 1fr;
   max-width: 1000px;
   margin: 0 auto;
-  background-color: #ffffff52;
+  /* Half white: black text keeps 5.3:1 over even a black photo, over WCAG AA */
+  background-color: #ffffff80;
   padding: 26px 0;
   border-radius: 10px;
 }
