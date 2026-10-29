@@ -1,12 +1,10 @@
+import { COLORS } from '../app/js/colors/constants.js';
 import { BOARD_SIZE } from '../app/js/squares/constants.js';
-import pawn from '../app/js/pieces/pawn.js';
 import {
   CAPTURES_ID_SUFFIX,
   CONTROL_SELECTOR,
-  MOVE_CLASS,
   MOVE_LIST_EMPTY_SELECTOR,
   MOVE_LIST_SELECTOR,
-  PIECE_CLASS,
 } from '../app/js/rendering/constants.js';
 import {
   GRID_TOLERANCE_PX,
@@ -20,7 +18,7 @@ import {
   SHORT_TABLET_VIEWPORT,
   UPRIGHT_TABLET_VIEWPORTS,
 } from './helpers/board/constants.js';
-import { getGridPlace, readLayout } from './helpers/board/utils.js';
+import { addCapturedPieces, addMoves, getGridPlace, readLayout } from './helpers/board/utils.js';
 import { expect, test } from './helpers/fixtures.js';
 
 const SQUARE_COUNT = BOARD_SIZE * BOARD_SIZE;
@@ -50,11 +48,8 @@ const NARROW_VIEWPORTS = LAYOUT_VIEWPORTS.filter(
 /** Turns of a long game, more than the move list can show at once beside a phone's board. */
 const LONG_GAME_TURNS = 40;
 
-/** A turn of the move list, both moves played. */
-const TURN_MOVES = Object.freeze(['Cxe4+', 'Dxh8#']);
-
 for (const viewport of LAYOUT_VIEWPORTS) {
-  const { width, height, boardOverflowIssue } = viewport;
+  const { width, height } = viewport;
 
   test.describe(`at ${width}x${height}`, () => {
     test.use({ viewport: { width, height } });
@@ -94,37 +89,21 @@ for (const viewport of LAYOUT_VIEWPORTS) {
       expect(board.right).toBeLessThanOrEqual(clientWidth);
     });
 
-    const declareBoardFitTest = boardOverflowIssue ? test.fixme : test;
-    const issueSuffix = boardOverflowIssue ? ` (#${boardOverflowIssue})` : '';
+    test('shows the whole board without scrolling', async ({ page }) => {
+      const { board, clientHeight } = await readLayout(page);
 
-    declareBoardFitTest(
-      `shows the whole board without scrolling${issueSuffix}`,
-      async ({ page }) => {
-        const { board, clientHeight } = await readLayout(page);
-
-        expect(board.top).toBeGreaterThanOrEqual(0);
-        expect(board.bottom).toBeLessThanOrEqual(clientHeight);
-      }
-    );
+      expect(board.top).toBeGreaterThanOrEqual(0);
+      expect(board.bottom).toBeLessThanOrEqual(clientHeight);
+    });
   });
 }
 
 test.describe(`with ${MAX_CAPTURED_PIECES} captured pieces at ${CAPTURES_VIEWPORT_LABEL}`, () => {
   test.use({ viewport: CAPTURES_VIEWPORT });
 
-  test.fixme('keeps the game inside the screen (#49)', async ({ page }) => {
+  test('keeps the game inside the screen (#49)', async ({ page }) => {
     await page.goto('/');
-    await page.locator(`#white${CAPTURES_ID_SUFFIX}`).evaluate(
-      (zone, { count, pieceClass, symbol }) => {
-        for (let index = 0; index < count; index += 1) {
-          const piece = document.createElement('span');
-          piece.className = pieceClass;
-          piece.textContent = symbol;
-          zone.appendChild(piece);
-        }
-      },
-      { count: MAX_CAPTURED_PIECES, pieceClass: PIECE_CLASS, symbol: pawn.piece.black }
-    );
+    await addCapturedPieces({ page, color: 'white', count: MAX_CAPTURED_PIECES });
 
     const scrollHeight = await page.evaluate(() => document.documentElement.scrollHeight);
     expect(scrollHeight).toBeLessThanOrEqual(CAPTURES_VIEWPORT.height);
@@ -141,24 +120,7 @@ for (const viewport of LANDSCAPE_VIEWPORTS) {
       page,
     }) => {
       await page.goto('/');
-      await page.locator(MOVE_LIST_SELECTOR).evaluate(
-        (list, { count, moveClass, moves }) => {
-          for (let turn = 1; turn <= count; turn += 1) {
-            const item = document.createElement('li');
-            for (const notation of moves) {
-              const move = document.createElement('span');
-              move.className = moveClass;
-              move.textContent = notation;
-              item.append(move, ' ');
-            }
-            list.appendChild(item);
-          }
-        },
-        { count: LONG_GAME_TURNS, moveClass: MOVE_CLASS, moves: TURN_MOVES }
-      );
-      await page.locator(MOVE_LIST_EMPTY_SELECTOR).evaluate((note) => {
-        note.hidden = true;
-      });
+      await addMoves({ page, turns: LONG_GAME_TURNS });
 
       const { board, clientWidth, clientHeight } = await readLayout(page);
       const listNode = page.locator(MOVE_LIST_SELECTOR);
@@ -195,6 +157,40 @@ for (const viewport of UPRIGHT_TABLET_VIEWPORTS) {
 
       expect(scrollHeight).toBeLessThanOrEqual(clientHeight);
       expect(squares[0].width).toBeGreaterThanOrEqual(MIN_SQUARE_SIZE_PX);
+    });
+
+    test(`still fits with ${MAX_CAPTURED_PIECES} captured pieces on each side and ${LONG_GAME_TURNS} turns`, async ({
+      page,
+    }) => {
+      await page.goto('/');
+      for (const color of COLORS) {
+        await addCapturedPieces({ page, color, count: MAX_CAPTURED_PIECES });
+      }
+      await addMoves({ page, turns: LONG_GAME_TURNS });
+
+      const { scrollWidth, scrollHeight, clientWidth, clientHeight } = await readLayout(page);
+      const { listHeight, listScrollHeight, turnHeight } = await page
+        .locator(MOVE_LIST_SELECTOR)
+        .evaluate((list) => ({
+          listHeight: list.clientHeight,
+          listScrollHeight: list.scrollHeight,
+          turnHeight: list.firstElementChild.offsetHeight,
+        }));
+
+      expect(scrollHeight).toBeLessThanOrEqual(clientHeight);
+      expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+      expect(listHeight, 'the move list shows a whole turn').toBeGreaterThanOrEqual(turnHeight);
+      expect(listScrollHeight, 'the long list scrolls').toBeGreaterThan(listHeight);
+      for (const color of COLORS) {
+        const zone = page.locator(`#${color}${CAPTURES_ID_SUFFIX}`);
+        const { zoneScrollWidth, zoneClientWidth } = await zone.evaluate((node) => ({
+          zoneScrollWidth: node.scrollWidth,
+          zoneClientWidth: node.clientWidth,
+        }));
+        expect(zoneScrollWidth, `the captures of ${color} fit their row`).toBeLessThanOrEqual(
+          zoneClientWidth
+        );
+      }
     });
   });
 }

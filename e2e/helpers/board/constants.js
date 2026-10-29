@@ -31,7 +31,7 @@ export const LANDSCAPE_VIEWPORTS = Object.freeze([
 
 /**
  * The viewports of the layout tests: a phone upright, a tablet upright, a phone sideways and a
- * laptop. `boardOverflowIssue` names the open issue of a viewport whose board does not fit yet.
+ * laptop.
  */
 export const LAYOUT_VIEWPORTS = Object.freeze([
   { width: 390, height: 800 },
@@ -94,3 +94,6 @@ export const PROMOTION_SQUARE = 'h8';
 
 /** The number of pieces one side can capture: every piece of the opponent but its king. */
 export const MAX_CAPTURED_PIECES = 15;
+
+/** A turn of the move list, both moves played. */
+export const TURN_MOVES = Object.freeze(['Cxe4+', 'Dxh8#']);
