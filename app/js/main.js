@@ -131,7 +131,7 @@ promotionWrapper.addEventListener('click', (event) => {
   hidePromotionChoice(promotionWrapper);
   renderBoard();
   renderCaptures({ game, factory });
-  renderCurrentPlayer({ color: game.currentColor });
+  renderCurrentPlayer({ color: game.currentColor, isOver: game.isOver });
   hideCheck();
   afterMove();
   // The focus goes back to the square of the promoted pawn
@@ -173,7 +173,7 @@ function playMove(to) {
     return;
   }
 
-  renderCurrentPlayer({ color: game.currentColor });
+  renderCurrentPlayer({ color: game.currentColor, isOver: game.isOver });
   afterMove();
 }
 
@@ -203,7 +203,7 @@ function initialize() {
   renderCaptures({ game, factory });
   setSelection(NO_SELECTION);
   hideCheck();
-  renderCurrentPlayer({ color: game.currentColor });
+  renderCurrentPlayer({ color: game.currentColor, isOver: game.isOver });
   renderStatus({ game, lastMove, ...getGameOutcome({ game }) });
 }
 

@@ -282,6 +282,23 @@ describe('renderCurrentPlayer', () => {
     expect(turnLabels()).toEqual({ black: '', white: '' });
   });
 
+  it.each(['white', 'black'])('highlights no panel once the game is over, %s to move', (color) => {
+    renderCurrentPlayer({ color: 'white' });
+    renderCurrentPlayer({ color, isOver: true });
+    expect(document.querySelectorAll('.current-player')).toHaveLength(0);
+    expect(turnLabels()).toEqual({ black: '', white: '' });
+  });
+
+  it.each([undefined, null, false])('highlights the color to move when isOver is %s', (isOver) => {
+    renderCurrentPlayer({ color: 'black', isOver });
+    expect(document.querySelector('.current-player').dataset.color).toBe('black');
+  });
+
+  it('counts an isOver other than true as a game going on', () => {
+    renderCurrentPlayer({ color: 'black', isOver: 'yes' });
+    expect(document.querySelector('.current-player').dataset.color).toBe('black');
+  });
+
   it.each([
     ['white', { black: '', white: 'À vous de jouer' }],
     ['black', { black: 'À vous de jouer', white: '' }],

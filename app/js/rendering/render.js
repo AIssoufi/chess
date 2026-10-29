@@ -140,16 +140,21 @@ export function renderCaptures({ game, factory, root = document }) {
 }
 
 /**
- * Highlights the panel of the player to move, and only that one, and writes `À vous de jouer` in
- * it, so that the side to move shows without color; the other panel keeps an empty line.
+ * Highlights the panel of the player to move, and only that one, and writes
+ * {@link CURRENT_PLAYER_LABEL} in it, so that the side to move shows without color; the other
+ * panel keeps an empty line. Once the game is over, no panel is highlighted, since nobody moves.
  *
  * @param {object} params
  * @param {'white' | 'black'} params.color The color to move.
+ * @param {boolean} [params.isOver] Whether the game is over, by checkmate or a draw; any value
+ *   other than `true`, a missing one included, counts as going on.
  * @param {ParentNode} [params.root] The node that holds the panels, the document by default.
  */
-export function renderCurrentPlayer({ color, root = document }) {
+export function renderCurrentPlayer({ color, isOver, root = document }) {
+  const isGoingOn = isOver !== true;
   root.querySelectorAll(CONTROL_SELECTOR).forEach((control) => {
-    const isCurrent = control.dataset.color === color;
+    const isColorToMove = control.dataset.color === color;
+    const isCurrent = isGoingOn && isColorToMove;
     control.classList.toggle(CURRENT_PLAYER_CLASS, isCurrent);
     const turnNode = control.querySelector(TURN_SELECTOR);
     if (turnNode) turnNode.textContent = isCurrent ? CURRENT_PLAYER_LABEL : '';

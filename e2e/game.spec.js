@@ -2,7 +2,13 @@ import { WINNER_COLOR_SELECTOR } from '../app/js/alerts/constants.js';
 import { COLOR_LABELS } from '../app/js/colors/constants.js';
 import pawn from '../app/js/pieces/pawn.js';
 import queen from '../app/js/pieces/queen.js';
-import { CHECK_CLASS, PIECE_SELECTOR } from '../app/js/rendering/constants.js';
+import {
+  CHECK_CLASS,
+  CONTROL_SELECTOR,
+  CURRENT_PLAYER_CLASS,
+  PIECE_SELECTOR,
+  TURN_SELECTOR,
+} from '../app/js/rendering/constants.js';
 import { FOOLS_MATE_MOVES, PROMOTION_MOVES, PROMOTION_SQUARE } from './helpers/board/constants.js';
 import { getSquare, playMoves, press } from './helpers/board/utils.js';
 import { expect, test } from './helpers/fixtures.js';
@@ -80,6 +86,17 @@ test('leaves the final position on screen, then starts a new game from the butto
   await expect(
     getSquare({ page, square: STARTING_PAWN_SQUARE }).locator(PIECE_SELECTOR)
   ).toHaveText(pawn.piece.white);
+});
+
+test('highlights no panel on the reviewed final position', async ({ page }) => {
+  await playMoves({ page, moves: FOOLS_MATE_MOVES });
+  const dialog = page.getByRole('dialog', { name: CHECKMATE_TITLE });
+
+  await press(dialog.getByRole('button', { name: REVIEW_BUTTON_NAME }));
+
+  await expect(dialog).toBeHidden();
+  await expect(page.locator(`.${CURRENT_PLAYER_CLASS}`)).toHaveCount(0);
+  await expect(page.locator(`${CONTROL_SELECTOR} ${TURN_SELECTOR}`)).toHaveText(['', '']);
 });
 
 test('keeps the squares of the reviewed final position as they are on hover', async ({
