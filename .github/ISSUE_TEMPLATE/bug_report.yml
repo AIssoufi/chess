@@ -1,0 +1,43 @@
+name: Bug report
+description: Report something that does not work in the chess game.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting a bug. The moves played help us reproduce the position.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps or moves played
+      description: The moves from the start of the game, or the steps that lead to the bug.
+      placeholder: e2e4 e7e5 g1f3 b8c6 …
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      description: What should have happened.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: What happened instead.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser and device
+      placeholder: Firefox 131 on a Windows laptop, Safari on an iPhone 15
+    validations:
+      required: true
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot
+      description: A screenshot of the board, if you can. Drag and drop the image here.
+    validations:
+      required: false
