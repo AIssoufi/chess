@@ -56,6 +56,10 @@ In the pull request that closes #78:
   leaving the board reaches "Nouvelle partie" directly before the first move, and the move list
   after a move, with a focus ring around a box taller than 0px. WebKit presses Option+Tab
   (`Alt+Tab`), since Safari skips buttons on Tab alone.
+- Update of 2026-10-29 (#150): `contrast.spec.js` reads, at each layout viewport, the color of
+  every text of the game frame outside the board and the background colors of the boxes around
+  it, before and after a few moves and captures, and checks that the text keeps 4.5:1 over a
+  black and over a white photo, so over any photo. Background images are left out.
 
 ## Alternatives considered
 

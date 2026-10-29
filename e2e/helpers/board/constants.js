@@ -89,6 +89,9 @@ export const PROMOTION_MOVES = Object.freeze([
   { from: 'g7', to: 'h8' },
 ]);
 
+/** The game frame, the translucent card over the photo, whose padding is the board gutter. */
+export const FRAME_SELECTOR = '.wrapper';
+
 /** The square where the pawn of `PROMOTION_MOVES` promotes. */
 export const PROMOTION_SQUARE = 'h8';
 
