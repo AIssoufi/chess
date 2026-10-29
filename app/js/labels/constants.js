@@ -27,5 +27,8 @@ export const POSSIBLE_MOVE_LABEL = 'coup possible';
 /** What a screen reader adds after the square of a king in check. */
 export const CHECK_LABEL = 'en échec';
 
+/** What the panel of the player to move shows by its name, a cue that needs no color. */
+export const CURRENT_PLAYER_LABEL = 'À vous de jouer';
+
 /** What separates the parts of a square's name, such as `e2, pion blanc`. */
 export const LABEL_SEPARATOR = ', ';

@@ -469,9 +469,25 @@ body::before {
   cursor: pointer;
 }
 
+/*
+ * The side to move: besides its green, a white ring around its name and `À vous de jouer` by it,
+ * which show in grayscale too. Beside the board, the label goes under the name and the other
+ * panel keeps the empty line, so nothing moves. The green blinks three times after each move, 3s
+ * in all, under the 5s of WCAG 2.2.2, and ends on its static background.
+ */
+.control .control__turn {
+  min-height: 1.5em;
+  margin: 0.25rem 0;
+  line-height: 1.5em;
+  font-weight: bold;
+}
+
 .current-player h2 {
   border-radius: 10px;
-  animation: blink 0.5s linear 1s infinite alternate;
+  background-color: rgba(139, 195, 74, 0.5);
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  animation: blink 0.5s linear 6 alternate;
 }
 
 @keyframes blink {
@@ -517,30 +533,17 @@ body::before {
   fill: #d18b46;
 }
 
-/* King in check */
+/* King in check: besides its red, still diagonal stripes, a pattern that no other square uses, so
+   it shows in grayscale too */
 .square.check {
   background-color: rgba(220, 50, 50, 0.7) !important;
-  animation: blink-check 0.5s linear infinite alternate;
+  background-image: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.3) 0 3px, transparent 3px 9px);
 }
 
-@keyframes blink-check {
-  from {
-    background-color: rgba(220, 50, 50, 0.8);
-  }
-  to {
-    background-color: rgba(220, 50, 50, 0.4);
-  }
-}
-
-/* Without motion, the highlights keep their color and the side to play its first background */
+/* Without motion, the side to play keeps its static background */
 @media (prefers-reduced-motion: reduce) {
-  .square.check,
   .current-player h2 {
     animation: none;
-  }
-
-  .current-player h2 {
-    background-color: rgba(139, 195, 74, 0.5);
   }
 
   .promotion__pieces button {
@@ -652,6 +655,20 @@ body::before {
     padding: 0 1rem;
     text-align: center;
   }
+
+  /* Above and below the board, the turn label goes on the line of the name, so that the panels
+     keep their height, and the empty one leaves the name centered */
+  .control__header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    column-gap: 0.75rem;
+  }
+
+  .control .control__turn:empty {
+    display: none;
+  }
 }
 
 /*
@@ -670,12 +687,15 @@ body::before {
     align-items: center;
   }
 
-  .control h2 {
+  .control__header {
     grid-column: 1 / -1;
+  }
+
+  .control h2 {
     margin: 0.5em 0;
   }
 
-  .control p {
+  .control p:not(.control__turn) {
     margin: 0.5rem 0;
     white-space: nowrap;
   }
@@ -764,6 +784,15 @@ body::before {
     max-height: 100%;
     overflow-y: auto;
     padding: 0 var(--landscape-gutter);
+  }
+
+  /* Beside the board again, the turn label goes back under the name, its empty line kept */
+  .control__header {
+    display: block;
+  }
+
+  .control .control__turn:empty {
+    display: block;
   }
 
   .move-list {

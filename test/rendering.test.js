@@ -37,11 +37,12 @@ function buildPage() {
     }
   }
   document.body.innerHTML = `
-    <div data-color="black" class="control"><span id="black-capture-count">0</span>
+    <div data-color="black" class="control"><p class="control__turn"></p>
+      <span id="black-capture-count">0</span>
       <div id="black-captures"></div></div>
     <div class="container-squares">${squares.join('')}</div>
     <div data-color="white" class="control current-player">
-      <span id="white-capture-count">0</span><div id="white-captures"></div></div>
+      <p class="control__turn">À vous de jouer</p><span id="white-capture-count">0</span><div id="white-captures"></div></div>
     <p class="game-status"></p>
     <section class="move-list"><p class="move-list__empty">Aucun coup joué</p>
       <ol class="move-list__moves"></ol></section>`;
@@ -55,6 +56,20 @@ function buildPage() {
  */
 function pieceOn(square) {
   return getSquareNode({ square }).querySelector('.piece')?.dataset;
+}
+
+/**
+ * Returns the turn label that each panel shows.
+ *
+ * @returns {Record<string, string>} The text of its turn line, by color.
+ */
+function turnLabels() {
+  return Object.fromEntries(
+    [...document.querySelectorAll('.control')].map((control) => [
+      control.dataset.color,
+      control.querySelector('.control__turn').textContent,
+    ])
+  );
 }
 
 let game;
@@ -264,6 +279,39 @@ describe('renderCurrentPlayer', () => {
   it('highlights no panel for an unknown color', () => {
     renderCurrentPlayer({ color: 'red' });
     expect(document.querySelectorAll('.current-player')).toHaveLength(0);
+    expect(turnLabels()).toEqual({ black: '', white: '' });
+  });
+
+  it.each(['white', 'black'])('highlights no panel once the game is over, %s to move', (color) => {
+    renderCurrentPlayer({ color: 'white' });
+    renderCurrentPlayer({ color, isOver: true });
+    expect(document.querySelectorAll('.current-player')).toHaveLength(0);
+    expect(turnLabels()).toEqual({ black: '', white: '' });
+  });
+
+  it.each([undefined, null, false])('highlights the color to move when isOver is %s', (isOver) => {
+    renderCurrentPlayer({ color: 'black', isOver });
+    expect(document.querySelector('.current-player').dataset.color).toBe('black');
+  });
+
+  it('counts an isOver other than true as a game going on', () => {
+    renderCurrentPlayer({ color: 'black', isOver: 'yes' });
+    expect(document.querySelector('.current-player').dataset.color).toBe('black');
+  });
+
+  it.each([
+    ['white', { black: '', white: 'À vous de jouer' }],
+    ['black', { black: 'À vous de jouer', white: '' }],
+  ])('writes the turn label in the panel of %s only', (color, labels) => {
+    renderCurrentPlayer({ color });
+    expect(turnLabels()).toEqual(labels);
+  });
+
+  it('skips a panel without a turn line', () => {
+    document.querySelector('[data-color="black"] .control__turn').remove();
+    renderCurrentPlayer({ color: 'black' });
+    expect(document.querySelector('.current-player').dataset.color).toBe('black');
+    expect(document.querySelector('[data-color="white"] .control__turn').textContent).toBe('');
   });
 });
 
