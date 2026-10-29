@@ -6,8 +6,8 @@ the deployment.
 ## Tooling
 
 - There is no deploy script: Cloudflare Pages deploys `master` (see the README).
-- pnpm is pinned by `packageManager`; allow a dependency's build scripts in `allowBuilds` of
-  `pnpm-workspace.yaml`, never in `package.json`.
+- pnpm is pinned by `packageManager`; no dependency runs build scripts. If one ever must, allow it
+  in `allowBuilds` of `pnpm-workspace.yaml`, never in `package.json`.
 
 ## Conventions
 
