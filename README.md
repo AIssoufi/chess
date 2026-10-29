@@ -23,14 +23,14 @@ the final position.
 | Prettier 3                     | Code formatting                                    |
 | ESLint 10                      | Linting, with the recommended rules                |
 | Husky, lint-staged, commitlint | Git hooks: formatting, linting, commit format      |
-| pnpm 12, Node.js 24 and 26     | Package manager and runtime                        |
+| pnpm 12, Node.js 26 and 24     | Package manager and runtime                        |
 | Cloudflare Pages               | Hosting, with a preview per branch                 |
 
 ## Getting started
 
 Prerequisites:
 
-- Node.js 24 (`.nvmrc`), or 26 and newer: Vitest 5 does not support Node.js 25;
+- Node.js 26 (`.nvmrc`) and newer, or 24: Vitest 5 does not support Node.js 25;
 - pnpm 12.14.0, pinned by the `packageManager` field of `package.json`.
 
 ```bash
@@ -165,12 +165,11 @@ test/                Unit tests
 ## CI and deployment
 
 - **CI** (`ci.yml`): on every pull request and push to `master`, runs four jobs; `check`,
-  `test (node 26)` and `e2e` install with the frozen lockfile first:
+  `test (node 24)` and `e2e` install with the frozen lockfile first:
   - `check`: `pnpm audit --audit-level high` (which fails on an advisory of high or critical
     severity), `pnpm format:check`, `pnpm lint`, `pnpm test:coverage` (which fails under the
-    coverage thresholds) and `pnpm build`, on the Node.js
-    version of `.nvmrc` (24);
-  - `test (node 26)`: `pnpm test` again on Node.js 26;
+    coverage thresholds) and `pnpm build`, on the Node.js version of `.nvmrc` (26);
+  - `test (node 24)`: `pnpm test` again on Node.js 24;
   - `playwright-version`: reads the exact `@playwright/test` version of the lockfile;
   - `e2e`: `pnpm test:e2e` in the official Playwright image of that version, which ships the
     browsers and their system libraries. A bump of the package moves the image with it, and the
@@ -216,7 +215,7 @@ repository:
 | Build output directory | `dist`                                                    |
 | Root directory         | Empty, the repository root                                |
 | Build system version   | 3                                                         |
-| Node.js version        | Read from `.nvmrc` (24)                                   |
+| Node.js version        | Read from `.nvmrc` (26)                                   |
 | Environment variables  | `PNPM_VERSION=12.14.0`, the version of `packageManager`   |
 | Custom domain          | `chess.issoufi.fr`, a CNAME to the project's `.pages.dev` |
 
