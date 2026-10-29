@@ -1,4 +1,4 @@
-import { PHONE_LANDSCAPE_VIEWPORT } from './helpers/board/constants.js';
+import { FRAME_SELECTOR, PHONE_LANDSCAPE_VIEWPORT } from './helpers/board/constants.js';
 import { readLayout } from './helpers/board/utils.js';
 import { expect, test } from './helpers/fixtures.js';
 
@@ -21,9 +21,6 @@ const SCROLLING_VIEWPORTS = Object.freeze([
   { width: 600, height: 800 },
   PHONE_LANDSCAPE_VIEWPORT,
 ]);
-
-/** The game frame, whose padding is the gutter around the board. */
-const FRAME_SELECTOR = '.wrapper';
 
 test.use({ launchOptions: CLASSIC_SCROLLBARS_LAUNCH_OPTIONS });
 
