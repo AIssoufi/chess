@@ -221,6 +221,9 @@ repository:
 | Environment variables  | `PNPM_VERSION=12.16.1`, the version of `packageManager`   |
 | Custom domain          | `chess.issoufi.fr`, a CNAME to the project's `.pages.dev` |
 
+`PNPM_VERSION` lives in the Pages settings, outside the repository: update it by hand whenever
+`packageManager` changes.
+
 `app/public/_headers` sets the response headers: a one-year immutable cache for the hashed files
 of `/assets/`, and a Content Security Policy, a Permissions Policy and HSTS on every page. The
 policy only allows the scripts, styles, images and requests of the site itself, never inline code:
