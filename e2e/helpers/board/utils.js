@@ -142,8 +142,8 @@ export async function addCapturedPieces({ page, color, count }) {
 }
 
 /**
- * Fills the move list with turns of `TURN_MOVES` and hides its empty note, as after a long game,
- * without playing the moves.
+ * Fills the move list with turns of `TURN_MOVES`, shows it and hides its empty note, as after a
+ * long game, without playing the moves.
  *
  * @param {object} params
  * @param {import('@playwright/test').Page} params.page The page of the game.
@@ -162,6 +162,7 @@ export async function addMoves({ page, turns }) {
         }
         list.appendChild(item);
       }
+      list.hidden = false;
     },
     { count: turns, moveClass: MOVE_CLASS, moves: TURN_MOVES }
   );

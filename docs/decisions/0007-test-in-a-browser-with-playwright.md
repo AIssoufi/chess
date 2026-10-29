@@ -52,6 +52,10 @@ In the pull request that closes #78:
   iPhone SE (320x568, `isMobile` and `hasTouch`), where the `press` helper taps the squares and
   buttons, so the promotion and the mate are played with taps. The hover test skips it, and a
   layout test checks that the board fits the phone's own width without scrolling sideways.
+- Update of 2026-10-29 (#149): `move-list.spec.js` checks at 390x800 and 1280x800 that the key
+  leaving the board reaches "Nouvelle partie" directly before the first move, and the move list
+  after a move, with a focus ring around a box taller than 0px. WebKit presses Option+Tab
+  (`Alt+Tab`), since Safari skips buttons on Tab alone.
 
 ## Alternatives considered
 
