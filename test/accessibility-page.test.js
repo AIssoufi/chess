@@ -36,6 +36,19 @@ describe('landmarks of the page', () => {
     expect(footer[0].querySelector('.social-links')).not.toBeNull();
     expect(footer[0].closest('main')).toBeNull();
   });
+
+  it('names the MIT license in the copyright with a link to it', () => {
+    const copyright = document.querySelector('footer .copyright');
+    const licenseLink = [...copyright.querySelectorAll('a')].find(
+      (link) => link.textContent === 'MIT'
+    );
+
+    expect(copyright.textContent).toMatch(/code sous licence\s+MIT/);
+    expect(copyright.textContent).not.toMatch(/droits réservés/);
+    expect(licenseLink?.getAttribute('href')).toBe(
+      'https://github.com/AIssoufi/chess/blob/master/LICENSE'
+    );
+  });
 });
 
 describe('board of the page', () => {

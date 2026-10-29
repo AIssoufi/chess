@@ -514,6 +514,11 @@ body::before {
   color: #ff9800;
 }
 
+/* Keeps the license mention whole when the copyright wraps on a phone. */
+.copyright__license {
+  white-space: nowrap;
+}
+
 .social-links {
   position: fixed;
   bottom: 20px;
