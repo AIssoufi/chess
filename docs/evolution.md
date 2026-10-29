@@ -72,6 +72,7 @@ Decisions:
 - [0002. Run the tests with Vitest](decisions/0002-test-with-vitest.md)
 - [0003. Keep the board state in a model without DOM](decisions/0003-keep-the-board-state-in-a-model.md)
 - [0004. Manage the packages with pnpm](decisions/0004-manage-packages-with-pnpm.md)
+- [0009. Format with Prettier and check commits with Husky, lint-staged and commitlint](decisions/0009-format-and-check-commits.md)
 
 ## October 2026: pinned toolchain, CI and Cloudflare Pages
 
@@ -105,7 +106,10 @@ b1f9633: `pnpm audit` from 17 advisories to 0, Vite's "built in" from 109 ms to 
 server's "ready in" from 104 ms to 81 ms, the JavaScript from 11,206 B / 3,696 B to
 10,903 B / 3,527 B. It is a version upgrade, so it has no decision record.
 
-Decision: [0005. Host the game on Cloudflare Pages](decisions/0005-host-on-cloudflare-pages.md)
+Decisions:
+
+- [0005. Host the game on Cloudflare Pages](decisions/0005-host-on-cloudflare-pages.md)
+- [0010. Run CI on GitHub Actions](decisions/0010-run-ci-on-github-actions.md)
 
 ## October 2026: ESLint
 
