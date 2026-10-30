@@ -22,8 +22,9 @@ const FILLED_TURNS = 2;
 const FILLED_CAPTURES = 2;
 
 /**
- * The texts and icons outside the game frame, right on the photo, with the CSS property that
- * paints them, the elements whose texts they leave out and the WCAG ratio they must reach.
+ * The texts and icons outside the game frame, with the CSS property that paints them, the elements
+ * whose texts they leave out and the WCAG ratio they must reach. The title sits on the photo
+ * itself, and the footer and the social icons on a 60% black backdrop over it.
  */
 const PHOTO_TARGETS = Object.freeze([
   { name: 'title', selector: 'h1', paint: 'color', minRatio: AA_LARGE_TEXT_CONTRAST_RATIO },
@@ -213,8 +214,10 @@ for (const viewport of LAYOUT_VIEWPORTS) {
       }
     });
 
-    // A text right on the photo has no background color to paint over black and over white: its
-    // contrast is read from the pixels of the photo behind it, which a white photo would fail.
+    // The title has no background color, and the footer and the social icons a translucent one
+    // that lets the photo through. Their paint turns transparent, which leaves the backdrops in
+    // the screenshot, so their contrast is read from the pixels behind them, photo included: a
+    // white photo would fail the title.
     test('keeps the title, the footer and the social icons at WCAG AA over the photo', async ({
       context,
     }) => {
