@@ -860,3 +860,20 @@ body::before {
     padding: 0.125rem 1rem;
   }
 }
+
+/*
+ * The smallest phones held sideways: the side columns have about 100px of text, under the 105px of
+ * `À vous de jouer` and the 111px of `Prisonniers : 15`. Each text that wraps takes about one turn
+ * from the move list, too much for it to keep two turns at 320px high, so both get a smaller font
+ * that holds them on one line. A 16:9 screen fits both at full size from 701px with the fonts of
+ * macOS: the limit at 720px leaves a margin for the fonts of other systems.
+ */
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 719px) {
+  .control .control__turn {
+    font-size: 0.8125rem;
+  }
+
+  .control p:not(.control__turn) {
+    font-size: 0.875rem;
+  }
+}
