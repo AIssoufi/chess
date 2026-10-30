@@ -60,14 +60,14 @@ In the pull request that closes #78:
   every text of the game frame outside the board and the background colors of the boxes around
   it, before and after a few moves and captures, and checks that the text keeps 4.5:1 over a
   black and over a white photo, so over any photo. Background images are left out.
-- Update of 2026-10-29 (#154): the title, the footer and the social icons sit on the photo itself,
-  where no backdrop could pass over a white photo without hiding it. At each layout viewport,
-  `contrast.spec.js` hides them, takes a screenshot at one pixel per CSS pixel, and checks their
-  color over every whole pixel behind their boxes: 3:1 for the large title (WCAG 1.4.3) and the
-  icons (1.4.11), 4.5:1 for the footer text and its links. It measures the photo of the site at
-  those viewports only: the crop that another screen size shows of it is not measured. The
-  screenshots come from a page of their own, without the Content Security Policy, which refuses
-  the stylesheet that WebKit injects for each screenshot.
+- Update of 2026-10-29 (#154): the title sits on the photo itself, and the footer and the social
+  icons on a 60% black backdrop over it. At each layout viewport, `contrast.spec.js` makes the
+  texts and the icons transparent, which leaves the backdrops in the picture, takes a screenshot at
+  one pixel per CSS pixel, and checks their color over every whole pixel behind their boxes: 3:1
+  for the large title (WCAG 1.4.3) and the icons (1.4.11), 4.5:1 for the footer text and its
+  links. It measures the photo of the site at those viewports only: the crop that another screen
+  size shows of it is not measured. The screenshots come from a page of their own, without the
+  Content Security Policy, which refuses the stylesheet that WebKit injects for each screenshot.
 - Update of 2026-10-30 (#156): `landscape.spec.js` checks the phones held sideways at 568x320,
   640x360, 844x390 and 932x430: the board fits the screen, no two panels overlap and "Nouvelle
   partie" ends inside the game frame, before the first move and after the Scandinavian defense,
