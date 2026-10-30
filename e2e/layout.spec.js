@@ -14,6 +14,7 @@ import {
   MAX_CAPTURED_PIECES,
   MAX_SQUARE_SIZE_PX,
   MIN_SQUARE_SIZE_PX,
+  MOVE_LIST_PANEL_SELECTOR,
   NARROW_UPRIGHT_VIEWPORTS,
   SHORT_TABLET_VIEWPORT,
   UPRIGHT_TABLET_VIEWPORTS,
@@ -30,9 +31,6 @@ const CAPTURES_VIEWPORT_LABEL = `${CAPTURES_VIEWPORT.width}x${CAPTURES_VIEWPORT.
 
 /** The panel of white, which #33 puts above the move list on a phone held sideways. */
 const WHITE_PANEL_SELECTOR = `${CONTROL_SELECTOR}[data-color="white"]`;
-
-/** The whole move list, its title included, around the scrolling list of `MOVE_LIST_SELECTOR`. */
-const MOVE_LIST_PANEL_SELECTOR = '.move-list';
 
 /** The title of the move list, "Coups". */
 const MOVE_LIST_TITLE_SELECTOR = `${MOVE_LIST_PANEL_SELECTOR} h2`;

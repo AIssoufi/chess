@@ -16,7 +16,7 @@ import {
   BOARD_SIZE,
   SQUARE_PATTERN,
 } from '../../../app/js/squares/constants.js';
-import { TURN_MOVES } from './constants.js';
+import { GRID_TOLERANCE_PX, TURN_MOVES } from './constants.js';
 
 /**
  * Finds a square of the board of the page.
@@ -72,6 +72,23 @@ export function getGridPlace(square) {
     column: BOARD_FILES.indexOf(square[0]),
     row: BOARD_SIZE - Number(square[1]),
   };
+}
+
+/**
+ * Tells whether two boxes share more than the subpixel rounding of their edges.
+ *
+ * @param {object} params
+ * @param {{ left: number, top: number, right: number, bottom: number }} params.first A box.
+ * @param {{ left: number, top: number, right: number, bottom: number }} params.second Another box.
+ * @returns {boolean} `true` when the boxes overlap, `false` when one of them is missing.
+ */
+export function areOverlapping({ first, second } = {}) {
+  const isEitherMissing = !first || !second;
+  if (isEitherMissing) return false;
+
+  const sharedWidth = Math.min(first.right, second.right) - Math.max(first.left, second.left);
+  const sharedHeight = Math.min(first.bottom, second.bottom) - Math.max(first.top, second.top);
+  return sharedWidth > GRID_TOLERANCE_PX && sharedHeight > GRID_TOLERANCE_PX;
 }
 
 /**

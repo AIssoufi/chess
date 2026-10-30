@@ -1,6 +1,7 @@
 import { createServer } from 'node:net';
 import { describe, expect, it } from 'vitest';
-import { getGridPlace } from '../e2e/helpers/board/utils.js';
+import { GRID_TOLERANCE_PX } from '../e2e/helpers/board/constants.js';
+import { areOverlapping, getGridPlace } from '../e2e/helpers/board/utils.js';
 import {
   AA_TEXT_CONTRAST_RATIO,
   BLACK,
@@ -64,6 +65,71 @@ describe('getGridPlace', () => {
     ['a number', 11],
   ])('gives null for %s', (_name, square) => {
     expect(getGridPlace(square)).toBeNull();
+  });
+});
+
+describe('areOverlapping', () => {
+  const box = Object.freeze({ left: 0, top: 0, right: 100, bottom: 100 });
+
+  /**
+   * Moves a copy of `box` by a number of pixels to the right and down.
+   *
+   * @param {object} params
+   * @param {number} [params.x] How far to the right, in CSS pixels.
+   * @param {number} [params.y] How far down, in CSS pixels.
+   * @returns {{ left: number, top: number, right: number, bottom: number }} The moved box.
+   */
+  const moveBox = ({ x = 0, y = 0 }) => ({
+    left: box.left + x,
+    top: box.top + y,
+    right: box.right + x,
+    bottom: box.bottom + y,
+  });
+
+  it('finds boxes that share a corner area', () => {
+    expect(areOverlapping({ first: box, second: moveBox({ x: 50, y: 50 }) })).toBe(true);
+  });
+
+  it('finds a box inside another one', () => {
+    const inner = { left: 25, top: 25, right: 75, bottom: 75 };
+    expect(areOverlapping({ first: box, second: inner })).toBe(true);
+    expect(areOverlapping({ first: inner, second: box })).toBe(true);
+  });
+
+  it('leaves out boxes far apart', () => {
+    expect(areOverlapping({ first: box, second: moveBox({ x: 200, y: 200 }) })).toBe(false);
+  });
+
+  it('leaves out boxes that touch at an edge', () => {
+    expect(areOverlapping({ first: box, second: moveBox({ x: 100 }) })).toBe(false);
+    expect(areOverlapping({ first: box, second: moveBox({ y: 100 }) })).toBe(false);
+  });
+
+  it('leaves out boxes that share the subpixel rounding only, and finds them just past it', () => {
+    const edge = 100 - GRID_TOLERANCE_PX;
+    expect(areOverlapping({ first: box, second: moveBox({ x: edge }) })).toBe(false);
+    expect(areOverlapping({ first: box, second: moveBox({ x: edge - 0.5 }) })).toBe(true);
+    expect(areOverlapping({ first: box, second: moveBox({ y: edge }) })).toBe(false);
+    expect(areOverlapping({ first: box, second: moveBox({ y: edge - 0.5 }) })).toBe(true);
+  });
+
+  it('leaves out boxes that overlap on one axis only', () => {
+    expect(areOverlapping({ first: box, second: moveBox({ x: 50, y: 200 }) })).toBe(false);
+    expect(areOverlapping({ first: box, second: moveBox({ x: 200, y: 50 }) })).toBe(false);
+  });
+
+  it.each([
+    ['no parameters', undefined],
+    ['a missing first box', { second: box }],
+    ['a missing second box', { first: box }],
+    ['null boxes', { first: null, second: null }],
+  ])('gives false for %s', (_name, params) => {
+    expect(areOverlapping(params)).toBe(false);
+  });
+
+  it('gives false for a box whose edges are not numbers', () => {
+    const broken = { left: NaN, top: NaN, right: NaN, bottom: NaN };
+    expect(areOverlapping({ first: box, second: broken })).toBe(false);
   });
 });
 

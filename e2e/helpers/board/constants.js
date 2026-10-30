@@ -23,8 +23,28 @@ export const PHONE_LANDSCAPE_VIEWPORT = Object.freeze({ width: 844, height: 390 
 /** The largest phone held sideways, above the 900px breakpoint, with the desktop panel rules. */
 export const LARGE_PHONE_LANDSCAPE_VIEWPORT = Object.freeze({ width: 932, height: 430 });
 
-/** The viewports of the landscape layout of phones, on both sides of the 900px breakpoint. */
+/**
+ * The `max-height` of the compact panels of a small phone held sideways, in CSS pixels: it must
+ * match the `max-height` of their media query in `app/css/style.css`.
+ */
+export const SMALL_LANDSCAPE_MAX_HEIGHT_PX = 360;
+
+/**
+ * The smallest phone held sideways, an iPhone SE, the phone of the touch project: its squares are
+ * under 30px, and its side columns about 120px wide.
+ */
+export const SMALL_PHONE_LANDSCAPE_VIEWPORT = Object.freeze({ width: 568, height: 320 });
+
+/** A small Android phone held sideways, where #156 saw the move list cut to half its turns. */
+export const COMPACT_PHONE_LANDSCAPE_VIEWPORT = Object.freeze({ width: 640, height: 360 });
+
+/**
+ * The viewports of the landscape layout of phones, from the smallest phone to the largest, on both
+ * sides of the 900px breakpoint.
+ */
 export const LANDSCAPE_VIEWPORTS = Object.freeze([
+  SMALL_PHONE_LANDSCAPE_VIEWPORT,
+  COMPACT_PHONE_LANDSCAPE_VIEWPORT,
   PHONE_LANDSCAPE_VIEWPORT,
   LARGE_PHONE_LANDSCAPE_VIEWPORT,
 ]);
@@ -74,6 +94,18 @@ export const FOOLS_MATE_MOVES = Object.freeze([
 ]);
 
 /**
+ * The main line of the Scandinavian defense, 1.e4 d5 2.exd5 Qxd5 3.Nc3: three turns in the move
+ * list, and one captured pawn on each side.
+ */
+export const SCANDINAVIAN_MOVES = Object.freeze([
+  { from: 'e2', to: 'e4' },
+  { from: 'd7', to: 'd5' },
+  { from: 'e4', to: 'd5' },
+  { from: 'd8', to: 'd5' },
+  { from: 'b1', to: 'c3' },
+]);
+
+/**
  * A short game that brings a white pawn from h2 to the last rank, capturing the rook on h8; the
  * last move leaves the promotion pending.
  */
@@ -91,6 +123,12 @@ export const PROMOTION_MOVES = Object.freeze([
 
 /** The game frame, the translucent card over the photo, whose padding is the board gutter. */
 export const FRAME_SELECTOR = '.wrapper';
+
+/**
+ * The whole move list, its title and the new game button included, around the scrolling list of
+ * `MOVE_LIST_SELECTOR`.
+ */
+export const MOVE_LIST_PANEL_SELECTOR = '.move-list';
 
 /** The square where the pawn of `PROMOTION_MOVES` promotes. */
 export const PROMOTION_SQUARE = 'h8';
