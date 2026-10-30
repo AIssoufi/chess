@@ -73,6 +73,14 @@ In the pull request that closes #78:
   partie" ends inside the game frame, before the first move and after the Scandinavian defense,
   where the move list shows two turns. Up to 360px high, neither player panel scrolls, with one
   captured piece or 15 on each side.
+- Update of 2026-10-30 (#158): `landscape.spec.js` adds 667x375 and checks at every landscape
+  viewport that neither player panel scrolls, with one captured piece or exactly 15 on each side:
+  the compact panels now cover the whole short landscape layout, up to 500px high.
+- Update of 2026-10-31 (#166): `landscape.spec.js` adds 719x404 and 720x405, on both sides of the
+  720px limit of the smaller panel texts, and runs the check with 15 captured pieces on each side
+  once with each side to move, where the move list must also show two turns. With one captured
+  piece or 15 on each side, the turn label of the side to move and both capture counts keep one
+  line.
 
 ## Alternatives considered
 
