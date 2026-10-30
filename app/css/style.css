@@ -820,3 +820,46 @@ body::before {
     contain: size;
   }
 }
+
+/*
+ * Small phone held sideways, up to 360px high (568x320, 640x360): each side column is about 120px
+ * wide and 250 to 320px high, too short for the panel of white, two turns of the move list and the
+ * new game button. The panels get compact, so that white's panel shows whole, under half of the
+ * column, and leaves the list its two turns: smaller names and turn labels, closer lines, and the
+ * captured pieces on one line, which scrolls sideways. The title and the button of the move list
+ * also sit closer, so that the two turns still fit with the taller fonts of WebKit on Linux.
+ */
+@media (orientation: landscape) and (max-height: 360px) {
+  .control h2 {
+    margin: 0.25rem 0 0;
+    font-size: 1.125rem;
+  }
+
+  .control .control__turn {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+
+  .control p:not(.control__turn) {
+    margin: 0.125rem 0;
+  }
+
+  #black-captures,
+  #white-captures {
+    grid-auto-flow: column;
+    grid-template-columns: none;
+    grid-auto-columns: min-content;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .move-list h2 {
+    margin: 0.25rem 0 0.125rem;
+    font-size: 1.125rem;
+  }
+
+  .new-game {
+    margin-top: 0.25rem;
+    padding: 0.125rem 1rem;
+  }
+}
