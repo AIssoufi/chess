@@ -132,11 +132,11 @@ built game in Chromium and WebKit at four screen sizes, and the CI runs it after
 
 Measured on 2026-10-27.
 
-| Figure                                   | Before    | After                                |
-| ---------------------------------------- | --------- | ------------------------------------ |
-| Browser tests (Chromium and WebKit)      | none      | 30, 4 of them `test.fixme`           |
-| `pnpm test:e2e` run time (median, built) | no script | 6.0 s                                |
-| Duration of the CI `check` job (median)  | 32 s      | see the pull request that closes #78 |
+| Figure                                   | Before    | After                                                                                   |
+| ---------------------------------------- | --------- | --------------------------------------------------------------------------------------- |
+| Browser tests (Chromium and WebKit)      | none      | 30, 4 of them `test.fixme`                                                              |
+| `pnpm test:e2e` run time (median, built) | no script | 6.0 s                                                                                   |
+| Duration of the CI `check` job (median)  | 32 s      | 89 s (101 s and 76 s, [#100](https://github.com/AIssoufi/chess/pull/100) and its merge) |
 
 The CI then installed the system libraries of the browsers from apt on every run, and a slow apt
 mirror stalled or timed out the `check` job. #110 moved the browser tests to an `e2e` job in the
@@ -159,14 +159,14 @@ Cloudflare Pages build moved to 26, and a second CI job keeps the tests running 
 
 Measured on 2026-10-29.
 
-| Figure                       | Before (Node.js 24) | After (Node.js 26)                   |
-| ---------------------------- | ------------------- | ------------------------------------ |
-| Install (warm store)         | 0.4 s               | 0.4 s                                |
-| Build                        | 0.2 s               | 0.2 s                                |
-| JavaScript built, raw / gzip | 24,488 B / 8,048 B  | 24,488 B / 8,048 B                   |
-| CSS built, raw / gzip        | 10,658 B / 3,383 B  | 10,658 B / 3,383 B                   |
-| `pnpm test` run time         | 4.4 s               | 3.9 s, within the range of the runs  |
-| Duration of the CI           | not measured        | see the pull request that closes #94 |
+| Figure                                  | Before (Node.js 24)       | After (Node.js 26)                                                                     |
+| --------------------------------------- | ------------------------- | -------------------------------------------------------------------------------------- |
+| Install (warm store)                    | 0.4 s                     | 0.4 s                                                                                  |
+| Build                                   | 0.2 s                     | 0.2 s                                                                                  |
+| JavaScript built, raw / gzip            | 24,488 B / 8,048 B        | 24,488 B / 8,048 B                                                                     |
+| CSS built, raw / gzip                   | 10,658 B / 3,383 B        | 10,658 B / 3,383 B                                                                     |
+| `pnpm test` run time                    | 4.4 s                     | 3.9 s, within the range of the runs                                                    |
+| Duration of the CI `check` job (median) | 40 s (3 runs of `master`) | 34 s (28 s and 40 s, [#130](https://github.com/AIssoufi/chess/pull/130) and its merge) |
 
 Decision: [0008. Move the project to Node.js 26](decisions/0008-move-to-node-26.md)
 
@@ -197,8 +197,15 @@ Decision: [0008. Move the project to Node.js 26](decisions/0008-move-to-node-26.
 - The headers come from `curl -sI` on 2026-10-20 (see
   [0005](decisions/0005-host-on-cloudflare-pages.md)).
 - The figures of the ESLint section come from #41 and its decision record.
-- The CI durations of the Playwright section are the median of the `check` job over three runs of
-  one tree, pushed as separate commits to a throwaway branch. Those of #110 come from the jobs of
-  the GitHub API: before, three green runs of `master` (69bfeda, 42fcbe7, de5bc7b); after, the
-  two runs of its pull request, never rerun. The first one failed on the lockfile query before
-  the e2e job, after a green `check` job (the 32 s).
+- The CI durations come from the `startedAt` and `completedAt` of the jobs in the GitHub API
+  (`gh run view <id> --json jobs`), on runs that were never rerun.
+- The `check` job before Playwright is the median over three runs of one tree, pushed as separate
+  commits to a throwaway branch: 36 s, 32 s and 23 s (d0def0e, c518834, 351e746). After, #100 had
+  a single run (96a1348), so the median is over that run and the `push` run of its merge into
+  `master` (a9d9266).
+- The figures of #110: before, three green runs of `master` (69bfeda, 42fcbe7, de5bc7b); after,
+  the two runs of its pull request. The first one failed on the lockfile query before the e2e
+  job, after a green `check` job (the 32 s of the #110 table).
+- The `check` job of the Node.js 26 section: before, three green runs of `master` before the merge
+  of #130, 40 s, 40 s and 43 s (7bdcc62, 674fbe4, 8f53ec3); after, the single run of #130
+  (2be0cf1) and the `push` run of its merge into `master` (244a762).
