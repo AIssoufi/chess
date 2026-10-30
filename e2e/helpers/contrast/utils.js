@@ -5,6 +5,7 @@ import {
   OPAQUE_ALPHA,
   PHOTO_EXTREMES,
   RGB_COLOR_PATTERN,
+  RGBA_VALUES_PER_PIXEL,
   SRGB_GAMMA,
   SRGB_GAMMA_DIVISOR,
   SRGB_GAMMA_OFFSET,
@@ -123,4 +124,60 @@ export function getWorstContrast({ text, layers }) {
     return getContrastRatio({ foreground, background });
   });
   return Math.min(...ratios);
+}
+
+/**
+ * Gives the whole pixels of a screenshot that lie inside a box of the page, so that none of them
+ * mixes the box with what is around it.
+ *
+ * @param {object} params
+ * @param {{ x: number, y: number, width: number, height: number }} params.rect The box, in CSS
+ *   pixels from the top left corner of the screenshot.
+ * @param {number} params.width The width of the screenshot, in pixels.
+ * @param {number} params.height The height of the screenshot, in pixels.
+ * @returns {{ x: number, y: number, width: number, height: number } | null} The pixels, clipped to
+ *   the screenshot, or `null` when no whole pixel is inside it or a value is not a finite number.
+ * @example
+ * toPixelBox({ rect: { x: 10.5, y: -4, width: 20, height: 10 }, width: 390, height: 800 });
+ * // { x: 11, y: 0, width: 19, height: 6 }
+ */
+export function toPixelBox({ rect, width, height }) {
+  const values = [rect?.x, rect?.y, rect?.width, rect?.height, width, height];
+  const isEveryValueFinite = values.every(Number.isFinite);
+  if (!isEveryValueFinite) return null;
+
+  const left = Math.max(0, Math.ceil(rect.x));
+  const top = Math.max(0, Math.ceil(rect.y));
+  const right = Math.min(width, Math.floor(rect.x + rect.width));
+  const bottom = Math.min(height, Math.floor(rect.y + rect.height));
+  const hasWholePixel = right > left && bottom > top;
+  return hasWholePixel ? { x: left, y: top, width: right - left, height: bottom - top } : null;
+}
+
+/**
+ * Gives the lowest contrast of a color over the pixels of a screenshot, each read as opaque: the
+ * pixels behind a text, or an icon, hidden before the screenshot.
+ *
+ * @param {object} params
+ * @param {{ red: number, green: number, blue: number, alpha: number }} params.foreground The color
+ *   of the text or the icon.
+ * @param {ArrayLike<number>} params.pixels The red, green, blue and alpha values of each pixel, as
+ *   the data of a canvas image holds them.
+ * @returns {number | null} The lowest contrast ratio, or `null` when there is no color or no whole
+ *   pixel.
+ */
+export function getLowestPixelContrast({ foreground, pixels }) {
+  const pixelCount = Math.floor((pixels?.length ?? 0) / RGBA_VALUES_PER_PIXEL);
+  const hasPixel = pixelCount > 0;
+  const hasForeground = typeof foreground === 'object' && foreground !== null;
+  if (!hasPixel || !hasForeground) return null;
+
+  const valueCount = pixelCount * RGBA_VALUES_PER_PIXEL;
+  let lowest = Infinity;
+  for (let start = 0; start < valueCount; start += RGBA_VALUES_PER_PIXEL) {
+    const [red, green, blue] = [pixels[start], pixels[start + 1], pixels[start + 2]];
+    const background = { red, green, blue, alpha: OPAQUE_ALPHA };
+    lowest = Math.min(lowest, getContrastRatio({ foreground, background }));
+  }
+  return lowest;
 }

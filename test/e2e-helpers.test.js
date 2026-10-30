@@ -4,15 +4,18 @@ import { getGridPlace } from '../e2e/helpers/board/utils.js';
 import {
   AA_TEXT_CONTRAST_RATIO,
   BLACK,
+  CHANNEL_MAX,
   TRANSPARENT_BLACK,
   WHITE,
 } from '../e2e/helpers/contrast/constants.js';
 import {
   blendColors,
   getContrastRatio,
+  getLowestPixelContrast,
   getRelativeLuminance,
   getWorstContrast,
   parseCssColor,
+  toPixelBox,
 } from '../e2e/helpers/contrast/utils.js';
 import { PREVIEW_HOST } from '../e2e/helpers/server/constants.js';
 import { findFreePort, findHeaderValue, parseHeaderRules } from '../e2e/helpers/server/utils.js';
@@ -305,5 +308,100 @@ describe('getWorstContrast', () => {
     ['layer', { text, layers: ['rgb(0, 0, 0)', '#fff'] }],
   ])('throws on an unreadable %s', (_case, params) => {
     expect(() => getWorstContrast(params)).toThrow('Unreadable CSS color');
+  });
+});
+
+describe('toPixelBox', () => {
+  const screenshot = { width: 390, height: 800 };
+
+  it('keeps the whole pixels inside a box', () => {
+    const rect = { x: 10.5, y: 20.2, width: 20, height: 10 };
+    expect(toPixelBox({ rect, ...screenshot })).toEqual({ x: 11, y: 21, width: 19, height: 9 });
+  });
+
+  it('keeps a box on whole pixels as it is', () => {
+    const rect = { x: 0, y: 0, width: 390, height: 800 };
+    expect(toPixelBox({ rect, ...screenshot })).toEqual(rect);
+  });
+
+  it('clips a box that crosses the edges of the screenshot', () => {
+    const rect = { x: -5, y: 795, width: 400, height: 20 };
+    expect(toPixelBox({ rect, ...screenshot })).toEqual({ x: 0, y: 795, width: 390, height: 5 });
+  });
+
+  it.each([
+    ['narrower than a pixel', { x: 10.2, y: 0, width: 0.6, height: 10 }],
+    ['empty', { x: 10, y: 10, width: 0, height: 10 }],
+    ['right of the screenshot', { x: 390, y: 0, width: 10, height: 10 }],
+    ['above the screenshot', { x: 0, y: -10, width: 10, height: 10 }],
+    ['with a negative width', { x: 10, y: 0, width: -5, height: 10 }],
+  ])('gives null for a box %s', (_case, rect) => {
+    expect(toPixelBox({ rect, ...screenshot })).toBeNull();
+  });
+
+  it.each([
+    ['a missing box', { ...screenshot }],
+    ['a box with a missing side', { rect: { x: 0, y: 0, width: 10 }, ...screenshot }],
+    ['a NaN position', { rect: { x: NaN, y: 0, width: 10, height: 10 }, ...screenshot }],
+    [
+      'a width that is a string',
+      { rect: { x: 0, y: 0, width: 10, height: 10 }, width: '390', height: 800 },
+    ],
+    [
+      'an infinite height',
+      { rect: { x: 0, y: 0, width: 10, height: 10 }, width: 390, height: Infinity },
+    ],
+  ])('gives null for %s', (_case, params) => {
+    expect(toPixelBox(params)).toBeNull();
+  });
+});
+
+describe('getLowestPixelContrast', () => {
+  const GREY = 119;
+
+  it('gives the contrast over the pixel closest to the color', () => {
+    const pixels = [0, 0, 0, CHANNEL_MAX, GREY, GREY, GREY, CHANNEL_MAX];
+    const grey = { red: GREY, green: GREY, blue: GREY, alpha: 1 };
+    const ratio = getLowestPixelContrast({ foreground: WHITE, pixels });
+    expect(ratio).toBe(getContrastRatio({ foreground: WHITE, background: grey }));
+    expect(ratio).toBeLessThan(AA_TEXT_CONTRAST_RATIO);
+  });
+
+  it('reads the pixels of a canvas image', () => {
+    const pixels = new Uint8ClampedArray([CHANNEL_MAX, CHANNEL_MAX, CHANNEL_MAX, CHANNEL_MAX]);
+    expect(getLowestPixelContrast({ foreground: BLACK, pixels })).toBeCloseTo(21, 10);
+  });
+
+  it('reads every pixel as opaque, as a screenshot is', () => {
+    const pixels = [0, 0, 0, 0];
+    expect(getLowestPixelContrast({ foreground: WHITE, pixels })).toBeCloseTo(21, 10);
+  });
+
+  it('paints a translucent color over each pixel first', () => {
+    const pixels = [0, 0, 0, CHANNEL_MAX];
+    expect(getLowestPixelContrast({ foreground: TRANSPARENT_BLACK, pixels })).toBe(1);
+  });
+
+  it('leaves out the values of an incomplete last pixel', () => {
+    const pixels = [0, 0, 0, CHANNEL_MAX, CHANNEL_MAX, CHANNEL_MAX];
+    expect(getLowestPixelContrast({ foreground: WHITE, pixels })).toBeCloseTo(21, 10);
+  });
+
+  it.each([
+    ['no pixels', []],
+    ['an incomplete pixel', [0, 0, 0]],
+    ['missing pixels', undefined],
+    ['null pixels', null],
+    ['a length that is not a number', { length: 'four' }],
+  ])('gives null for %s', (_case, pixels) => {
+    expect(getLowestPixelContrast({ foreground: WHITE, pixels })).toBeNull();
+  });
+
+  it.each([
+    ['a missing color', undefined],
+    ['a null color', null],
+    ['a color that is a string', '#fff'],
+  ])('gives null for %s', (_case, foreground) => {
+    expect(getLowestPixelContrast({ foreground, pixels: [0, 0, 0, CHANNEL_MAX] })).toBeNull();
   });
 });

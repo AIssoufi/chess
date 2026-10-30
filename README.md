@@ -109,7 +109,8 @@ desktop window, which take room from the page where overlay ones take none. The 
 project runs the other specs on an emulated iPhone SE (320x568, touch), where the helpers tap
 the squares and buttons instead of clicking them, and skips the hover test. `contrast.spec.js`
 checks that every text of the game frame outside the board keeps the 4.5:1 of WCAG AA over any
-photo.
+photo, and that the title, the footer and the social icons keep theirs over the pixels of the
+photo behind them.
 
 Install the two browsers once, and again after an upgrade of `@playwright/test`:
 
