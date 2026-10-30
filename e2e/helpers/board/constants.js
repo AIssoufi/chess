@@ -24,12 +24,6 @@ export const PHONE_LANDSCAPE_VIEWPORT = Object.freeze({ width: 844, height: 390 
 export const LARGE_PHONE_LANDSCAPE_VIEWPORT = Object.freeze({ width: 932, height: 430 });
 
 /**
- * The `max-height` of the compact panels of a small phone held sideways, in CSS pixels: it must
- * match the `max-height` of their media query in `app/css/style.css`.
- */
-export const SMALL_LANDSCAPE_MAX_HEIGHT_PX = 360;
-
-/**
  * The smallest phone held sideways, an iPhone SE, the phone of the touch project: its squares are
  * under 30px, and its side columns about 120px wide.
  */
@@ -38,6 +32,9 @@ export const SMALL_PHONE_LANDSCAPE_VIEWPORT = Object.freeze({ width: 568, height
 /** A small Android phone held sideways, where #156 saw the move list cut to half its turns. */
 export const COMPACT_PHONE_LANDSCAPE_VIEWPORT = Object.freeze({ width: 640, height: 360 });
 
+/** An iPhone 8 held sideways, where #158 saw the panel of white scroll by 3px. */
+export const MEDIUM_PHONE_LANDSCAPE_VIEWPORT = Object.freeze({ width: 667, height: 375 });
+
 /**
  * The viewports of the landscape layout of phones, from the smallest phone to the largest, on both
  * sides of the 900px breakpoint.
@@ -45,6 +42,7 @@ export const COMPACT_PHONE_LANDSCAPE_VIEWPORT = Object.freeze({ width: 640, heig
 export const LANDSCAPE_VIEWPORTS = Object.freeze([
   SMALL_PHONE_LANDSCAPE_VIEWPORT,
   COMPACT_PHONE_LANDSCAPE_VIEWPORT,
+  MEDIUM_PHONE_LANDSCAPE_VIEWPORT,
   PHONE_LANDSCAPE_VIEWPORT,
   LARGE_PHONE_LANDSCAPE_VIEWPORT,
 ]);
@@ -104,6 +102,9 @@ export const SCANDINAVIAN_MOVES = Object.freeze([
   { from: 'd8', to: 'd5' },
   { from: 'b1', to: 'c3' },
 ]);
+
+/** The pieces that each side has captured at the end of `SCANDINAVIAN_MOVES`. */
+export const SCANDINAVIAN_CAPTURES = 1;
 
 /**
  * A short game that brings a white pawn from h2 to the last rank, capturing the rook on h8; the

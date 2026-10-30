@@ -795,7 +795,7 @@ body::before {
     padding: var(--landscape-gutter) 0;
   }
 
-  /* Captured pieces scroll inside their panel rather than make it taller than the board */
+  /* A panel scrolls inside itself rather than get taller than the board */
   .control,
   .control:first-of-type,
   .control:last-of-type {
@@ -819,17 +819,14 @@ body::before {
     padding: 0 var(--landscape-gutter);
     contain: size;
   }
-}
 
-/*
- * Small phone held sideways, up to 360px high (568x320, 640x360): each side column is about 120px
- * wide and 250 to 320px high, too short for the panel of white, two turns of the move list and the
- * new game button. The panels get compact, so that white's panel shows whole, under half of the
- * column, and leaves the list its two turns: smaller names and turn labels, closer lines, and the
- * captured pieces on one line, which scrolls sideways. The title and the button of the move list
- * also sit closer, so that the two turns still fit with the taller fonts of WebKit on Linux.
- */
-@media (orientation: landscape) and (max-height: 360px) {
+  /*
+   * A side column is 250 to 400px high on a phone, too short for the panel of white, two turns of
+   * the move list and the new game button. The panels get compact, so that white's panel shows
+   * whole, under half of the column, and leaves the list its two turns, even with the taller fonts
+   * of WebKit on Linux: smaller names and turn labels, closer lines, and the captured pieces on one
+   * line, which scrolls sideways. The title and the button of the move list also sit closer.
+   */
   .control h2 {
     margin: 0.25rem 0 0;
     font-size: 1.125rem;
