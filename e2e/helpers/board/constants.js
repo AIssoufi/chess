@@ -35,14 +35,22 @@ export const COMPACT_PHONE_LANDSCAPE_VIEWPORT = Object.freeze({ width: 640, heig
 /** An iPhone 8 held sideways, where #158 saw the panel of white scroll by 3px. */
 export const MEDIUM_PHONE_LANDSCAPE_VIEWPORT = Object.freeze({ width: 667, height: 375 });
 
+/** A 16:9 screen at the `max-width` of the landscape rule of the styles for smaller texts. */
+export const SMALL_TEXTS_MAX_LANDSCAPE_VIEWPORT = Object.freeze({ width: 719, height: 404 });
+
+/** A 16:9 screen one pixel wider, whose side columns must hold the texts at full size. */
+export const FULL_TEXTS_MIN_LANDSCAPE_VIEWPORT = Object.freeze({ width: 720, height: 405 });
+
 /**
  * The viewports of the landscape layout of phones, from the smallest phone to the largest, on both
- * sides of the 900px breakpoint.
+ * sides of the 720px and 900px breakpoints.
  */
 export const LANDSCAPE_VIEWPORTS = Object.freeze([
   SMALL_PHONE_LANDSCAPE_VIEWPORT,
   COMPACT_PHONE_LANDSCAPE_VIEWPORT,
   MEDIUM_PHONE_LANDSCAPE_VIEWPORT,
+  SMALL_TEXTS_MAX_LANDSCAPE_VIEWPORT,
+  FULL_TEXTS_MIN_LANDSCAPE_VIEWPORT,
   PHONE_LANDSCAPE_VIEWPORT,
   LARGE_PHONE_LANDSCAPE_VIEWPORT,
 ]);
@@ -101,6 +109,12 @@ export const SCANDINAVIAN_MOVES = Object.freeze([
   { from: 'e4', to: 'd5' },
   { from: 'd8', to: 'd5' },
   { from: 'b1', to: 'c3' },
+]);
+
+/** The same line with 3...Qa5: as many captures, and white to move, its panel labelled. */
+export const SCANDINAVIAN_MOVES_WHITE_TO_MOVE = Object.freeze([
+  ...SCANDINAVIAN_MOVES,
+  { from: 'd5', to: 'a5' },
 ]);
 
 /** The pieces that each side has captured at the end of `SCANDINAVIAN_MOVES`. */
