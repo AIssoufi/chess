@@ -68,6 +68,11 @@ In the pull request that closes #78:
   those viewports only: the crop that another screen size shows of it is not measured. The
   screenshots come from a page of their own, without the Content Security Policy, which refuses
   the stylesheet that WebKit injects for each screenshot.
+- Update of 2026-10-30 (#156): `landscape.spec.js` checks the phones held sideways at 568x320,
+  640x360, 844x390 and 932x430: the board fits the screen, no two panels overlap and "Nouvelle
+  partie" ends inside the game frame, before the first move and after the Scandinavian defense,
+  where the move list shows two turns. Up to 360px high, neither player panel scrolls, with one
+  captured piece or 15 on each side.
 
 ## Alternatives considered
 
