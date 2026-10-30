@@ -124,6 +124,12 @@ export const PROMOTION_MOVES = Object.freeze([
 /** The game frame, the translucent card over the photo, whose padding is the board gutter. */
 export const FRAME_SELECTOR = '.wrapper';
 
+/**
+ * The whole move list, its title and the new game button included, around the scrolling list of
+ * `MOVE_LIST_SELECTOR`.
+ */
+export const MOVE_LIST_PANEL_SELECTOR = '.move-list';
+
 /** The square where the pawn of `PROMOTION_MOVES` promotes. */
 export const PROMOTION_SQUARE = 'h8';
 

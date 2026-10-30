@@ -6,6 +6,7 @@ import {
   GRID_TOLERANCE_PX,
   LANDSCAPE_VIEWPORTS,
   MAX_CAPTURED_PIECES,
+  MOVE_LIST_PANEL_SELECTOR,
   SCANDINAVIAN_MOVES,
   SMALL_LANDSCAPE_MAX_HEIGHT_PX,
 } from './helpers/board/constants.js';
@@ -14,9 +15,6 @@ import { expect, test } from './helpers/fixtures.js';
 
 /** The board and its coordinates, between the two side columns of the landscape layout. */
 const GAME_SELECTOR = '.game';
-
-/** The whole move list, its title and the new game button included. */
-const MOVE_LIST_PANEL_SELECTOR = '.move-list';
 
 /** The fewest turns that the move list must show at once, so that a player can follow the game. */
 const MIN_VISIBLE_TURNS = 2;
