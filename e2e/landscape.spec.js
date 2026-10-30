@@ -1,14 +1,18 @@
 import { COLORS } from '../app/js/colors/constants.js';
 import { NEW_GAME_BUTTON_SELECTOR } from '../app/js/new-game/constants.js';
-import { CONTROL_SELECTOR, MOVE_LIST_SELECTOR } from '../app/js/rendering/constants.js';
+import {
+  CAPTURES_ID_SUFFIX,
+  CONTROL_SELECTOR,
+  MOVE_LIST_SELECTOR,
+} from '../app/js/rendering/constants.js';
 import {
   FRAME_SELECTOR,
   GRID_TOLERANCE_PX,
   LANDSCAPE_VIEWPORTS,
   MAX_CAPTURED_PIECES,
   MOVE_LIST_PANEL_SELECTOR,
+  SCANDINAVIAN_CAPTURES,
   SCANDINAVIAN_MOVES,
-  SMALL_LANDSCAPE_MAX_HEIGHT_PX,
 } from './helpers/board/constants.js';
 import { addCapturedPieces, areOverlapping, playMoves, readLayout } from './helpers/board/utils.js';
 import { expect, test } from './helpers/fixtures.js';
@@ -18,15 +22,6 @@ const GAME_SELECTOR = '.game';
 
 /** The fewest turns that the move list must show at once, so that a player can follow the game. */
 const MIN_VISIBLE_TURNS = 2;
-
-/**
- * The landscape viewports of the compact panels, whose captured pieces stay on one line, so that
- * the player panels never scroll: on the taller phones, the pieces wrap and scroll inside their
- * panel instead.
- */
-const SMALL_LANDSCAPE_VIEWPORTS = LANDSCAPE_VIEWPORTS.filter(
-  ({ height }) => height <= SMALL_LANDSCAPE_MAX_HEIGHT_PX
-);
 
 /**
  * Reads the boxes of the panels of the game frame, in CSS pixels from the top left corner of the
@@ -154,22 +149,10 @@ for (const viewport of LANDSCAPE_VIEWPORTS) {
         MIN_VISIBLE_TURNS * moves.turnHeight - GRID_TOLERANCE_PX
       );
     });
-  });
-}
-
-// Above 360px high, white's panel may still scroll a few pixels under some fonts (#158).
-for (const viewport of SMALL_LANDSCAPE_VIEWPORTS) {
-  const viewportLabel = `${viewport.width}x${viewport.height}`;
-
-  test.describe(`on a small phone held sideways at ${viewportLabel} (#156)`, () => {
-    test.use({ viewport });
-
-    test.beforeEach(async ({ page }) => {
-      await page.goto('/');
-      await playMoves({ page, moves: SCANDINAVIAN_MOVES });
-    });
 
     test('keeps whole player panels after a capture each', async ({ page }) => {
+      await playMoves({ page, moves: SCANDINAVIAN_MOVES });
+
       const { controls } = await expectPanelsToFit(page);
       expectWholeControls(controls);
     });
@@ -177,8 +160,16 @@ for (const viewport of SMALL_LANDSCAPE_VIEWPORTS) {
     test(`keeps whole player panels with ${MAX_CAPTURED_PIECES} captured pieces on each side`, async ({
       page,
     }) => {
+      await playMoves({ page, moves: SCANDINAVIAN_MOVES });
       for (const color of Object.values(COLORS)) {
-        await addCapturedPieces({ page, color, count: MAX_CAPTURED_PIECES });
+        await addCapturedPieces({
+          page,
+          color,
+          count: MAX_CAPTURED_PIECES - SCANDINAVIAN_CAPTURES,
+        });
+        await expect(page.locator(`#${color}${CAPTURES_ID_SUFFIX} > *`)).toHaveCount(
+          MAX_CAPTURED_PIECES
+        );
       }
 
       const { controls } = await expectPanelsToFit(page);
