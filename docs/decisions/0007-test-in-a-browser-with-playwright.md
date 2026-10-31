@@ -86,6 +86,12 @@ In the pull request that closes #78:
   of them keeps one line. The injected turns of `TURN_MOVES` stay for the long games of the other
   checks: they are shorter than the longest turns, which every column now holds, so they cannot
   show a turn that wraps.
+- Update of 2026-10-31 (#174): `forced-colors.spec.js` plays 1. e4 d5 with `forcedColors: 'active'`,
+  in the light and dark schemes, and checks the checkerboard, the ring of the selection, the dot,
+  the capture ring, the corners of the last move and the contrast of the pieces, a hovered one
+  included, then the stripes of the check after 1. e4 f5 2. Qh5+. It runs in Chromium only: WebKit
+  matches the media query under emulation, but paints the normal colors of the page. The real
+  contrast themes of Windows stay out of its reach.
 
 ## Alternatives considered
 
