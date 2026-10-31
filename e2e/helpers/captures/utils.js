@@ -3,9 +3,7 @@ import { CAPTURES_ID_SUFFIX } from '../../../app/js/rendering/constants.js';
 import { MAX_CAPTURED_PIECES, SCANDINAVIAN_CAPTURES } from '../board/constants.js';
 import { addCapturedPieces, playMoves } from '../board/utils.js';
 import { expect } from '../fixtures.js';
-
-/** The computed `grid-auto-flow` of a zone whose captured pieces sit on one line. */
-const CAPTURE_LINE_FLOW = 'column';
+import { CAPTURE_LINE_FLOW } from './constants.js';
 
 /**
  * Reads the width of each zone of captured pieces, with the width of a piece and of its symbol.
