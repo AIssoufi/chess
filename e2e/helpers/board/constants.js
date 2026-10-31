@@ -91,6 +91,21 @@ export const NARROW_UPRIGHT_VIEWPORTS = Object.freeze([
   { width: 599, height: 896 },
 ]);
 
+/** 1. e4 d5: the pawn of white on e4 may then move to the empty e5 or take the pawn on d5. */
+export const CAPTURE_OPENING_MOVES = Object.freeze([
+  { from: 'e2', to: 'e4' },
+  { from: 'd7', to: 'd5' },
+]);
+
+/** The pawn selected after `CAPTURE_OPENING_MOVES`. */
+export const SELECTED_SQUARE = 'e4';
+
+/** The empty square that the selected pawn can reach, marked with a dot. */
+export const EMPTY_TARGET = 'e5';
+
+/** The square of the pawn that the selected pawn can take, marked with a ring. */
+export const CAPTURE_TARGET = 'd5';
+
 /** The fool's mate, the shortest checkmate: black mates on its second move. */
 export const FOOLS_MATE_MOVES = Object.freeze([
   { from: 'f2', to: 'f3' },
@@ -150,6 +165,15 @@ export const PROMOTION_SQUARE = 'h8';
 
 /** The title of the promotion choice, which names it. */
 export const PROMOTION_TITLE = /^Promouvoir le pion/;
+
+/** The title of the checkmate alert, which names the game over dialog. */
+export const CHECKMATE_TITLE = /^Échec et mat/;
+
+/** The name of the button that closes the game over dialog on the final position. */
+export const REVIEW_BUTTON_NAME = 'Voir la position';
+
+/** The name of the button under the move list that starts a new game. */
+export const NEW_GAME_BUTTON_NAME = 'Nouvelle partie';
 
 /** The name of the queen button of the promotion choice. */
 export const QUEEN_BUTTON_NAME = 'Dame';

@@ -86,6 +86,11 @@ In the pull request that closes #78:
   of them keeps one line. The injected turns of `TURN_MOVES` stay for the long games of the other
   checks: they are shorter than the longest turns, which every column now holds, so they cannot
   show a turn that wraps.
+- Update of 2026-10-31 (#177): `piece-cursor.spec.js` reads the computed cursor of the pieces: the
+  pointer only on a piece that a click can select, so not on a piece of the side to move without a
+  legal move, on no piece during a promotion or on a finished board, a draw by repetition whose
+  pieces could still move included, and the cursors of a selected piece and of its possible moves,
+  which need a mouse.
 
 ## Alternatives considered
 

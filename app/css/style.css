@@ -465,8 +465,12 @@ body::before {
 }
 
 .alert__wrapper button:hover,
-.new-game:hover,
-.piece {
+.new-game:hover {
+  cursor: pointer;
+}
+
+/* Only the pieces that a click can select; any other piece inherits the cursor of its square */
+.piece.selectable {
   cursor: pointer;
 }
 
