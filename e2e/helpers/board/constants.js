@@ -148,6 +148,40 @@ export const MOVE_LIST_PANEL_SELECTOR = '.move-list';
 /** The square where the pawn of `PROMOTION_MOVES` promotes. */
 export const PROMOTION_SQUARE = 'h8';
 
+/** The title of the promotion choice, which names it. */
+export const PROMOTION_TITLE = /^Promouvoir le pion/;
+
+/** The name of the queen button of the promotion choice. */
+export const QUEEN_BUTTON_NAME = 'Dame';
+
+/**
+ * A game where each side promotes two pawns to queens by capturing, for two of the longest turns
+ * of the move list: `bxa8=D bxc1=D` and `gxh8=D gxf1=D+`. `isPromotion` marks the moves that open
+ * the promotion choice.
+ */
+export const LONG_TURNS_MOVES = Object.freeze([
+  { from: 'a2', to: 'a4' },
+  { from: 'h7', to: 'h5' },
+  { from: 'a4', to: 'a5' },
+  { from: 'h5', to: 'h4' },
+  { from: 'a5', to: 'a6' },
+  { from: 'h4', to: 'h3' },
+  { from: 'a6', to: 'b7' },
+  { from: 'h3', to: 'g2' },
+  { from: 'h2', to: 'h4' },
+  { from: 'a7', to: 'a5' },
+  { from: 'h4', to: 'h5' },
+  { from: 'a5', to: 'a4' },
+  { from: 'h5', to: 'h6' },
+  { from: 'a4', to: 'a3' },
+  { from: 'h6', to: 'g7' },
+  { from: 'a3', to: 'b2' },
+  { from: 'b7', to: 'a8', isPromotion: true },
+  { from: 'b2', to: 'c1', isPromotion: true },
+  { from: 'g7', to: 'h8', isPromotion: true },
+  { from: 'g2', to: 'f1', isPromotion: true },
+]);
+
 /** The number of pieces one side can capture: every piece of the opponent but its king. */
 export const MAX_CAPTURED_PIECES = 15;
 

@@ -16,7 +16,7 @@ import {
   BOARD_SIZE,
   SQUARE_PATTERN,
 } from '../../../app/js/squares/constants.js';
-import { GRID_TOLERANCE_PX, TURN_MOVES } from './constants.js';
+import { GRID_TOLERANCE_PX, PROMOTION_TITLE, QUEEN_BUTTON_NAME, TURN_MOVES } from './constants.js';
 
 /**
  * Finds a square of the board of the page.
@@ -43,16 +43,22 @@ export function press(locator) {
 }
 
 /**
- * Plays moves by pressing the square of each piece, then its destination, as a player would.
+ * Plays moves by pressing the square of each piece, then its destination, as a player would, and
+ * the queen of the promotion choice when a move opens it.
  *
  * @param {object} params
  * @param {import('@playwright/test').Page} params.page The page of the game.
- * @param {readonly { from: string, to: string }[]} params.moves The moves, in the order played.
+ * @param {readonly { from: string, to: string, isPromotion?: boolean }[]} params.moves The moves,
+ *   in the order played.
  */
 export async function playMoves({ page, moves }) {
-  for (const { from, to } of moves) {
+  const promotionChoice = page.getByRole('dialog', { name: PROMOTION_TITLE });
+  for (const { from, to, isPromotion } of moves) {
     await press(getSquare({ page, square: from }));
     await press(getSquare({ page, square: to }));
+    if (isPromotion) {
+      await press(promotionChoice.getByRole('button', { name: QUEEN_BUTTON_NAME }));
+    }
   }
 }
 
