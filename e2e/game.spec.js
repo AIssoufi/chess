@@ -9,18 +9,18 @@ import {
   PIECE_SELECTOR,
   TURN_SELECTOR,
 } from '../app/js/rendering/constants.js';
-import { FOOLS_MATE_MOVES, PROMOTION_MOVES, PROMOTION_SQUARE } from './helpers/board/constants.js';
+import {
+  FOOLS_MATE_MOVES,
+  PROMOTION_MOVES,
+  PROMOTION_SQUARE,
+  PROMOTION_TITLE,
+  QUEEN_BUTTON_NAME,
+} from './helpers/board/constants.js';
 import { getSquare, playMoves, press } from './helpers/board/utils.js';
 import { expect, test } from './helpers/fixtures.js';
 
 /** The title of the checkmate alert, which names the game over dialog. */
 const CHECKMATE_TITLE = /^Échec et mat/;
-
-/** The title of the promotion choice, which names it. */
-const PROMOTION_TITLE = /^Promouvoir le pion/;
-
-/** The name of the queen button of the promotion choice. */
-const QUEEN_BUTTON_NAME = 'Dame';
 
 /** The name of the button that closes the game over dialog. */
 const REPLAY_BUTTON_NAME = /^Rejouer/;

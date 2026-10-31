@@ -3,6 +3,7 @@ import { GRID_TOLERANCE_PX } from '../e2e/helpers/board/constants.js';
 import { MIN_VISIBLE_TURNS } from '../e2e/helpers/landscape/constants.js';
 import {
   expectOneLineTexts,
+  expectOneLineTurns,
   expectTwoVisibleTurns,
   expectWholeControls,
 } from '../e2e/helpers/landscape/utils.js';
@@ -76,6 +77,53 @@ describe('expectOneLineTexts', () => {
 
   it('has nothing to refuse without any panel', () => {
     expect(() => expectOneLineTexts({ controls: [], sideToMove: 'white' })).not.toThrow();
+  });
+});
+
+describe('expectOneLineTurns', () => {
+  it('accepts a turn at the exact height of a line, subpixel rounding included', () => {
+    const moves = { lineHeight: TURN_HEIGHT_PX, turnHeight: TURN_HEIGHT_PX + GRID_TOLERANCE_PX };
+
+    expect(() => expectOneLineTurns(moves)).not.toThrow();
+  });
+
+  it('accepts a turn shorter than a line', () => {
+    const moves = { lineHeight: TURN_HEIGHT_PX, turnHeight: TURN_HEIGHT_PX - 1 };
+
+    expect(() => expectOneLineTurns(moves)).not.toThrow();
+  });
+
+  it('refuses a turn one pixel taller', () => {
+    const moves = {
+      lineHeight: TURN_HEIGHT_PX,
+      turnHeight: TURN_HEIGHT_PX + GRID_TOLERANCE_PX + 1,
+    };
+
+    expect(() => expectOneLineTurns(moves)).toThrow('the tallest turn keeps one line');
+  });
+
+  it('refuses a turn on two lines', () => {
+    const moves = { lineHeight: TURN_HEIGHT_PX, turnHeight: 2 * TURN_HEIGHT_PX };
+
+    expect(() => expectOneLineTurns(moves)).toThrow('the tallest turn keeps one line');
+  });
+
+  it('accepts a move list without any turn, which `expectTwoVisibleTurns` refuses', () => {
+    const moves = { lineHeight: TURN_HEIGHT_PX, turnHeight: 0 };
+
+    expect(() => expectOneLineTurns(moves)).not.toThrow();
+  });
+
+  it('refuses a line height that is not a number', () => {
+    const moves = { lineHeight: Number.NaN, turnHeight: TURN_HEIGHT_PX };
+
+    expect(() => expectOneLineTurns(moves)).toThrow('the tallest turn keeps one line');
+  });
+
+  it('refuses a turn height that is not a number', () => {
+    const moves = { lineHeight: TURN_HEIGHT_PX, turnHeight: Number.NaN };
+
+    expect(() => expectOneLineTurns(moves)).toThrow('the tallest turn keeps one line');
   });
 });
 

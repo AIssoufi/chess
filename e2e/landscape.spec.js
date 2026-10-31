@@ -2,6 +2,7 @@ import { COLORS } from '../app/js/colors/constants.js';
 import { CAPTURES_ID_SUFFIX } from '../app/js/rendering/constants.js';
 import {
   LANDSCAPE_VIEWPORTS,
+  LONG_TURNS_MOVES,
   MAX_CAPTURED_PIECES,
   SCANDINAVIAN_CAPTURES,
   SCANDINAVIAN_MOVES,
@@ -11,6 +12,7 @@ import { expect, test } from './helpers/fixtures.js';
 import { LATE_GAME_POSITIONS } from './helpers/landscape/constants.js';
 import {
   expectOneLineTexts,
+  expectOneLineTurns,
   expectPanelsToFit,
   expectTwoVisibleTurns,
   expectWholeControls,
@@ -30,11 +32,13 @@ for (const viewport of LANDSCAPE_VIEWPORTS) {
       await expectPanelsToFit(page);
     });
 
-    test('shows two turns of the move list after three turns', async ({ page }) => {
-      await playMoves({ page, moves: SCANDINAVIAN_MOVES });
+    test('shows two long turns of the move list, each on one line', async ({ page }) => {
+      await playMoves({ page, moves: LONG_TURNS_MOVES });
 
-      const { moves } = await expectPanelsToFit(page);
+      const { controls, moves } = await expectPanelsToFit(page);
+      expectOneLineTurns(moves);
       expectTwoVisibleTurns(moves);
+      expectWholeControls(controls);
     });
 
     test('keeps whole player panels after a capture each', async ({ page }) => {

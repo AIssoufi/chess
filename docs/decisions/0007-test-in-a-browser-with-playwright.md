@@ -81,6 +81,11 @@ In the pull request that closes #78:
   once with each side to move, where the move list must also show two turns. With one captured
   piece or 15 on each side, the turn label of the side to move and both capture counts keep one
   line.
+- Update of 2026-10-31 (#170): the check of two turns of `landscape.spec.js` plays a game of real
+  promotions by capture, whose turns are among the longest of the move list, and checks that each
+  of them keeps one line. The injected turns of `TURN_MOVES` stay for the long games of the other
+  checks: they are shorter than the longest turns, which every column now holds, so they cannot
+  show a turn that wraps.
 
 ## Alternatives considered
 
