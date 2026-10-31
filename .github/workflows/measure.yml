@@ -1,0 +1,68 @@
+# Measures the layout on the Linux WebKit of the CI, which the development Mac cannot run: a
+# throwaway e2e/zz-measure.spec.js pushed to a `*-measure` ref, read from the artifact of this run.
+# The CLAUDE.md pitfall on Linux WebKit gives the steps.
+name: Measure
+
+on:
+  push:
+    branches: ['*-measure']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: measure-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Reads the Playwright version of the lockfile, so the measure job runs in the image of that
+  # exact version, as the e2e job of ci.yml does.
+  playwright-version:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      version: ${{ steps.lockfile.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # pnpm-lock.yaml holds two YAML documents, the pnpm version first and the project second, so
+      # yq answers once per document: keep the answer that is not null.
+      - id: lockfile
+        run: |
+          query='.importers.".".devDependencies."@playwright/test".version | select(. != null)'
+          version=$(yq "$query" pnpm-lock.yaml)
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::No exact @playwright/test version in pnpm-lock.yaml: $version"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  measure:
+    needs: playwright-version
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v${{ needs.playwright-version.outputs.version }}-noble
+      # Shares the host's IPC namespace, as Playwright advises, so Chromium does not run out of
+      # the small default shared memory of a container.
+      options: --ipc=host
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm exec playwright test e2e/zz-measure.spec.js --project=webkit --project=chromium --workers=2
+
+      # Also runs after a failed measure: its screenshots and error context are what is needed.
+      - if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-results
+          path: test-results
