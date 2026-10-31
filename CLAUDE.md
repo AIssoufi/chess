@@ -30,3 +30,9 @@ the deployment.
   as `_hasNoLegalMove` does, or the loop never ends.
 - A pawn reaching the last rank leaves a pending promotion in `promotionSquare`, and `move`
   returns `null` until `promote` resolves it.
+- WebKit on the Linux CI image lays text out differently from WebKit on macOS (a taller line
+  height), so measure any threshold in pixels on Linux too: write a throwaway
+  `e2e/zz-measure.spec.js` that saves to `testInfo.outputPath()`, commit it after
+  `git switch --detach` with its `Refs:` line by hand, push that commit with
+  `git push origin HEAD:refs/heads/<KEY>-measure` and read the `test-results` artifact of
+  `measure.yml`. That commit never goes on the ticket branch; delete the ref afterwards.
