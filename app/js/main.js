@@ -18,6 +18,7 @@ import { PROMOTION_CHOICE_SELECTOR } from './promotion/constants.js';
 import {
   getChosenPieceType,
   hidePromotionChoice,
+  keepFocusOnPieces,
   showPromotionChoice,
 } from './promotion/promotion-choice.js';
 import {
@@ -137,6 +138,10 @@ promotionWrapper.addEventListener('click', (event) => {
   // The focus goes back to the square of the promoted pawn
   focusSquare({ board: boardNode, square: lastMove?.to });
 });
+
+// The choice is required: Escape leaves it open
+promotionWrapper.addEventListener('cancel', (event) => event.preventDefault());
+promotionWrapper.addEventListener('keydown', keepFocusOnPieces);
 
 // ─── Alerts ─────────────────────────────────────────────────────────────────
 

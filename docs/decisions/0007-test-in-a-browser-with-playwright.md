@@ -86,6 +86,11 @@ In the pull request that closes #78:
   of them keeps one line. The injected turns of `TURN_MOVES` stay for the long games of the other
   checks: they are shorter than the longest turns, which every column now holds, so they cannot
   show a turn that wraps.
+- Update of 2026-10-31 (#176): `promotion.spec.js` presses Tab and Shift+Tab twice around the
+  promotion choice in Chromium and WebKit, since only a real browser moves the focus. Without the
+  focus loop, both checks fail in both browsers. It also checks that Escape leaves the choice open,
+  that the focus comes back to the board, and that the choice fits each layout and landscape
+  viewport. A touch screen has no Tab key, so `mobile-webkit` skips the keyboard tests.
 
 ## Alternatives considered
 

@@ -1,10 +1,12 @@
-import { PIECE_BUTTON_SELECTOR } from './constants.js';
+import { FOCUS_MOVE_KEY, PIECE_BUTTON_SELECTOR } from './constants.js';
+import { getNextPieceIndex } from './utils.js';
 
 /**
- * Shows the promotion choice with the symbols of the promoting color, and focuses its first piece.
+ * Opens the promotion choice as a modal dialog, which keeps the focus away from the page, with the
+ * symbols of the promoting color, and focuses its first piece.
  *
  * @param {object} params
- * @param {HTMLElement} params.wrapper The node of the promotion choice.
+ * @param {HTMLDialogElement} params.wrapper The dialog of the promotion choice.
  * @param {import('../PieceFactory.js').default} params.factory Gives the symbol of each piece.
  * @param {'white' | 'black'} params.color The color of the promoting pawn.
  */
@@ -12,17 +14,36 @@ export function showPromotionChoice({ wrapper, factory, color }) {
   wrapper.querySelectorAll(PIECE_BUTTON_SELECTOR).forEach((button) => {
     button.textContent = factory.getSymbol(button.dataset.type, color);
   });
-  wrapper.hidden = false;
+  wrapper.showModal();
   wrapper.querySelector(PIECE_BUTTON_SELECTOR)?.focus();
 }
 
 /**
- * Hides the promotion choice.
+ * Closes the promotion choice. A closed choice stays closed.
  *
- * @param {HTMLElement} wrapper The node of the promotion choice.
+ * @param {HTMLDialogElement} wrapper The dialog of the promotion choice.
  */
 export function hidePromotionChoice(wrapper) {
-  wrapper.hidden = true;
+  wrapper.close();
+}
+
+/**
+ * Keeps Tab and Shift+Tab on the pieces of the promotion choice. The modal dialog alone does not:
+ * Chromium stops on the page body after the last piece, and Safari skips buttons on Tab.
+ *
+ * @param {KeyboardEvent} event A key press in the dialog of the promotion choice.
+ */
+export function keepFocusOnPieces(event) {
+  if (event.key !== FOCUS_MOVE_KEY) return;
+
+  event.preventDefault();
+  const pieces = [...event.currentTarget.querySelectorAll(PIECE_BUTTON_SELECTOR)];
+  const nextIndex = getNextPieceIndex({
+    currentIndex: pieces.indexOf(document.activeElement),
+    count: pieces.length,
+    isBackward: event.shiftKey,
+  });
+  pieces[nextIndex]?.focus();
 }
 
 /**
