@@ -816,8 +816,9 @@ body::before {
   .move-list {
     min-height: 0;
     max-height: none;
-    padding: 0 var(--landscape-gutter);
+    padding: 0 0 0 var(--landscape-gutter);
     contain: size;
+    container-type: inline-size;
   }
 
   /*
@@ -858,6 +859,21 @@ body::before {
   .new-game {
     margin-top: 0.25rem;
     padding: 0.125rem 1rem;
+  }
+
+  /*
+   * The longest turn, such as `gxf1=D+ Cb1xd2+`, needs 8.1em, and its number 1.6em. The width of
+   * the side columns follows the board, so the height of the screen as much as its width: the
+   * column decides, not the screen. Under 9.5rem, the list takes the font that holds that turn on
+   * one line in the 7rem of the narrowest column, which also leaves more turns in view. That 7rem
+   * leaves out the right gutter of `.move-list`, which goes at every width of this layout since a
+   * container query cannot change the container itself.
+   */
+  @container (max-width: 9.5rem) {
+    .move-list__moves {
+      padding-left: 1.6em;
+      font-size: 0.7rem;
+    }
   }
 }
 

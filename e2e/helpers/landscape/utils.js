@@ -13,8 +13,9 @@ import { GAME_SELECTOR, MIN_VISIBLE_TURNS } from './constants.js';
 
 /**
  * Reads the boxes of the panels of the game frame, in CSS pixels from the top left corner of the
- * viewport, the scroll and client heights of the player panels and of the move list, and the lines
- * of the turn label and of the capture count of each panel.
+ * viewport, the scroll and client heights of the player panels and of the move list, the height of
+ * its tallest turn and of one of its lines, and the lines of the turn label and of the capture
+ * count of each panel.
  *
  * @param {import('@playwright/test').Page} page The page of the game.
  * @returns {Promise<{
@@ -28,7 +29,12 @@ import { GAME_SELECTOR, MIN_VISIBLE_TURNS } from './constants.js';
  *     turnLines: number,
  *     captureCountLines: number,
  *   }[],
- *   moves: { scrollHeight: number, clientHeight: number, turnHeight: number },
+ *   moves: {
+ *     scrollHeight: number,
+ *     clientHeight: number,
+ *     lineHeight: number,
+ *     turnHeight: number,
+ *   },
  * }>} The boxes and the heights.
  */
 function readPanels(page) {
@@ -56,7 +62,9 @@ function readPanels(page) {
         return new Set([...range.getClientRects()].map(({ bottom }) => Math.round(bottom))).size;
       };
       const moves = document.querySelector(movesSelector);
-      const firstTurn = moves.querySelector('li');
+      const turnHeights = [...moves.querySelectorAll('li')].map(
+        (turn) => turn.getBoundingClientRect().height
+      );
       return {
         frame: toBox(document.querySelector(frameSelector)),
         newGame: toBox(document.querySelector(newGameSelector)),
@@ -80,7 +88,8 @@ function readPanels(page) {
         moves: {
           scrollHeight: moves.scrollHeight,
           clientHeight: moves.clientHeight,
-          turnHeight: firstTurn ? firstTurn.getBoundingClientRect().height : 0,
+          lineHeight: parseFloat(getComputedStyle(moves).lineHeight),
+          turnHeight: Math.max(0, ...turnHeights),
         },
       };
     },
@@ -153,6 +162,19 @@ export function expectOneLineTexts({ controls, sideToMove }) {
     expect(turnLines, `the turn label of ${color} takes its lines`).toBe(expectedTurnLines);
     expect(captureCountLines, `the capture count of ${color} keeps one line`).toBe(1);
   }
+}
+
+/**
+ * Checks that every turn of the move list keeps one line. A list without any turn has none that
+ * wraps: `expectTwoVisibleTurns` is the check that refuses it.
+ *
+ * @param {{ lineHeight: number, turnHeight: number }} moves The heights of the move list, from
+ *   `readPanels`.
+ */
+export function expectOneLineTurns({ lineHeight, turnHeight }) {
+  expect(turnHeight, 'the tallest turn keeps one line').toBeLessThanOrEqual(
+    lineHeight + GRID_TOLERANCE_PX
+  );
 }
 
 /**
