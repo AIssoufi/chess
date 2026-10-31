@@ -66,6 +66,25 @@ export const LAYOUT_VIEWPORTS = Object.freeze([
   { width: 1280, height: 800 },
 ]);
 
+/** The smallest side of a square, in CSS pixels, in a window of `NARROW_LANDSCAPE_VIEWPORTS`. */
+export const MIN_NARROW_LANDSCAPE_SQUARE_SIZE_PX = 29;
+
+/**
+ * The font size of the turn label and of the capture count in the stacked layout, not the smaller
+ * texts of the landscape layout on small phones.
+ */
+export const STACKED_TEXT_FONT_SIZE_PX = 16;
+
+/**
+ * Windows wider than tall, under the 568px of the landscape layout, which stay stacked: a
+ * 1280x1024 screen at 400% zoom, a phone in split screen, and the widest window left out.
+ */
+export const NARROW_LANDSCAPE_VIEWPORTS = Object.freeze([
+  { width: 320, height: 256 },
+  { width: 480, height: 320 },
+  { width: 567, height: 320 },
+]);
+
 /**
  * Tablets held upright, under the 900px breakpoint, where the player panels stack above and below
  * the board: the 600px and 56rem thresholds of the tablet rule of the styles where the page starts

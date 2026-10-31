@@ -748,9 +748,11 @@ body::before {
  * title turns vertical on the left, the player panels go back beside the board, and the squares
  * follow the screen height, without a floor, so that the whole board fits within the gutters of
  * the page and of the game frame, above and below it. They also leave room in the width for the
- * title and the two panels.
+ * title and the two panels. Under 568px wide, that room leaves squares too small to play, and none
+ * at 320px: such a window, a phone in split screen or a zoomed page, keeps the stacked layout,
+ * whose page scrolls.
  */
-@media (orientation: landscape) and (max-height: 500px) {
+@media (orientation: landscape) and (min-width: 568px) and (max-height: 500px) {
   :root {
     --landscape-gutter: 0.5rem;
     --landscape-sides: 18rem;
@@ -882,9 +884,10 @@ body::before {
  * `À vous de jouer` and the 111px of `Prisonniers : 15`. Each text that wraps takes about one turn
  * from the move list, too much for it to keep two turns at 320px high, so both get a smaller font
  * that holds them on one line. A 16:9 screen fits both at full size from 701px with the fonts of
- * macOS: the limit at 720px leaves a margin for the fonts of other systems.
+ * macOS: the limit at 720px leaves a margin for the fonts of other systems. The 568px is the one of
+ * the landscape layout above: under it, the stacked panels hold their texts at full size.
  */
-@media (orientation: landscape) and (max-height: 500px) and (max-width: 719px) {
+@media (orientation: landscape) and (min-width: 568px) and (max-width: 719px) and (max-height: 500px) {
   .control .control__turn {
     font-size: 0.8125rem;
   }
