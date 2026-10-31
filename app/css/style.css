@@ -322,7 +322,7 @@ body::before {
   grid-area: moves;
   display: flex;
   flex-direction: column;
-  /* Wide enough for a turn on one line, narrow enough to keep the game frame under 900px */
+  /* Wide enough for a usual turn on one line, narrow enough to keep the game frame under 900px */
   min-width: 7.5rem;
   min-height: 8rem;
   margin: 0 20px;
@@ -348,6 +348,27 @@ body::before {
   font-size: 0.9rem;
   font-variant-numeric: tabular-nums;
   line-height: 1.6;
+}
+
+/*
+ * The number of a turn sits in the indent, and the list clips what overflows it: `100. ` takes
+ * 2.23em on macOS and 2.4em in the wider sans-serif of WebKit on Linux, which would cut its first
+ * digit. In em, so that it also holds in the smaller font of the narrow landscape column. A list
+ * holds one item per turn, so its 100th item is turn 100.
+ */
+.move-list__moves:has(li:nth-child(100)) {
+  padding-left: 2.45em;
+}
+
+/*
+ * The narrow column of the short landscape layout, the only one that is a container this small:
+ * the longest turn and its 2.45em number need 10.55em on macOS and more in a wider font, so a
+ * smaller font keeps them on one line in the 7rem of that column.
+ */
+@container (max-width: 9.5rem) {
+  .move-list__moves:has(li:nth-child(100)) {
+    font-size: 0.625rem;
+  }
 }
 
 /* Under the moves, which shrink and scroll rather than push it out of the frame */
