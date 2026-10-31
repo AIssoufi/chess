@@ -1,1 +1,5 @@
 minimumReleaseAge: 1440
+
+overrides:
+  # Remove once eslint and @eslint/config-array accept minimatch 11.0.1 or later on their own.
+  minimatch: ^11.0.3
