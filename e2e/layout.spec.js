@@ -1,10 +1,12 @@
 import { COLORS } from '../app/js/colors/constants.js';
 import { BOARD_SIZE } from '../app/js/squares/constants.js';
 import {
+  CAPTURE_COUNT_ID_SUFFIX,
   CAPTURES_ID_SUFFIX,
   CONTROL_SELECTOR,
   MOVE_LIST_EMPTY_SELECTOR,
   MOVE_LIST_SELECTOR,
+  TURN_SELECTOR,
 } from '../app/js/rendering/constants.js';
 import {
   GRID_TOLERANCE_PX,
@@ -13,21 +15,40 @@ import {
   NARROW_LAYOUT_MAX_WIDTH_PX,
   MAX_CAPTURED_PIECES,
   MAX_SQUARE_SIZE_PX,
+  MIN_NARROW_LANDSCAPE_SQUARE_SIZE_PX,
   MIN_SQUARE_SIZE_PX,
   MOVE_LIST_PANEL_SELECTOR,
+  NARROW_LANDSCAPE_VIEWPORTS,
   NARROW_UPRIGHT_VIEWPORTS,
+  SCANDINAVIAN_MOVES,
   SHORT_TABLET_VIEWPORT,
+  STACKED_TEXT_FONT_SIZE_PX,
   UPRIGHT_TABLET_VIEWPORTS,
 } from './helpers/board/constants.js';
-import { addCapturedPieces, addMoves, getGridPlace, readLayout } from './helpers/board/utils.js';
+import {
+  addCapturedPieces,
+  addMoves,
+  getGridPlace,
+  playMoves,
+  readLayout,
+} from './helpers/board/utils.js';
 import { expect, test } from './helpers/fixtures.js';
 
 const SQUARE_COUNT = BOARD_SIZE * BOARD_SIZE;
+
+/** The turns of `SCANDINAVIAN_MOVES` in the move list. */
+const SCANDINAVIAN_TURNS = 3;
 
 /** The laptop viewport where #49 saw 15 captured pieces stretch a panel past the screen. */
 const CAPTURES_VIEWPORT = { width: 1280, height: 800 };
 
 const CAPTURES_VIEWPORT_LABEL = `${CAPTURES_VIEWPORT.width}x${CAPTURES_VIEWPORT.height}`;
+
+/** The value that `getComputedStyle` gives for the stacked font size. */
+const STACKED_TEXT_FONT_SIZE = `${STACKED_TEXT_FONT_SIZE_PX}px`;
+
+/** The panel of black, above the board in the stacked layout. */
+const BLACK_PANEL_SELECTOR = `${CONTROL_SELECTOR}[data-color="black"]`;
 
 /** The panel of white, which #33 puts above the move list on a phone held sideways. */
 const WHITE_PANEL_SELECTOR = `${CONTROL_SELECTOR}[data-color="white"]`;
@@ -298,6 +319,57 @@ for (const viewport of FOOTER_VIEWPORTS) {
 
       expect(lineStarts.length).toBeGreaterThan(0);
       expect(lineStarts).not.toContain(COPYRIGHT_SEPARATOR);
+    });
+  });
+}
+
+for (const viewport of NARROW_LANDSCAPE_VIEWPORTS) {
+  const viewportLabel = `${viewport.width}x${viewport.height}`;
+
+  test.describe(`in a narrow window held sideways at ${viewportLabel} (#173)`, () => {
+    test.use({ viewport });
+
+    test.beforeEach(async ({ page }) => {
+      await page.goto('/');
+    });
+
+    test('keeps squares wide enough to play, inside the width', async ({ page }) => {
+      const { board, squares, scrollWidth, clientWidth } = await readLayout(page);
+
+      expect(squares).toHaveLength(SQUARE_COUNT);
+      for (const { square, width } of squares) {
+        expect(width, square).toBeGreaterThanOrEqual(MIN_NARROW_LANDSCAPE_SQUARE_SIZE_PX);
+      }
+      expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+      expect(board.left).toBeGreaterThanOrEqual(0);
+      expect(board.right).toBeLessThanOrEqual(clientWidth);
+    });
+
+    test('stacks the panels around the board, in a page that scrolls', async ({ page }) => {
+      const { board, scrollHeight, clientHeight } = await readLayout(page);
+      const blackPanel = await page.locator(BLACK_PANEL_SELECTOR).boundingBox();
+      const whitePanel = await page.locator(WHITE_PANEL_SELECTOR).boundingBox();
+
+      expect(blackPanel.y + blackPanel.height).toBeLessThanOrEqual(board.top);
+      expect(whitePanel.y).toBeGreaterThanOrEqual(board.bottom);
+      expect(scrollHeight).toBeGreaterThan(clientHeight);
+      expect(board.bottom).toBeLessThanOrEqual(scrollHeight);
+    });
+
+    test('keeps the texts of the stacked layout', async ({ page }) => {
+      const turnOfTheSideToMove = page.locator(WHITE_PANEL_SELECTOR).locator(TURN_SELECTOR);
+
+      await expect(turnOfTheSideToMove).toHaveCSS('font-size', STACKED_TEXT_FONT_SIZE);
+      await expect(page.locator(`#white${CAPTURE_COUNT_ID_SUFFIX}`).locator('..')).toHaveCSS(
+        'font-size',
+        STACKED_TEXT_FONT_SIZE
+      );
+    });
+
+    test('plays a move from the last rank of the board', async ({ page }) => {
+      await playMoves({ page, moves: SCANDINAVIAN_MOVES });
+
+      await expect(page.locator(`${MOVE_LIST_SELECTOR} li`)).toHaveCount(SCANDINAVIAN_TURNS);
     });
   });
 }

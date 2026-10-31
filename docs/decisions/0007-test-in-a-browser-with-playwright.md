@@ -86,6 +86,9 @@ In the pull request that closes #78:
   of them keeps one line. The injected turns of `TURN_MOVES` stay for the long games of the other
   checks: they are shorter than the longest turns, which every column now holds, so they cannot
   show a turn that wraps.
+- Update of 2026-10-31 (#173): `layout.spec.js` adds windows wider than tall under the 568px of the
+  landscape layout, at 320x256, 480x320 and 567x320: they stay stacked, with squares of at least
+  29px, the texts at full size, a page that scrolls and a game that plays.
 
 ## Alternatives considered
 
