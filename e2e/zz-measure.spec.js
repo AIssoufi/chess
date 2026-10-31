@@ -17,20 +17,47 @@ for (const viewport of [
   { width: 844, height: 390 },
   { width: 1000, height: 500 },
 ]) {
-  test.describe(() => {
-    test.use({ deviceScaleFactor: 2 });
-
-    test(`shot ${viewport.width}`, async ({ page }, testInfo) => {
-      test.skip(testInfo.project.name !== 'webkit');
-      await page.setViewportSize(viewport);
-      await page.goto('/');
-      await fillCaptures({ page, gameMoves: LATE_GAME_POSITIONS[0].gameMoves });
-      const clip = await page.locator('.control[data-color="white"]').boundingBox();
-      const shot = await page.screenshot({ clip, caret: 'initial' });
-      console.log(`SHOT ${viewport.width} ${shot.toString('base64')} ENDSHOT`);
-    });
+  test(`glyphs ${viewport.width}`, async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name === 'mobile-webkit');
+    await page.setViewportSize(viewport);
+    await page.goto('/');
+    await fillCaptures({ page, gameMoves: LATE_GAME_POSITIONS[0].gameMoves });
+    const widths = await page.evaluate(
+      ({ suffix }) => {
+        const zone = document.getElementById(`white${suffix}`);
+        const lines = [`track ${zone.children[0].getBoundingClientRect().width}`];
+        for (let code = 0x2654; code <= 0x265f; code += 1) {
+          const piece = zone.children[0];
+          piece.textContent = String.fromCodePoint(code);
+          const glyph = document.createRange();
+          glyph.selectNodeContents(piece);
+          const { width, height } = glyph.getBoundingClientRect();
+          lines.push(`${code.toString(16)} ${width.toFixed(1)}x${height.toFixed(1)}`);
+        }
+        return lines.join(' | ');
+      },
+      { suffix: CAPTURES_ID_SUFFIX }
+    );
+    writeFileSync(
+      `${process.env.MEASURE_OUT}/glyphs-${testInfo.project.name}-${viewport.width}.txt`,
+      `${widths}\n`
+    );
   });
 }
+
+test.describe(() => {
+  test.use({ deviceScaleFactor: 2 });
+
+  test('shot 1000', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'webkit');
+    await page.setViewportSize({ width: 1000, height: 500 });
+    await page.goto('/');
+    await fillCaptures({ page, gameMoves: LATE_GAME_POSITIONS[0].gameMoves });
+    const clip = await page.locator('.control[data-color="white"]').boundingBox();
+    const shot = await page.screenshot({ clip, caret: 'initial' });
+    writeFileSync(`${process.env.MEASURE_OUT}/shot-1000.b64`, shot.toString('base64'));
+  });
+});
 
 function readRow({ colors, suffix }) {
   return new Promise((resolve) => {
