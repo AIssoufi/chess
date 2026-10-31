@@ -4,9 +4,11 @@ import PieceFactory from '../app/js/PieceFactory.js';
 import {
   getChosenPieceType,
   hidePromotionChoice,
+  keepFocusOnPieces,
   showPromotionChoice,
 } from '../app/js/promotion/promotion-choice.js';
-import { PROMOTION_PIECE_TYPES } from '../app/js/promotion/constants.js';
+import { FOCUS_MOVE_KEY, PROMOTION_PIECE_TYPES } from '../app/js/promotion/constants.js';
+import { getNextPieceIndex } from '../app/js/promotion/utils.js';
 
 let wrapper;
 const factory = new PieceFactory();
@@ -23,10 +25,10 @@ function buttonOf(type) {
 
 beforeEach(() => {
   document.body.innerHTML = `
-    <div class="promotion__wrapper" hidden>
+    <dialog class="promotion__wrapper">
       <p>Promouvoir le pion en :</p>
       <div>${PROMOTION_PIECE_TYPES.map((type) => `<button data-type="${type}"></button>`).join('')}</div>
-    </div>`;
+    </dialog>`;
   wrapper = document.querySelector('.promotion__wrapper');
 });
 
@@ -40,14 +42,14 @@ describe('showPromotionChoice', () => {
 
   it('shows the choice and focuses its first piece', () => {
     showPromotionChoice({ wrapper, factory, color: 'white' });
-    expect(wrapper.hidden).toBe(false);
+    expect(wrapper.open).toBe(true);
     expect(document.activeElement).toBe(buttonOf('queen'));
   });
 
   it('shows a choice without pieces, focusing nothing', () => {
     wrapper.innerHTML = '';
     showPromotionChoice({ wrapper, factory, color: 'white' });
-    expect(wrapper.hidden).toBe(false);
+    expect(wrapper.open).toBe(true);
     expect(document.activeElement).toBe(document.body);
   });
 });
@@ -56,7 +58,83 @@ describe('hidePromotionChoice', () => {
   it('hides the choice', () => {
     showPromotionChoice({ wrapper, factory, color: 'white' });
     hidePromotionChoice(wrapper);
-    expect(wrapper.hidden).toBe(true);
+    expect(wrapper.open).toBe(false);
+  });
+
+  it('leaves a closed choice closed', () => {
+    hidePromotionChoice(wrapper);
+    expect(wrapper.open).toBe(false);
+  });
+});
+
+describe('getNextPieceIndex', () => {
+  it.each([
+    ['the next piece', { currentIndex: 0, count: 4, isBackward: false }, 1],
+    ['the first piece after the last', { currentIndex: 3, count: 4, isBackward: false }, 0],
+    ['the previous piece', { currentIndex: 3, count: 4, isBackward: true }, 2],
+    ['the last piece before the first', { currentIndex: 0, count: 4, isBackward: true }, 3],
+    ['the first piece from outside', { currentIndex: -1, count: 4, isBackward: false }, 0],
+    ['the last piece from outside', { currentIndex: -1, count: 4, isBackward: true }, 3],
+    ['the only piece', { currentIndex: 0, count: 1, isBackward: false }, 0],
+    ['the only piece backward', { currentIndex: 0, count: 1, isBackward: true }, 0],
+    ['no piece without pieces', { currentIndex: -1, count: 0, isBackward: false }, -1],
+    ['no piece backward without pieces', { currentIndex: -1, count: 0, isBackward: true }, -1],
+  ])('gives %s', (_label, params, expected) => {
+    expect(getNextPieceIndex(params)).toBe(expected);
+  });
+});
+
+describe('keepFocusOnPieces', () => {
+  /**
+   * Presses a key in the promotion choice.
+   *
+   * @param {KeyboardEventInit} init The key.
+   * @returns {KeyboardEvent} The event, once handled.
+   */
+  function pressKey(init) {
+    const event = new KeyboardEvent('keydown', { cancelable: true, ...init });
+    wrapper.addEventListener('keydown', keepFocusOnPieces, { once: true });
+    wrapper.dispatchEvent(event);
+    return event;
+  }
+
+  beforeEach(() => {
+    showPromotionChoice({ wrapper, factory, color: 'white' });
+  });
+
+  it('moves the focus to the next piece on Tab, instead of the browser', () => {
+    const event = pressKey({ key: FOCUS_MOVE_KEY });
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(buttonOf('rook'));
+  });
+
+  it('loops to the last piece on Shift+Tab', () => {
+    const event = pressKey({ key: FOCUS_MOVE_KEY, shiftKey: true });
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(buttonOf('knight'));
+  });
+
+  it('brings a lost focus back to the first piece', () => {
+    document.activeElement.blur();
+
+    pressKey({ key: FOCUS_MOVE_KEY });
+
+    expect(document.activeElement).toBe(buttonOf('queen'));
+  });
+
+  it('leaves other keys to the browser', () => {
+    const event = pressKey({ key: 'Enter' });
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(buttonOf('queen'));
+  });
+
+  it('does not throw without pieces', () => {
+    wrapper.innerHTML = '';
+
+    expect(pressKey({ key: FOCUS_MOVE_KEY }).defaultPrevented).toBe(true);
   });
 });
 

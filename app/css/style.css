@@ -570,21 +570,31 @@ body::before {
   }
 }
 
-/* Promotion dialog */
+/* Promotion modal: a <dialog> in the top layer that covers the whole page with its own shade */
 .promotion__wrapper {
-  position: fixed;
   inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 1rem;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: none;
   background-color: rgba(0, 0, 0, 0.6);
-  z-index: 100;
 }
 
-/* The display of the rule above would otherwise override the hidden attribute */
-.promotion__wrapper[hidden] {
+/* The dialog already shades the page: the default backdrop would darken it further */
+.promotion__wrapper::backdrop {
+  background: none;
+}
+
+/* The display of the rule above would otherwise show the closed dialog */
+.promotion__wrapper:not([open]) {
   display: none;
 }
 

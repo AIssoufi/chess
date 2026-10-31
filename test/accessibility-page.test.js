@@ -125,7 +125,7 @@ describe('announcements and names of the page', () => {
     const dialog = document.querySelector('.promotion__wrapper');
     const titleId = dialog.getAttribute('aria-labelledby');
 
-    expect(dialog.getAttribute('role')).toBe('dialog');
+    expect(dialog.tagName).toBe('DIALOG');
     expect(titleId).not.toBe('');
     expect(document.getElementById(titleId)?.closest('.promotion__wrapper')).toBe(dialog);
   });
