@@ -47,12 +47,21 @@ export const CAPTURE_GRID_MIN_LANDSCAPE_VIEWPORT = Object.freeze({ width: 1000, 
 /** One pixel narrower, where the captures keep their line that scrolls sideways. */
 export const CAPTURE_LINE_MAX_LANDSCAPE_VIEWPORT = Object.freeze({ width: 999, height: 500 });
 
+/** The shortest screen where the captures sit in rows, exactly 2:1 too. */
+export const CAPTURE_GRID_SHORTEST_LANDSCAPE_VIEWPORT = Object.freeze({ width: 640, height: 320 });
+
+/** One pixel shorter, where the captures keep their line although the screen is wider than 2:1. */
+export const CAPTURE_LINE_SHORT_LANDSCAPE_VIEWPORT = Object.freeze({ width: 640, height: 319 });
+
 /**
  * The viewports of the landscape layout of phones, from the smallest phone to the largest, on both
- * sides of the 720px and 900px breakpoints and of the 2:1 shape of the capture rows.
+ * sides of the 720px and 900px breakpoints and of the 320px height and 2:1 shape of the capture
+ * rows.
  */
 export const LANDSCAPE_VIEWPORTS = Object.freeze([
   SMALL_PHONE_LANDSCAPE_VIEWPORT,
+  CAPTURE_LINE_SHORT_LANDSCAPE_VIEWPORT,
+  CAPTURE_GRID_SHORTEST_LANDSCAPE_VIEWPORT,
   COMPACT_PHONE_LANDSCAPE_VIEWPORT,
   MEDIUM_PHONE_LANDSCAPE_VIEWPORT,
   SMALL_TEXTS_MAX_LANDSCAPE_VIEWPORT,
@@ -63,8 +72,9 @@ export const LANDSCAPE_VIEWPORTS = Object.freeze([
   CAPTURE_GRID_MIN_LANDSCAPE_VIEWPORT,
 ]);
 
-/** The viewports of the landscape layout where the captures sit in rows, with no sideways scroll. */
+/** The viewports of the landscape layout where the captures sit in rows, with no sideways scroll */
 export const CAPTURE_GRID_VIEWPORTS = Object.freeze([
+  CAPTURE_GRID_SHORTEST_LANDSCAPE_VIEWPORT,
   PHONE_LANDSCAPE_VIEWPORT,
   LARGE_PHONE_LANDSCAPE_VIEWPORT,
   CAPTURE_GRID_MIN_LANDSCAPE_VIEWPORT,
