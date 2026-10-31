@@ -165,8 +165,8 @@ e2e/                 Browser tests (Playwright): the layout, scrollbar, contrast
 playwright.config.js Playwright config: the browsers, and the preview server on a free port
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests
-.github/workflows/   CI, commit message checks, actionlint, the live check and the GitHub Pages
-                     redirect
+.github/workflows/   CI, commit message checks, actionlint, the layout measure, the live check and
+                     the GitHub Pages redirect
 ```
 
 ## CI and deployment
@@ -187,6 +187,10 @@ test/                Unit tests
 - **Actionlint** (`actionlint.yml`): on every pull request that changes a file of
   `.github/workflows/`, lints the workflows, and the scripts of their `run` steps with shellcheck,
   using the official actionlint binary checked against its SHA-256.
+- **Measure** (`measure.yml`): on a push to a `*-measure` ref and nothing else, runs the throwaway
+  `e2e/zz-measure.spec.js` on `webkit` and `chromium` in the Playwright image of the lockfile, and
+  uploads `test-results` as an artifact. It measures a layout on Linux WebKit, which macOS does not
+  reproduce; `CLAUDE.md` gives the steps.
 - **Cloudflare Pages** deploys the game from its Git integration: `master` to
   https://chess.issoufi.fr, and every other branch to a preview URL, linked from its pull request.
   The build is served from the root of the domain, so Vite keeps its default `base` of `/`. An
