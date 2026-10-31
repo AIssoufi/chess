@@ -489,6 +489,15 @@ describe('main.js promotion', () => {
     expect(squaresWithClass('check')).toEqual(['e8']);
     expect(moveListTurns().at(-1)).toBe('exd8=D+');
   });
+
+  it('marks no selectable piece while the choice is open, then those of the next side', () => {
+    expect(document.querySelectorAll('.piece.selectable')).toHaveLength(0);
+
+    promotionModal().querySelector('[data-type="queen"]').click();
+
+    expect(document.querySelectorAll('.piece.selectable').length).toBeGreaterThan(0);
+    expect(document.querySelectorAll('.piece.selectable[data-color="white"]')).toHaveLength(0);
+  });
 });
 
 describe('main.js end of game', () => {

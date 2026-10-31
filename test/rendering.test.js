@@ -131,6 +131,11 @@ describe('getSquareNode', () => {
 });
 
 describe('renderPieces', () => {
+  const selectableSquares = () =>
+    [...document.querySelectorAll('.piece.selectable')].map(
+      (piece) => piece.closest('.square').dataset.position
+    );
+
   it('shows the 32 pieces of the start, hidden from screen readers', () => {
     renderPieces({ game, factory });
     const pieces = document.querySelectorAll('.container-squares .piece');
@@ -146,6 +151,30 @@ describe('renderPieces', () => {
     expect(document.querySelectorAll('.container-squares .piece')).toHaveLength(32);
     expect(pieceOn('e2')).toBeUndefined();
     expect(pieceOn('e4')).toMatchObject({ type: 'pawn', color: 'white' });
+  });
+
+  it('marks the pieces of the side to move that have a legal move, and only those', () => {
+    renderPieces({ game, factory });
+    expect(selectableSquares()).toHaveLength(10);
+    expect(selectableSquares()).toEqual(expect.arrayContaining(['e2', 'b1', 'g1']));
+    expect(selectableSquares()).not.toContain('a1');
+    expect(selectableSquares()).not.toContain('e7');
+  });
+
+  it('follows the turn', () => {
+    game.move({ from: 'e2', to: 'e4' });
+    renderPieces({ game, factory });
+    expect(selectableSquares()).toContain('e7');
+    expect(selectableSquares()).not.toContain('e4');
+  });
+
+  it.each([
+    ['a game over, even when pieces could still move', { isOver: true }],
+    ['a pending promotion', { promotionSquare: 'h8' }],
+  ])('marks no piece for %s', (_name, state) => {
+    Object.assign(game, state);
+    renderPieces({ game, factory });
+    expect(selectableSquares()).toEqual([]);
   });
 
   it('skips a piece of an unknown type and a square missing from the page', () => {

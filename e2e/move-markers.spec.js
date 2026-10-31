@@ -1,24 +1,15 @@
 import { LAST_MOVE_CLASS } from '../app/js/last-move/constants.js';
 import { BOARD_SQUARE_SELECTOR, PIECE_SELECTOR } from '../app/js/rendering/constants.js';
 import { CAPTURE_MOVE_CLASS, POSSIBLE_MOVE_CLASS } from '../app/js/selection/constants.js';
-import { LAYOUT_VIEWPORTS } from './helpers/board/constants.js';
+import {
+  CAPTURE_OPENING_MOVES,
+  CAPTURE_TARGET,
+  EMPTY_TARGET,
+  LAYOUT_VIEWPORTS,
+  SELECTED_SQUARE,
+} from './helpers/board/constants.js';
 import { getSquare, playMoves, press, readLayout } from './helpers/board/utils.js';
 import { expect, test } from './helpers/fixtures.js';
-
-/** 1. e4 d5: the pawn of white on e4 may then move to the empty e5 or take the pawn on d5. */
-const CAPTURE_OPENING_MOVES = Object.freeze([
-  { from: 'e2', to: 'e4' },
-  { from: 'd7', to: 'd5' },
-]);
-
-/** The pawn selected after `CAPTURE_OPENING_MOVES`. */
-const SELECTED_SQUARE = 'e4';
-
-/** The empty square that the selected pawn can reach, marked with a dot. */
-const EMPTY_TARGET = 'e5';
-
-/** The square of the pawn that the selected pawn can take, marked with a ring. */
-const CAPTURE_TARGET = 'd5';
 
 /** The start and target squares of the last move of `CAPTURE_OPENING_MOVES`. */
 const LAST_MOVE_SQUARES = Object.freeze(['d7', 'd5']);

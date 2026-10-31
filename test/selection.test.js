@@ -91,6 +91,14 @@ describe('getSelection', () => {
     expect(getSelection({ game, square: 'a1' })).toBe(NO_SELECTION);
   });
 
+  it.each([
+    ['once the game is over', { isOver: true }],
+    ['while a promotion waits for its piece', { promotionSquare: 'e8' }],
+  ])('selects nothing %s, even for a piece with legal moves', (_label, state) => {
+    Object.assign(game, state);
+    expect(getSelection({ game, square: 'e2' })).toBe(NO_SELECTION);
+  });
+
   it('selects nothing for a piece of the other color or an empty square', () => {
     expect(getSelection({ game, square: 'e7' })).toBe(NO_SELECTION);
     expect(getSelection({ game, square: 'e4' })).toBe(NO_SELECTION);
