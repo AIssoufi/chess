@@ -4,6 +4,9 @@ import { MAX_CAPTURED_PIECES, SCANDINAVIAN_CAPTURES } from '../board/constants.j
 import { addCapturedPieces, playMoves } from '../board/utils.js';
 import { expect } from '../fixtures.js';
 
+/** The computed `grid-auto-flow` of a zone whose captured pieces sit on one line. */
+const CAPTURE_LINE_FLOW = 'column';
+
 /**
  * Reads the width of each zone of captured pieces, with the width of a piece and of its symbol.
  *
@@ -74,4 +77,19 @@ export function expectWholeCaptures(captures) {
  */
 export async function expectVisibleCaptures(page) {
   expectWholeCaptures(await readCaptures(page));
+}
+
+/**
+ * Checks that both zones of captured pieces of the page keep their single line.
+ *
+ * @param {import('@playwright/test').Page} page The page of the game.
+ * @returns {Promise<void>} Resolves once both zones are checked.
+ */
+export async function expectCaptureLines(page) {
+  for (const color of Object.values(COLORS)) {
+    await expect(page.locator(`#${color}${CAPTURES_ID_SUFFIX}`)).toHaveCSS(
+      'grid-auto-flow',
+      CAPTURE_LINE_FLOW
+    );
+  }
 }

@@ -80,6 +80,12 @@ export const CAPTURE_GRID_VIEWPORTS = Object.freeze([
   CAPTURE_GRID_MIN_LANDSCAPE_VIEWPORT,
 ]);
 
+/** The landscape viewports one pixel past the limits of the rows, where the line stays. */
+export const CAPTURE_LINE_VIEWPORTS = Object.freeze([
+  CAPTURE_LINE_SHORT_LANDSCAPE_VIEWPORT,
+  CAPTURE_LINE_MAX_LANDSCAPE_VIEWPORT,
+]);
+
 /**
  * The viewports of the layout tests: a phone upright, a tablet upright, a phone sideways and a
  * laptop.
