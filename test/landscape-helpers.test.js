@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { GRID_TOLERANCE_PX } from '../e2e/helpers/board/constants.js';
+import { expectWholeCaptures } from '../e2e/helpers/captures/utils.js';
 import { MIN_VISIBLE_TURNS } from '../e2e/helpers/landscape/constants.js';
 import {
   expectOneLineTexts,
@@ -16,6 +17,15 @@ const TWO_TURNS_HEIGHT_PX = MIN_VISIBLE_TURNS * TURN_HEIGHT_PX - GRID_TOLERANCE_
 const WHITE_TO_MOVE = Object.freeze({ color: 'white', turnLines: 1, captureCountLines: 1 });
 
 const BLACK_WAITING = Object.freeze({ color: 'black', turnLines: 0, captureCountLines: 1 });
+
+/** A zone that holds its pieces exactly, with symbols as wide as their tracks. */
+const WHOLE_CAPTURES = Object.freeze({
+  color: 'white',
+  scrollWidth: 168,
+  clientWidth: 168,
+  pieceWidth: 26,
+  symbolWidth: 26,
+});
 
 describe('expectWholeControls', () => {
   it('accepts a panel that holds exactly its content', () => {
@@ -150,5 +160,30 @@ describe('expectTwoVisibleTurns', () => {
     expect(() => expectTwoVisibleTurns({ clientHeight: 100, turnHeight: 0 })).toThrow(
       'the move list holds a turn'
     );
+  });
+});
+
+describe('expectWholeCaptures', () => {
+  it('accepts a zone that holds exactly its pieces, with symbols as wide as their tracks', () => {
+    expect(() => expectWholeCaptures([WHOLE_CAPTURES])).not.toThrow();
+  });
+
+  it('refuses a zone that scrolls by one pixel, whichever comes first', () => {
+    const captures = [
+      { ...WHOLE_CAPTURES, color: 'black' },
+      { ...WHOLE_CAPTURES, scrollWidth: WHOLE_CAPTURES.clientWidth + 1 },
+    ];
+
+    expect(() => expectWholeCaptures(captures)).toThrow('the captures of white do not scroll');
+  });
+
+  it('refuses a symbol wider than its track by a fraction of a pixel', () => {
+    const captures = [{ ...WHOLE_CAPTURES, symbolWidth: WHOLE_CAPTURES.pieceWidth + 0.5 }];
+
+    expect(() => expectWholeCaptures(captures)).toThrow('the symbols of white stay apart');
+  });
+
+  it('accepts a page without any zone', () => {
+    expect(() => expectWholeCaptures([])).not.toThrow();
   });
 });
