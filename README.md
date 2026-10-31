@@ -73,7 +73,7 @@ pnpm preview    # serve dist/ on http://localhost:4173/
     request titles of commitlint;
   - `e2e-helpers.test.js`: the helpers of the browser tests, the contrast ratios of WCAG
     included;
-  - `landscape-helpers.test.js`: the checks of the panels of the landscape layout;
+  - `landscape-helpers.test.js`: the checks of the panels and capture zones of the landscape layout;
 - the tests that need a DOM run in happy-dom, chosen by a `// @vitest-environment happy-dom`
   comment on their first line:
   - `index-page.test.js`: the head of the page and its social preview image;
