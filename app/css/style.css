@@ -825,7 +825,8 @@ body::before {
    * the move list and the new game button. The panels get compact, so that white's panel shows
    * whole, under half of the column, and leaves the list its two turns, even with the taller fonts
    * of WebKit on Linux: smaller names and turn labels, closer lines, and the captured pieces on one
-   * line, which scrolls sideways. The title and the button of the move list also sit closer.
+   * line, which scrolls sideways, or in rows on the wide screens of the rule at the end of this
+   * file. The title and the button of the move list also sit closer.
    */
   .control h2 {
     margin: 0.25rem 0 0;

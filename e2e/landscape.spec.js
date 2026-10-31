@@ -1,11 +1,16 @@
 import {
   CAPTURE_GRID_VIEWPORTS,
+  CAPTURE_LINE_VIEWPORTS,
   LANDSCAPE_VIEWPORTS,
   MAX_CAPTURED_PIECES,
   SCANDINAVIAN_MOVES,
 } from './helpers/board/constants.js';
 import { playMoves } from './helpers/board/utils.js';
-import { expectVisibleCaptures, fillCaptures } from './helpers/captures/utils.js';
+import {
+  expectCaptureLines,
+  expectVisibleCaptures,
+  fillCaptures,
+} from './helpers/captures/utils.js';
 import { test } from './helpers/fixtures.js';
 import { LATE_GAME_POSITIONS } from './helpers/landscape/constants.js';
 import {
@@ -73,5 +78,17 @@ for (const viewport of CAPTURE_GRID_VIEWPORTS) {
         await expectVisibleCaptures(page);
       });
     }
+  });
+}
+
+for (const viewport of CAPTURE_LINE_VIEWPORTS) {
+  test.describe(`on a phone held sideways at ${viewport.width}x${viewport.height} (#168)`, () => {
+    test.use({ viewport });
+
+    test('keeps the captured pieces on one line', async ({ page }) => {
+      await page.goto('/');
+
+      await expectCaptureLines(page);
+    });
   });
 }
