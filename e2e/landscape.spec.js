@@ -1,13 +1,12 @@
-import { COLORS } from '../app/js/colors/constants.js';
-import { CAPTURES_ID_SUFFIX } from '../app/js/rendering/constants.js';
 import {
+  CAPTURE_GRID_VIEWPORTS,
   LANDSCAPE_VIEWPORTS,
   MAX_CAPTURED_PIECES,
-  SCANDINAVIAN_CAPTURES,
   SCANDINAVIAN_MOVES,
 } from './helpers/board/constants.js';
-import { addCapturedPieces, playMoves } from './helpers/board/utils.js';
-import { expect, test } from './helpers/fixtures.js';
+import { playMoves } from './helpers/board/utils.js';
+import { expectVisibleCaptures, fillCaptures } from './helpers/captures/utils.js';
+import { test } from './helpers/fixtures.js';
 import { LATE_GAME_POSITIONS } from './helpers/landscape/constants.js';
 import {
   expectOneLineTexts,
@@ -49,22 +48,29 @@ for (const viewport of LANDSCAPE_VIEWPORTS) {
       test(`keeps the panels whole with ${MAX_CAPTURED_PIECES} captured pieces on each side, ${sideToMove} to move`, async ({
         page,
       }) => {
-        await playMoves({ page, moves: gameMoves });
-        for (const color of Object.values(COLORS)) {
-          await addCapturedPieces({
-            page,
-            color,
-            count: MAX_CAPTURED_PIECES - SCANDINAVIAN_CAPTURES,
-          });
-          await expect(page.locator(`#${color}${CAPTURES_ID_SUFFIX} > *`)).toHaveCount(
-            MAX_CAPTURED_PIECES
-          );
-        }
+        await fillCaptures({ page, gameMoves });
 
         const { controls, moves } = await expectPanelsToFit(page);
         expectWholeControls(controls);
         expectOneLineTexts({ controls, sideToMove });
         expectTwoVisibleTurns(moves);
+      });
+    }
+  });
+}
+
+for (const viewport of CAPTURE_GRID_VIEWPORTS) {
+  test.describe(`on a wide phone held sideways at ${viewport.width}x${viewport.height} (#168)`, () => {
+    test.use({ viewport });
+
+    for (const { sideToMove, gameMoves } of LATE_GAME_POSITIONS) {
+      test(`shows ${MAX_CAPTURED_PIECES} captured pieces on each side without a sideways scroll, ${sideToMove} to move`, async ({
+        page,
+      }) => {
+        await page.goto('/');
+        await fillCaptures({ page, gameMoves });
+
+        await expectVisibleCaptures(page);
       });
     }
   });

@@ -877,3 +877,21 @@ body::before {
     font-size: 0.875rem;
   }
 }
+
+/*
+ * A screen twice as wide as it is high leaves the side columns room for the captured pieces in
+ * rows, whatever its height: a height alone cannot tell, since a taller board narrows the columns.
+ * The tracks of the grid of the wider layouts, 40px wide, would still make the panel of white
+ * scroll up to 1100px wide, so here they follow the square, wider than a symbol on every system.
+ * A row is as high as its font, even where the fonts of WebKit on Linux run taller; the zone clips
+ * the blank space that a symbol still claims around it, which would make the panel scroll.
+ */
+@media (orientation: landscape) and (max-height: 500px) and (min-aspect-ratio: 2 / 1) {
+  #black-captures,
+  #white-captures {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(auto-fill, minmax(calc(var(--square) * 0.55), 1fr));
+    overflow: hidden;
+    line-height: 1;
+  }
+}
