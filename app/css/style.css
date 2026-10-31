@@ -884,9 +884,10 @@ body::before {
  * The tracks of the grid of the wider layouts, 40px wide, would still make the panel of white
  * scroll up to 1100px wide, so here they follow the square, wider than a symbol on every system.
  * A row is as high as its font, even where the fonts of WebKit on Linux run taller; the zone clips
- * the blank space that a symbol still claims around it, which would make the panel scroll.
+ * the blank space that a symbol still claims around it, which would make the panel scroll. Under
+ * 320px high the panels keep the line: the rows make them scroll from 280px high down.
  */
-@media (orientation: landscape) and (max-height: 500px) and (min-aspect-ratio: 2 / 1) {
+@media (orientation: landscape) and (min-height: 320px) and (max-height: 500px) and (min-aspect-ratio: 2 / 1) {
   #black-captures,
   #white-captures {
     grid-auto-flow: row;
