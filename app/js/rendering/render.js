@@ -2,6 +2,7 @@ import { COLORS } from '../colors/constants.js';
 import { CURRENT_PLAYER_LABEL } from '../labels/constants.js';
 import { getSquareLabel } from '../labels/utils.js';
 import { getMoveTurns } from '../notation/utils.js';
+import { getSelection } from '../selection/utils.js';
 import { BOARD_SELECTOR, SQUARE_SELECTOR } from '../squares/constants.js';
 import { isSquare } from '../squares/utils.js';
 import { getStatusMessage } from '../status/utils.js';
@@ -17,6 +18,7 @@ import {
   MOVE_LIST_EMPTY_SELECTOR,
   MOVE_LIST_SELECTOR,
   PIECE_SELECTOR,
+  SELECTABLE_PIECE_CLASS,
   STATUS_SELECTOR,
   TURN_SELECTOR,
 } from './constants.js';
@@ -37,8 +39,9 @@ export function getSquareNode({ root = document, square }) {
 }
 
 /**
- * Shows the pieces of the game on the board, in place of the ones shown before. The pieces are
- * hidden from screen readers, since the name of each square already holds its piece.
+ * Shows the pieces of the game on the board, in place of the ones shown before, and marks those
+ * that a click can select, which show the pointer. The pieces are hidden from screen readers,
+ * since the name of each square already holds its piece.
  *
  * @param {object} params
  * @param {import('../Chessboard.js').default} params.game The game.
@@ -47,10 +50,13 @@ export function getSquareNode({ root = document, square }) {
  */
 export function renderPieces({ game, factory, root = document }) {
   root.querySelectorAll(PIECE_SELECTOR).forEach((pieceNode) => pieceNode.remove());
-  for (const [square, piece] of game.board) {
+  // A snapshot: `getSelection` tries each move on the board, which reorders its keys
+  for (const [square, piece] of [...game.board.entries()]) {
     const squareNode = getSquareNode({ root, square });
     const pieceNode = factory.create({ type: piece.type, color: piece.color });
     if (!squareNode || !pieceNode) continue;
+    const isSelectable = getSelection({ game, square }).square === square;
+    pieceNode.classList.toggle(SELECTABLE_PIECE_CLASS, isSelectable);
     pieceNode.setAttribute('aria-hidden', 'true');
     squareNode.appendChild(pieceNode);
   }

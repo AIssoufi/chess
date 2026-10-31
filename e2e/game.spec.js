@@ -10,26 +10,20 @@ import {
   TURN_SELECTOR,
 } from '../app/js/rendering/constants.js';
 import {
+  CHECKMATE_TITLE,
   FOOLS_MATE_MOVES,
+  NEW_GAME_BUTTON_NAME,
   PROMOTION_MOVES,
   PROMOTION_SQUARE,
   PROMOTION_TITLE,
   QUEEN_BUTTON_NAME,
+  REVIEW_BUTTON_NAME,
 } from './helpers/board/constants.js';
 import { getSquare, playMoves, press } from './helpers/board/utils.js';
 import { expect, test } from './helpers/fixtures.js';
 
-/** The title of the checkmate alert, which names the game over dialog. */
-const CHECKMATE_TITLE = /^Échec et mat/;
-
 /** The name of the button that closes the game over dialog. */
 const REPLAY_BUTTON_NAME = /^Rejouer/;
-
-/** The name of the button that closes the game over dialog on the final position. */
-const REVIEW_BUTTON_NAME = 'Voir la position';
-
-/** The name of the button under the move list that starts a new game. */
-const NEW_GAME_BUTTON_NAME = 'Nouvelle partie';
 
 /** A square of a pawn of white at the start of a game, emptied by `FOOLS_MATE_MOVES`. */
 const STARTING_PAWN_SQUARE = 'f2';

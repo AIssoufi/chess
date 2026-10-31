@@ -6,6 +6,9 @@ export const PIECE_CLASS = 'piece';
 /** The selector of the pieces shown on the page, on the board and among the captures. */
 export const PIECE_SELECTOR = `.${PIECE_CLASS}`;
 
+/** The class of a piece of the board that a click can select. */
+export const SELECTABLE_PIECE_CLASS = 'selectable';
+
 /** The selector of the squares of the board, which hold its pieces. */
 export const BOARD_SQUARE_SELECTOR = `${BOARD_SELECTOR} ${SQUARE_SELECTOR}`;
 

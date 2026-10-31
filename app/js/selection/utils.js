@@ -3,6 +3,17 @@ import { isSquare } from '../squares/utils.js';
 import { CLICK_ACTIONS, NO_SELECTION } from './constants.js';
 
 /**
+ * Tells whether a game accepts a click on its board: not once it is over, nor while a promotion
+ * waits for its piece.
+ *
+ * @param {import('../Chessboard.js').default} [game] The game.
+ * @returns {boolean} Whether the side to move can play, `false` without a game.
+ */
+function isGamePlayable(game) {
+  return Boolean(game) && !game.isOver && !game.promotionSquare;
+}
+
+/**
  * Tells whether a square holds a piece of the color to move.
  *
  * @param {object} params
@@ -40,14 +51,15 @@ function isCapture({ game, piece, target }) {
  * @param {string} params.square The clicked square, such as `'e2'`.
  * @returns {{ square: string | null, moves: readonly string[], captures: readonly string[] }} The
  *   selection, or `NO_SELECTION` for a square that is not a square, is empty, holds a piece of the
- *   other color or a piece without legal moves, and without a game.
+ *   other color or a piece without legal moves, once the game is over, while a promotion waits
+ *   for its piece, and without a game.
  * @example
  * getSelection({ game, square: 'e4' }); // { square: 'e4', moves: ['e5', 'd5'], captures: ['d5'] }
  * // after 1. e4 d5
  */
 export function getSelection(params) {
   const { game, square } = params ?? {};
-  const canSelect = Boolean(game) && isSquare(square) && hasPieceToMove({ game, square });
+  const canSelect = isGamePlayable(game) && isSquare(square) && hasPieceToMove({ game, square });
   if (!canSelect) return NO_SELECTION;
 
   const moves = game.getMoves(square);
@@ -77,8 +89,7 @@ export function getSelection(params) {
  */
 export function getClickAction(params) {
   const { game, selection = NO_SELECTION, square } = params ?? {};
-  const isPlayable = Boolean(game) && !game.isOver && !game.promotionSquare;
-  if (!isPlayable || !isSquare(square)) return CLICK_ACTIONS.none;
+  if (!isGamePlayable(game) || !isSquare(square)) return CLICK_ACTIONS.none;
 
   const isSelectedSquare = Boolean(selection?.square) && square === selection.square;
   if (isSelectedSquare) return CLICK_ACTIONS.deselect;

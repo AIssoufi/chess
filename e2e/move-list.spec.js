@@ -4,6 +4,7 @@ import {
   LANDSCAPE_VIEWPORTS,
   LAYOUT_VIEWPORTS,
   LONG_TURNS_MOVES,
+  NEW_GAME_BUTTON_NAME,
 } from './helpers/board/constants.js';
 import { playMoves } from './helpers/board/utils.js';
 import { expect, test } from './helpers/fixtures.js';
@@ -17,9 +18,6 @@ const LAPTOP_VIEWPORT = Object.freeze({ width: 1280, height: 800 });
 
 /** The square of the board that the Tab key reaches, the others being left to the arrow keys. */
 const TABBABLE_SQUARE_SELECTOR = `${BOARD_SQUARE_SELECTOR}[tabindex="${TABBABLE_INDEX}"]`;
-
-/** The name of the button under the move list that starts a new game. */
-const NEW_GAME_BUTTON_NAME = 'Nouvelle partie';
 
 /** The first move of white, which fills the move list. */
 const FIRST_MOVE = Object.freeze({ from: 'e2', to: 'e4' });
