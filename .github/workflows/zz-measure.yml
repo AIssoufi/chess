@@ -10,7 +10,7 @@ permissions:
 jobs:
   measure:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     container:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
       options: --ipc=host
@@ -27,3 +27,6 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm exec playwright test e2e/zz-measure.spec.js --project=webkit --project=chromium --workers=2
+
+      - if: always()
+        run: pnpm exec playwright test e2e/landscape.spec.js e2e/layout.spec.js --project=webkit --project=chromium --workers=2
