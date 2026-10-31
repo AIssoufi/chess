@@ -3,13 +3,34 @@ import { COLORS } from '../app/js/colors/constants.js';
 import { CAPTURES_ID_SUFFIX } from '../app/js/rendering/constants.js';
 import { MAX_CAPTURED_PIECES, SCANDINAVIAN_CAPTURES } from './helpers/board/constants.js';
 import { addCapturedPieces, playMoves } from './helpers/board/utils.js';
+import { fillCaptures } from './helpers/captures/utils.js';
 import { test } from './helpers/fixtures.js';
 import { LATE_GAME_POSITIONS } from './helpers/landscape/constants.js';
 
 const RATIOS = [1.75, 1.78, 1.85, 1.9, 1.95, 2, 2.05, 2.1, 2.17, 2.25, 2.4, 2.6, 3, 4];
 const HEIGHTS = [];
 for (let height = 320; height <= 500; height += 10) HEIGHTS.push(height);
-const FACTORS = (process.env.TRACK_FACTORS ?? '0.5,0.55,0.6').split(',');
+const FACTORS = (process.env.TRACK_FACTORS ?? '0.55/1').split(',');
+
+for (const viewport of [
+  { width: 640, height: 320 },
+  { width: 844, height: 390 },
+  { width: 1000, height: 500 },
+]) {
+  test.describe(() => {
+    test.use({ deviceScaleFactor: 2 });
+
+    test(`shot ${viewport.width}`, async ({ page }, testInfo) => {
+      test.skip(testInfo.project.name !== 'webkit');
+      await page.setViewportSize(viewport);
+      await page.goto('/');
+      await fillCaptures({ page, gameMoves: LATE_GAME_POSITIONS[0].gameMoves });
+      const clip = await page.locator('.control[data-color="white"]').boundingBox();
+      const shot = await page.screenshot({ clip, caret: 'initial' });
+      console.log(`SHOT ${viewport.width} ${shot.toString('base64')} ENDSHOT`);
+    });
+  });
+}
 
 function readRow({ colors, suffix }) {
   return new Promise((resolve) => {
@@ -58,8 +79,9 @@ for (const { sideToMove, gameMoves } of LATE_GAME_POSITIONS) {
           for (const color of colors) {
             const { style } = document.getElementById(`${color}${suffix}`);
             style.gridAutoFlow = 'row';
-            style.gridTemplateColumns = `repeat(auto-fill, minmax(calc(var(--square) * ${trackFactor}), 1fr))`;
-            style.overflow = 'visible';
+            style.gridTemplateColumns = `repeat(auto-fill, minmax(calc(var(--square) * ${trackFactor.split('/')[0]}), 1fr))`;
+            style.overflow = 'hidden';
+            style.lineHeight = trackFactor.split('/')[1];
           }
         },
         { colors: Object.values(COLORS), suffix: CAPTURES_ID_SUFFIX, trackFactor: factor }
