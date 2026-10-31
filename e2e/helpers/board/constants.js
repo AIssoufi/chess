@@ -72,7 +72,7 @@ export const LANDSCAPE_VIEWPORTS = Object.freeze([
   CAPTURE_GRID_MIN_LANDSCAPE_VIEWPORT,
 ]);
 
-/** The viewports of the landscape layout where the captures sit in rows, with no sideways scroll */
+/** The landscape viewports where the captures sit in rows, with no sideways scroll. */
 export const CAPTURE_GRID_VIEWPORTS = Object.freeze([
   CAPTURE_GRID_SHORTEST_LANDSCAPE_VIEWPORT,
   PHONE_LANDSCAPE_VIEWPORT,
