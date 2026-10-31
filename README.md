@@ -106,12 +106,13 @@ files of `e2e/`. Each page gets the Content Security Policy of `app/public/_head
 `vite preview` does not send, and a test fails on any console error, a blocked script or style
 included. [ADR 0007](docs/decisions/0007-test-in-a-browser-with-playwright.md) lists what they
 check. `scrollbars.spec.js` runs in Chromium only, launched with the classic scrollbars of a
-desktop window, which take room from the page where overlay ones take none. The `mobile-webkit`
-project runs the other specs on an emulated iPhone SE (320x568, touch), where the helpers tap
-the squares and buttons instead of clicking them, and skips the hover test. `contrast.spec.js`
-checks that every text of the game frame outside the board keeps the 4.5:1 of WCAG AA over any
-photo, and that the title, the footer and the social icons keep theirs over the pixels of the
-photo behind them.
+desktop window, which take room from the page where overlay ones take none. So does
+`forced-colors.spec.js`: WebKit matches the media query under emulation, but paints the normal
+colors of the page. The `mobile-webkit` project runs the other specs on an emulated iPhone SE
+(320x568, touch), where the helpers tap the squares and buttons instead of clicking them, and
+skips the hover test. `contrast.spec.js` checks that every text of the game frame outside the
+board keeps the 4.5:1 of WCAG AA over any photo, and that the title, the footer and the social
+icons keep theirs over the pixels of the photo behind them.
 
 Install the two browsers once, and again after an upgrade of `@playwright/test`:
 
@@ -160,8 +161,8 @@ app/                 Vite root: the page, its styles and images
 commitlint/          Ticket reference rule, bot commits and the pull request title config
 docs/                README screenshot, decisions (ADRs), the evolution of the stack and
                      ai-workflow/ (how agents work on the project)
-e2e/                 Browser tests (Playwright): the layout, scrollbar, contrast, move marker,
-                     move list and game specs, and helpers
+e2e/                 Browser tests (Playwright): the layout, scrollbar, contrast, forced colors,
+                     move marker, move list and game specs, and helpers
 playwright.config.js Playwright config: the browsers, and the preview server on a free port
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests
