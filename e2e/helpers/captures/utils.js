@@ -57,14 +57,21 @@ export async function fillCaptures({ page, gameMoves }) {
  * Checks that every captured piece shows at once, with no sideways scroll, and that the symbols
  * stay inside their tracks, whose width does not depend on the font of the system.
  *
+ * @param {Awaited<ReturnType<typeof readCaptures>>} captures The zones, from `readCaptures`.
+ */
+export function expectWholeCaptures(captures) {
+  for (const { color, scrollWidth, clientWidth, pieceWidth, symbolWidth } of captures) {
+    expect(scrollWidth, `the captures of ${color} do not scroll`).toBeLessThanOrEqual(clientWidth);
+    expect(symbolWidth, `the symbols of ${color} stay apart`).toBeLessThanOrEqual(pieceWidth);
+  }
+}
+
+/**
+ * Checks the zones of captured pieces of the page, as `expectWholeCaptures` does.
+ *
  * @param {import('@playwright/test').Page} page The page of the game.
  * @returns {Promise<void>} Resolves once both zones are checked.
  */
 export async function expectVisibleCaptures(page) {
-  for (const { color, scrollWidth, clientWidth, pieceWidth, symbolWidth } of await readCaptures(
-    page
-  )) {
-    expect(scrollWidth, `the captures of ${color} do not scroll`).toBeLessThanOrEqual(clientWidth);
-    expect(symbolWidth, `the symbols of ${color} stay apart`).toBeLessThanOrEqual(pieceWidth);
-  }
+  expectWholeCaptures(await readCaptures(page));
 }
