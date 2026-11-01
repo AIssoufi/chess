@@ -826,7 +826,8 @@ body::before {
    * the move list and the new game button. The panels get compact, so that white's panel shows
    * whole, under half of the column, and leaves the list its two turns, even with the taller fonts
    * of WebKit on Linux: smaller names and turn labels, closer lines, and the captured pieces on one
-   * line, which scrolls sideways. The title and the button of the move list also sit closer.
+   * line, which scrolls sideways, or in rows on the wide screens of the rule at the end of this
+   * file. The title and the button of the move list also sit closer.
    */
   .control h2 {
     margin: 0.25rem 0 0;
@@ -891,5 +892,24 @@ body::before {
 
   .control p:not(.control__turn) {
     font-size: 0.875rem;
+  }
+}
+
+/*
+ * A screen twice as wide as it is high leaves the side columns room for the captured pieces in
+ * rows, whatever its height: a height alone cannot tell, since a taller board narrows the columns.
+ * The tracks of the grid of the wider layouts, 40px wide, would still make the panel of white
+ * scroll up to 1100px wide, so here they follow the square, wider than a symbol on every system.
+ * A row is as high as its font, even where the fonts of WebKit on Linux run taller; the zone clips
+ * the blank space that a symbol still claims around it, which would make the panel scroll. Under
+ * 320px high the panels keep the line: the rows make them scroll from 280px high down.
+ */
+@media (orientation: landscape) and (min-height: 320px) and (max-height: 500px) and (min-aspect-ratio: 2 / 1) {
+  #black-captures,
+  #white-captures {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(auto-fill, minmax(calc(var(--square) * 0.55), 1fr));
+    overflow: hidden;
+    line-height: 1;
   }
 }
