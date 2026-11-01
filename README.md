@@ -108,7 +108,7 @@ included. [ADR 0007](docs/decisions/0007-test-in-a-browser-with-playwright.md) l
 check. `scrollbars.spec.js` runs in Chromium only, launched with the classic scrollbars of a
 desktop window, which take room from the page where overlay ones take none. The `mobile-webkit`
 project runs the other specs on an emulated iPhone SE (320x568, touch), where the helpers tap
-the squares and buttons instead of clicking them, and skips the hover test and the keyboard
+the squares and buttons instead of clicking them, and skips the hover tests and the keyboard
 tests of `promotion.spec.js`, since a touch screen has no Tab key. `contrast.spec.js`
 checks that every text of the game frame outside the board keeps the 4.5:1 of WCAG AA over any
 photo, and that the title, the footer and the social icons keep theirs over the pixels of the
@@ -164,7 +164,7 @@ commitlint/          Ticket reference rule, bot commits and the pull request tit
 docs/                README screenshot, decisions (ADRs), the evolution of the stack and
                      ai-workflow/ (how agents work on the project)
 e2e/                 Browser tests (Playwright): the layout, scrollbar, contrast, move marker,
-                     move list, promotion and game specs, and helpers
+                     move list, piece cursor, promotion and game specs, and helpers
 playwright.config.js Playwright config: the browsers, and the preview server on a free port
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests

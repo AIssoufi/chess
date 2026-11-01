@@ -94,6 +94,11 @@ In the pull request that closes #78:
 - Update of 2026-10-31 (#173): `layout.spec.js` adds windows wider than tall under the 568px of the
   landscape layout, at 320x256, 480x320 and 567x320: they stay stacked, with squares of at least
   29px, the texts at full size, a page that scrolls and a game that plays.
+- Update of 2026-10-31 (#177): `piece-cursor.spec.js` reads the computed cursor of the pieces: the
+  pointer only on a piece that a click can select, so not on a piece of the side to move without a
+  legal move, on no piece during a promotion or on a finished board, a draw by repetition whose
+  pieces could still move included, and the cursors of a selected piece and of its possible moves,
+  which need a mouse.
 
 ## Alternatives considered
 
