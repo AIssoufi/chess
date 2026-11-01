@@ -91,6 +91,9 @@ In the pull request that closes #78:
   focus loop, both checks fail in both browsers. It also checks that Escape leaves the choice open,
   that the focus comes back to the board, and that the choice fits each layout and landscape
   viewport. A touch screen has no Tab key, so `mobile-webkit` skips the keyboard tests.
+- Update of 2026-10-31 (#173): `layout.spec.js` adds windows wider than tall under the 568px of the
+  landscape layout, at 320x256, 480x320 and 567x320: they stay stacked, with squares of at least
+  29px, the texts at full size, a page that scrolls and a game that plays.
 
 ## Alternatives considered
 
