@@ -19,8 +19,8 @@ const OTHER_ATTRIBUTE_SELECTOR = /\[(?!id\b)[^\]]*\]/g;
 const RULE_PRELUDE = /[^{};]+(?=\{)/g;
 /** A CSS comment, which may hold braces and `#`. */
 const CSS_COMMENT = /\/\*[\s\S]*?\*\//g;
-/** The rule that lets the hidden attribute override the `display: flex` of the promotion choice. */
-const HIDDEN_PROMOTION_RULE = /\.promotion__wrapper\[hidden\]\s*\{\s*display:\s*none;?\s*\}/;
+/** The rule that keeps the `display: flex` of the promotion choice from showing it closed. */
+const HIDDEN_PROMOTION_RULE = /\.promotion__wrapper:not\(\[open\]\)\s*\{\s*display:\s*none;?\s*\}/;
 /** Ids of the areas that list the pieces captured by each player. */
 const CAPTURE_AREA_IDS = ['black-captures', 'white-captures'];
 /** The head of the page, in a template so that happy-dom does not try to load the stylesheet. */
@@ -169,7 +169,7 @@ describe('index.html under the Content Security Policy of _headers', () => {
   });
 
   it('hides the promotion choice until a pawn promotes, despite the display of its rule', () => {
-    expect(page.querySelector('.promotion__wrapper').hidden).toBe(true);
+    expect(page.querySelector('.promotion__wrapper').hasAttribute('open')).toBe(false);
     expect(STYLESHEET).toMatch(HIDDEN_PROMOTION_RULE);
   });
 });
