@@ -71,7 +71,8 @@ jobs:
   e2e:
     needs: playwright-version
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # The slowest pace measured on a runner, 2 s per test, takes 27 min on 804 tests.
+    timeout-minutes: 30
     container:
       image: mcr.microsoft.com/playwright:v${{ needs.playwright-version.outputs.version }}-noble
       # Shares the host's IPC namespace, as Playwright advises, so Chromium does not run out of
