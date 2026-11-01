@@ -648,10 +648,12 @@ body::before {
 }
 
 /*
- * Below 1080px, the game frame (up to 1000px wide) reaches the screen edges: the copyright and the
- * social links leave them, where they would cover the game, and follow it.
+ * Fixed to the screen, the copyright and the social links need the room beside the game frame. The
+ * frame, up to about 895px wide, reaches the 131px of the links, 20px from the edge, below 1200px.
+ * In a short window held sideways, it is up to 1000px wide and as high as the screen. In both cases
+ * they would cover the game, so they leave the screen edges and follow the game in one column.
  */
-@media (max-width: 1079px) {
+@media (max-width: 1199px), (orientation: landscape) and (max-height: 500px) {
   body {
     flex-direction: column;
   }
