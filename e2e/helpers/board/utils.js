@@ -98,6 +98,21 @@ export function areOverlapping({ first, second } = {}) {
 }
 
 /**
+ * Turns a Playwright bounding box into the sides that `areOverlapping` compares.
+ *
+ * @param {{ x: number, y: number, width: number, height: number } | null} [box] The box of a node,
+ * `null` for a hidden one.
+ * @returns {{ left: number, top: number, right: number, bottom: number } | null} Its four sides,
+ * `null` when it has no box.
+ */
+export function toSides(box) {
+  if (!box) return null;
+
+  const { x, y, width, height } = box;
+  return { left: x, top: y, right: x + width, bottom: y + height };
+}
+
+/**
  * Reads the layout of the page: the scroll and client sizes of the document, the box of the board
  * and the box of each of its squares, in CSS pixels from the top left corner of the viewport.
  *
