@@ -1,4 +1,5 @@
 import { COLORS } from '../app/js/colors/constants.js';
+import { RESULT_SELECTOR } from '../app/js/rendering/constants.js';
 import { BOARD_SELECTOR } from '../app/js/squares/constants.js';
 import { FRAME_SELECTOR, LAYOUT_VIEWPORTS } from './helpers/board/constants.js';
 import { addCapturedPieces, addMoves } from './helpers/board/utils.js';
@@ -20,6 +21,9 @@ const FILLED_TURNS = 2;
 
 /** Pieces captured from each side, so that the prisoners show their symbols. */
 const FILLED_CAPTURES = 2;
+
+/** A result of a game, which only shows on a final position. */
+const SAMPLE_RESULT = 'Échec et mat, les noirs gagnent.';
 
 /**
  * The texts and icons outside the game frame, with the CSS property that paints them, the elements
@@ -204,6 +208,9 @@ for (const viewport of LAYOUT_VIEWPORTS) {
       for (const color of COLORS) {
         await addCapturedPieces({ page, color, count: FILLED_CAPTURES });
       }
+      await page.locator(RESULT_SELECTOR).evaluate((node, text) => {
+        node.textContent = text;
+      }, SAMPLE_RESULT);
       const texts = [...emptyGameTexts, ...(await readFrameTexts(page))];
 
       expect(texts.length).toBeGreaterThan(0);

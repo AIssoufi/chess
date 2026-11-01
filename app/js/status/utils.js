@@ -127,6 +127,28 @@ function describeOutcome({ outcome, color, winner, isCheck, drawReason }) {
 }
 
 /**
+ * Returns how a game ended, from the same sentences as the announcement of `getStatusMessage`:
+ * neither the last move nor the check of a draw, which do not tell the result.
+ *
+ * @param {object} [params]
+ * @param {string} [params.outcome] The outcome of the game, one of `GAME_OUTCOMES`, as
+ *   `getGameOutcome` returns it.
+ * @param {'white' | 'black'} [params.winner] The winning color, after a checkmate.
+ * @param {string} [params.drawReason] Why the game is drawn, one of `DRAW_REASONS`, as
+ *   `getGameOutcome` returns it after a draw.
+ * @returns {string} The result, or an empty string for a game that goes on or a checkmate without
+ *   a valid winner.
+ * @example
+ * // 'Échec et mat, les noirs gagnent.'
+ * getResultMessage({ outcome: 'checkmate', winner: 'black' });
+ * // ''
+ * getResultMessage({ outcome: 'ongoing' });
+ */
+export function getResultMessage({ outcome, winner, drawReason } = {}) {
+  return describeOutcome({ outcome, winner, drawReason }).join(SENTENCE_SEPARATOR);
+}
+
+/**
  * Returns the announcement read by screen readers after a move: the move, then the end of the
  * game, or the side to play and whether it is in check.
  *

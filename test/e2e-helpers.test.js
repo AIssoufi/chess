@@ -1,7 +1,7 @@
 import { createServer } from 'node:net';
 import { describe, expect, it } from 'vitest';
 import { GRID_TOLERANCE_PX } from '../e2e/helpers/board/constants.js';
-import { areOverlapping, getGridPlace } from '../e2e/helpers/board/utils.js';
+import { areOverlapping, getGridPlace, toSides } from '../e2e/helpers/board/utils.js';
 import {
   AA_TEXT_CONTRAST_RATIO,
   BLACK,
@@ -130,6 +130,47 @@ describe('areOverlapping', () => {
   it('gives false for a box whose edges are not numbers', () => {
     const broken = { left: NaN, top: NaN, right: NaN, bottom: NaN };
     expect(areOverlapping({ first: box, second: broken })).toBe(false);
+  });
+});
+
+describe('toSides', () => {
+  it('gives the four sides of a box', () => {
+    expect(toSides({ x: 10, y: 20, width: 30, height: 40 })).toEqual({
+      left: 10,
+      top: 20,
+      right: 40,
+      bottom: 60,
+    });
+  });
+
+  it('keeps a box with no size on a single point', () => {
+    expect(toSides({ x: 10, y: 20, width: 0, height: 0 })).toEqual({
+      left: 10,
+      top: 20,
+      right: 10,
+      bottom: 20,
+    });
+  });
+
+  it('keeps negative positions, for a node above or left of the viewport', () => {
+    expect(toSides({ x: -10, y: -20, width: 30, height: 40 })).toEqual({
+      left: -10,
+      top: -20,
+      right: 20,
+      bottom: 20,
+    });
+  });
+
+  it.each([
+    ['null, the box of a hidden node', null],
+    ['no box', undefined],
+  ])('gives null for %s', (_name, box) => {
+    expect(toSides(box)).toBeNull();
+  });
+
+  it('leads areOverlapping to false for a hidden node', () => {
+    const shown = toSides({ x: 0, y: 0, width: 100, height: 100 });
+    expect(areOverlapping({ first: shown, second: toSides(null) })).toBe(false);
   });
 });
 

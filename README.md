@@ -4,7 +4,7 @@ A chess game for two players in the browser, written in vanilla JavaScript, with
 passant, promotion, check, checkmate, stalemate and the draw rules (insufficient material, fifty
 moves, threefold repetition). The moves of the game show in a list, in French algebraic notation,
 above a button that starts a new game. Once a game ends, the players can replay at once or review
-the final position.
+the final position, which keeps the result of the game on screen.
 
 **Live demo:** https://chess.issoufi.fr
 
@@ -83,8 +83,8 @@ pnpm preview    # serve dist/ on http://localhost:4173/
   - `copyright.test.js`: the footer year;
   - `main.test.js`: the UI controller;
   - `piece-factory.test.js`: the piece factory;
-  - `rendering.test.js`: the pieces, square labels, status, captures, check, game over board
-    and move list;
+  - `rendering.test.js`: the pieces, square labels, status, result, captures, check, game over
+    board and move list;
   - `selection.test.js`: the selected square, its moves and what a click does;
   - `last-move.test.js`: the squares of the last move and their mark on the board;
   - `roving-focus.test.js`: the keyboard focus of the board;
@@ -155,7 +155,8 @@ app/                 Vite root: the page, its styles and images
     rendering/       Renders the pieces, square labels, status, captures, check and the move list
     selection/       Selected square, its moves and their highlight, and what a click does
     squares/         Board size and square helpers, such as the square an en passant capture takes
-    status/          Status announcement: the last move, whose turn it is and the game outcome
+    status/          Status announcement: the last move, whose turn it is and the game outcome,
+                     and the result of a finished game on its own
   public/            Files copied as they are to dist/: the Cloudflare Pages _headers, the
                      404 page and its stylesheet, the favicon, the 1200x630 social preview
                      image (og-image.jpg), robots.txt and the sitemap

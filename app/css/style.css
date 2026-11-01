@@ -502,6 +502,24 @@ body::before {
 }
 
 /*
+ * How the game ended, on the final position. Beside the board, the panel of black fills its whole
+ * column, under the turn labels and whatever it captured: the result sits at the bottom of it, out
+ * of the flow, so that neither the panels nor the two turns of the move list on a phone held
+ * sideways move or shrink for it.
+ */
+.control {
+  position: relative;
+}
+
+.control__result {
+  position: absolute;
+  inset: auto 0 0;
+  font-weight: bold;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+/*
  * The footer sits on the photo, whose light parts leave the white text near 3.4:1 and the orange
  * links near 1.7:1: a 60% black backdrop keeps them over WCAG AA, and the icons over its 3:1.
  */
@@ -697,6 +715,23 @@ body::before {
   .control .control__turn:empty {
     display: none;
   }
+
+  /* Above the board, the result goes on the line of the name, whose margins hold its four lines at
+     most, so that nothing under it moves. Its zero width keeps it from wrapping under the name: it
+     takes the room that the name leaves, up to its own. */
+  .control__result {
+    position: static;
+    flex: 1 1 0;
+    width: 0;
+    max-width: max-content;
+    font-size: 0.875rem;
+    line-height: 1.2;
+    text-align: left;
+  }
+
+  .control__result:empty {
+    display: none;
+  }
 }
 
 /*
@@ -726,6 +761,17 @@ body::before {
   .control p:not(.control__turn) {
     margin: 0.5rem 0;
     white-space: nowrap;
+  }
+
+  /* The header is as narrow as the line of the captures here: the result leaves it, for the room
+     beside the name up to the gutter of the panel, centered on the name so that its three lines
+     stay above the captures */
+  .control__result {
+    position: absolute;
+    inset: 1.625rem 1rem auto calc(50% + 3.5rem);
+    width: auto;
+    max-width: none;
+    transform: translateY(-50%);
   }
 
   #black-captures,
@@ -851,6 +897,16 @@ body::before {
 
   .control p:not(.control__turn) {
     margin: 0.125rem 0;
+  }
+
+  /* The landscape rule comes after the upright one, which a phone held sideways under 900px gets:
+     beside the board again, the result goes back to the bottom of the panel, inside its gutters */
+  .control__result {
+    position: absolute;
+    width: auto;
+    max-width: none;
+    padding: 0 var(--landscape-gutter);
+    text-align: inherit;
   }
 
   #black-captures,
