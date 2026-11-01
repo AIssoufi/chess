@@ -17,6 +17,8 @@ const BASE_URL = `http://${PREVIEW_HOST}:${PORT}/`;
 export default defineConfig({
   testDir: 'e2e',
   forbidOnly: Boolean(process.env.CI),
+  // One line per test with its duration, also on CI, where the default `dot` reporter shows none.
+  reporter: 'list',
   use: { baseURL: BASE_URL },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
