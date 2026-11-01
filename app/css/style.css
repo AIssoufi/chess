@@ -290,6 +290,31 @@ body::before {
   background-color: rgba(76, 255, 76, 1) !important;
 }
 
+/* Forced colors would paint every square in one color and drop the corners of the last move, so
+   the board keeps its own colors, whatever the palette of the system. The selection then needs a
+   shape: its green has the luminance of a light square. The translucent black of a hovered square
+   shows the white behind the board, gray enough for a black piece; the Canvas of a dark palette
+   would hide it. */
+@media (forced-colors: active) {
+  .container-squares {
+    forced-color-adjust: none;
+    color: #000;
+    background-color: #fff;
+  }
+
+  .square.selected {
+    /* Wider than the 5px of the focus ring, so that it still shows inside it */
+    --selection-ring: inset 0 0 0 calc(5px + var(--square) * 0.05) #000;
+    box-shadow: var(--selection-ring);
+  }
+
+  .square.selected:focus-visible {
+    box-shadow:
+      inset 0 0 0 5px #fff,
+      var(--selection-ring);
+  }
+}
+
 #black-captures,
 #white-captures {
   display: grid;

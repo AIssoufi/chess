@@ -99,6 +99,12 @@ In the pull request that closes #78:
   legal move, on no piece during a promotion or on a finished board, a draw by repetition whose
   pieces could still move included, and the cursors of a selected piece and of its possible moves,
   which need a mouse.
+- Update of 2026-10-31 (#174): `forced-colors.spec.js` plays 1. e4 d5 with `forcedColors: 'active'`,
+  in the light and dark schemes, and checks the checkerboard, the ring of the selection, the dot,
+  the capture ring, the corners of the last move and the contrast of the pieces, a hovered one
+  included, then the stripes of the check after 1. e4 f5 2. Qh5+. It runs in Chromium only: WebKit
+  matches the media query under emulation, but paints the normal colors of the page. The real
+  contrast themes of Windows stay out of its reach.
 
 ## Alternatives considered
 
