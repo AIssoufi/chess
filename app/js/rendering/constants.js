@@ -21,6 +21,9 @@ export const CURRENT_PLAYER_CLASS = 'current-player';
 /** The selector of the line of each panel that tells the player to move that it is their turn. */
 export const TURN_SELECTOR = '.control__turn';
 
+/** The selector of the line that shows how the game ended, once its dialog closed on it. */
+export const RESULT_SELECTOR = '.control__result';
+
 /** The class of the square of a king in check. */
 export const CHECK_CLASS = 'check';
 

@@ -32,6 +32,7 @@ import {
   renderSquareLabels,
   renderStatus,
 } from './rendering/render.js';
+import { renderResult } from './rendering/result.js';
 import { CLICK_ACTIONS, NO_SELECTION } from './selection/constants.js';
 import { highlightSelection } from './selection/highlight.js';
 import { getClickAction, getSelection } from './selection/utils.js';
@@ -146,11 +147,12 @@ promotionWrapper.addEventListener('keydown', keepFocusOnPieces);
 // ─── Alerts ─────────────────────────────────────────────────────────────────
 
 // "Rejouer", Escape and any value other than the review start a new game. "Voir la position"
-// leaves the final position and its check marker on screen, where the board ignores clicks until
-// "Nouvelle partie".
+// leaves the final position and its check marker on screen, with the result of the game, where the
+// board ignores clicks until "Nouvelle partie".
 gameOverDialog.addEventListener('close', () => {
   hideGameOverAlerts(gameOverDialog);
   if (shouldStartNewGame(gameOverDialog.returnValue)) initialize();
+  else renderResult(getGameOutcome({ game }));
 });
 
 // ─── Click handler (delegated to the board) ─────────────────────────────────
@@ -209,7 +211,9 @@ function initialize() {
   setSelection(NO_SELECTION);
   hideCheck();
   renderCurrentPlayer({ color: game.currentColor, isOver: game.isOver });
-  renderStatus({ game, lastMove, ...getGameOutcome({ game }) });
+  const gameOutcome = getGameOutcome({ game });
+  renderStatus({ game, lastMove, ...gameOutcome });
+  renderResult(gameOutcome);
 }
 
 showCopyrightYear();

@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import Chessboard from '../app/js/Chessboard.js';
 import PieceFactory from '../app/js/PieceFactory.js';
+import { DRAW_REASONS } from '../app/js/draws/constants.js';
 import { GAME_OUTCOMES } from '../app/js/game-over/constants.js';
 import {
   clearCheck,
@@ -15,6 +16,7 @@ import {
   renderSquareLabels,
   renderStatus,
 } from '../app/js/rendering/render.js';
+import { renderResult } from '../app/js/rendering/result.js';
 import { getKingSquare } from '../app/js/rendering/utils.js';
 import { NO_SELECTION } from '../app/js/selection/constants.js';
 import { BOARD_FILES, BOARD_SIZE, FIRST_RANK } from '../app/js/squares/constants.js';
@@ -38,7 +40,7 @@ function buildPage() {
   }
   document.body.innerHTML = `
     <div data-color="black" class="control"><p class="control__turn"></p>
-      <span id="black-capture-count">0</span>
+      <div class="control__result"></div><span id="black-capture-count">0</span>
       <div id="black-captures"></div></div>
     <div class="container-squares">${squares.join('')}</div>
     <div data-color="white" class="control current-player">
@@ -242,6 +244,47 @@ describe('renderStatus', () => {
     expect(document.querySelector('.game-status').textContent).toBe(
       'Dernier coup\u00a0: pion blanc de g7 à g8. Aux noirs de jouer.'
     );
+  });
+});
+
+describe('renderResult', () => {
+  const resultNode = () => document.querySelector('.control__result');
+
+  beforeEach(buildPage);
+
+  it('shows who won a checkmate', () => {
+    renderResult({ outcome: GAME_OUTCOMES.checkmate, winner: 'white' });
+
+    expect(resultNode().textContent).toBe('Échec et mat, les blancs gagnent.');
+  });
+
+  it('shows why the game is drawn, without the check of the last move', () => {
+    renderResult({
+      outcome: GAME_OUTCOMES.draw,
+      color: 'white',
+      isCheck: true,
+      drawReason: DRAW_REASONS.threefoldRepetition,
+    });
+
+    expect(resultNode().textContent).toBe('Match nul\u00a0: position répétée trois fois.');
+  });
+
+  it('empties the line for a game that goes on', () => {
+    renderResult({ outcome: GAME_OUTCOMES.stalemate });
+
+    renderResult({ outcome: GAME_OUTCOMES.ongoing, color: 'white' });
+
+    expect(resultNode().textContent).toBe('');
+  });
+
+  it('writes the line inside the given root only', () => {
+    const root = document.createElement('div');
+    root.innerHTML = '<div class="control__result"></div>';
+
+    renderResult({ outcome: GAME_OUTCOMES.stalemate, root });
+
+    expect(root.textContent).toBe('Pat, match nul.');
+    expect(resultNode().textContent).toBe('');
   });
 });
 

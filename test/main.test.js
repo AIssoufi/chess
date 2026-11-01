@@ -121,6 +121,11 @@ function isMoveListEmptyNoteShown() {
   return !document.querySelector('.move-list__empty').hidden;
 }
 
+/** @returns {string} The line that shows how the game ended, empty while it goes on. */
+function resultLine() {
+  return document.querySelector('.control__result').textContent;
+}
+
 /**
  * Plays moves by clicking their start square, then their target square.
  *
@@ -584,6 +589,41 @@ describe('main.js end of game', () => {
     expect(moveListTurns()).toEqual(['f3 e5', 'g4 Dh4#']);
   });
 
+  it('shows the result only once "Voir la position" closes the dialog', () => {
+    expect(resultLine()).toBe('');
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+    expect(resultLine()).toBe('');
+
+    dialog().querySelector('.checkmate [value="review"]').click();
+
+    expect(resultLine()).toBe('Échec et mat, les noirs gagnent.');
+  });
+
+  it('shows no result when "Rejouer" closes the dialog', () => {
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+
+    dialog().querySelector('.checkmate [value="replay"]').click();
+
+    expect(resultLine()).toBe('');
+  });
+
+  it('shows no result when Escape closes the dialog', () => {
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+
+    dialog().close();
+
+    expect(resultLine()).toBe('');
+  });
+
+  it('removes the result with "Nouvelle partie"', () => {
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+    dialog().querySelector('.checkmate [value="review"]').click();
+
+    document.querySelector('.new-game').click();
+
+    expect(resultLine()).toBe('');
+  });
+
   it('ignores clicks on the board while the final position is reviewed', () => {
     vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
     dialog().querySelector('.checkmate [value="review"]').click();
@@ -684,6 +724,7 @@ describe('main.js stalemate', () => {
     expect(pieceOn('e6')).toEqual({ type: 'queen', color: 'white' });
     expect(pieceOn('d1')).toBeNull();
     expect(moveListTurns()).toHaveLength(10);
+    expect(resultLine()).toBe('Pat, match nul.');
   });
 });
 
@@ -740,6 +781,7 @@ describe('main.js draw', () => {
     expect(dialog().open).toBe(false);
     expect(moveListTurns()).toHaveLength(4);
     expect(squaresWithClass('selected')).toEqual([]);
+    expect(resultLine()).toBe('Match nul\u00a0: position répétée trois fois.');
   });
 });
 
@@ -768,6 +810,14 @@ describe('main.js draw by a perpetual check', () => {
     vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
 
     expect(document.querySelector('.alert__wrapper .draw').classList).toContain('shown');
+  });
+
+  it('shows the result of the game without the check of the last move', () => {
+    vi.advanceTimersByTime(GAME_OVER_DIALOG_DELAY_MS);
+
+    document.querySelector('.alert__wrapper .draw [value="review"]').click();
+
+    expect(resultLine()).toBe('Match nul\u00a0: position répétée trois fois.');
   });
 });
 

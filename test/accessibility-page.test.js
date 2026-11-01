@@ -91,6 +91,10 @@ describe('board of the page', () => {
     expect(document.querySelector('.container-files').getAttribute('aria-hidden')).toBe('true');
     expect(document.querySelector('.container-ranks').getAttribute('aria-hidden')).toBe('true');
   });
+
+  it('hides the result of the game, which the status sentence already reads', () => {
+    expect(document.querySelector('.control__result').getAttribute('aria-hidden')).toBe('true');
+  });
 });
 
 describe('announcements and names of the page', () => {
