@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getStatusMessage } from '../app/js/status/utils.js';
+import { getResultMessage, getStatusMessage } from '../app/js/status/utils.js';
 
 const WHITE_PAWN = { type: 'pawn', color: 'white' };
 const BLACK_PAWN = { type: 'pawn', color: 'black' };
@@ -259,5 +259,58 @@ describe('getStatusMessage', () => {
 
   it('returns an empty string without parameters', () => {
     expect(getStatusMessage()).toBe('');
+  });
+});
+
+describe('getResultMessage', () => {
+  it.each([
+    ['white', 'Échec et mat, les blancs gagnent.'],
+    ['black', 'Échec et mat, les noirs gagnent.'],
+  ])('tells that %s won by checkmate', (winner, expected) => {
+    expect(getResultMessage({ outcome: 'checkmate', winner })).toBe(expected);
+  });
+
+  it('tells a stalemate', () => {
+    expect(getResultMessage({ outcome: 'stalemate' })).toBe('Pat, match nul.');
+  });
+
+  it.each([
+    ['insufficient-material', 'Match nul\u00a0: matériel insuffisant pour mater.'],
+    ['fifty-move-rule', 'Match nul\u00a0: cinquante coups sans prise ni mouvement de pion.'],
+    ['threefold-repetition', 'Match nul\u00a0: position répétée trois fois.'],
+  ])('tells a draw by %s', (drawReason, expected) => {
+    expect(getResultMessage({ outcome: 'draw', drawReason })).toBe(expected);
+  });
+
+  it('tells the same end of the game as the announcement', () => {
+    const outcome = { outcome: 'checkmate', winner: 'black' };
+
+    expect(getStatusMessage({ lastMove: null, ...outcome })).toBe(getResultMessage(outcome));
+  });
+
+  it.each([
+    ['an unknown reason', 'bogus'],
+    ['no reason', undefined],
+  ])('tells a draw with %s without a reason', (_label, drawReason) => {
+    expect(getResultMessage({ outcome: 'draw', drawReason })).toBe('Match nul.');
+  });
+
+  it.each([
+    ['an unknown winner', 'green'],
+    ['no winner', null],
+    ['a key of Object.prototype', 'toString'],
+  ])('returns an empty string for a checkmate with %s', (_label, winner) => {
+    expect(getResultMessage({ outcome: 'checkmate', winner })).toBe('');
+  });
+
+  it.each(['ongoing', 'check', 'bogus', null])(
+    'returns an empty string for a game that goes on, outcome %s',
+    (outcome) => {
+      expect(getResultMessage({ outcome })).toBe('');
+    }
+  );
+
+  it('returns an empty string without parameters', () => {
+    expect(getResultMessage()).toBe('');
   });
 });
