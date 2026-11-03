@@ -45,13 +45,8 @@ describe('PieceFactory.create', () => {
     expect(node.getAttribute('aria-label')).toBe(label);
   });
 
-  it('gives each node its own increasing id', () => {
-    const ids = [
-      factory.create({ type: 'pawn', color: 'white' }).id,
-      factory.create({ type: 'pawn', color: 'white' }).id,
-    ];
-
-    expect(ids).toEqual(['1', '2']);
+  it('gives the node no id, which nothing reads', () => {
+    expect(factory.create({ type: 'pawn', color: 'white' }).hasAttribute('id')).toBe(false);
   });
 
   it.each(PIECE_TYPES)('uses a different symbol for each color of %s', (type) => {
@@ -72,12 +67,6 @@ describe('PieceFactory.create', () => {
     ['null', null],
   ])('returns null for %s', (_label, params) => {
     expect(factory.create(params)).toBeNull();
-  });
-
-  it('does not use an id for a piece it refuses', () => {
-    factory.create({ type: 'unicorn', color: 'white' });
-
-    expect(factory.create({ type: 'pawn', color: 'white' }).id).toBe('1');
   });
 });
 
