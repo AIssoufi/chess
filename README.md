@@ -9,7 +9,7 @@ the final position, which keeps the result of the game on screen.
 **Live demo:** https://chess.issoufi.fr
 
 <p align="center">
-  <img src="docs/screenshot.webp" alt="A game after 1. e4 d5: corners mark d7 and d5, the squares of the last move; the white pawn on e4 is selected, a dot marks its empty target e5 and a ring marks its capture on d5, and the new game button shows beside the board" width="800">
+  <img src="docs/screenshot.webp" alt="A game after 1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5, listed in the move list beside the board: corners mark f8 and c5, the squares of the last move; the white knight on f3 is selected, dots mark its empty targets and a ring marks its capture on e5" width="800">
 </p>
 
 ## Tech stack
