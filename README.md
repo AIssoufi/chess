@@ -155,9 +155,11 @@ app/                 Vite root: the page, its styles and images
     pieces/          Piece configs: Unicode symbol and starting squares
     promotion/       Promotion choice: a modal dialog that keeps the focus on the pieces of the
                      pawn color and reads the click
-    rendering/       Renders the pieces, square labels, status, captures, check and the move list
+    rendering/       Renders the pieces, square labels, status, result, captures, check and the
+                     move list
     selection/       Selected square, its moves and their highlight, and what a click does
-    squares/         Board size and square helpers, such as the square an en passant capture takes
+    squares/         Board size and square helpers, such as the square an en passant capture takes,
+                     and the square nodes of the page (getSquareNode in nodes.js)
     status/          Status announcement: the last move, whose turn it is and the game outcome,
                      and the result of a finished game on its own
   public/            Files copied as they are to dist/: the Cloudflare Pages _headers, the
@@ -166,8 +168,9 @@ app/                 Vite root: the page, its styles and images
 commitlint/          Ticket reference rule, bot commits and the pull request title config
 docs/                README screenshot, decisions (ADRs), the evolution of the stack and
                      ai-workflow/ (how agents work on the project)
-e2e/                 Browser tests (Playwright): the layout, scrollbar, contrast, forced colors,
-                     move marker, move list, piece cursor, promotion and game specs, and helpers
+e2e/                 Browser tests (Playwright): the layout, landscape, scrollbar, contrast,
+                     forced colors, photo blur, footer, move marker, move list, piece cursor,
+                     promotion, game and game result specs, and helpers
 playwright.config.js Playwright config: the browsers, and the preview server on a free port
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests

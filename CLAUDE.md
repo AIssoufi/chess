@@ -22,6 +22,8 @@ the deployment.
 - Squares are lowercase algebraic notation, `'a1'` to `'h8'`, and the keys of the `board` Map.
 - Pawn direction: `getPawnDirection(color)` of `app/js/colors/utils.js`, white moves toward
   higher ranks; the opponent is `getOpponent(color)`, never an inline ternary.
+- A change of the viewports or checks of `e2e/landscape.spec.js` adds its `Update of <date> (#n)`
+  entry to ADR 0007 in the same pull request.
 
 ## Pitfalls
 
