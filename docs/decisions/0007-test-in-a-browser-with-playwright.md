@@ -105,6 +105,19 @@ In the pull request that closes #78:
   included, then the stripes of the check after 1. e4 f5 2. Qh5+. It runs in Chromium only: WebKit
   matches the media query under emulation, but paints the normal colors of the page. The real
   contrast themes of Windows stay out of its reach.
+- Update of 2026-11-01 (#168): `landscape.spec.js` checks that the captured pieces sit in rows at
+  640x320, 844x390, 932x430 and 1000x500, with 15 captures on each side and either color to move,
+  and keep their one line at 640x319 and 999x500, one pixel past the limits of the rows.
+- Update of 2026-11-01 (#196): `game-result.spec.js` plays a checkmate and a threefold repetition,
+  then shows the final position and checks that the result shows without moving the frame, the
+  board, the panels or the list, at 320x568, the narrowest upright tablet, the layout viewports and
+  568x320. It also checks that the longest result stays clear of the name and the captures, and
+  that the panels stay apart with it at every landscape viewport.
+- Update of 2026-11-01 (#197): `footer.spec.js` checks, after a long game, that the footer stays in
+  the page and off the game frame and leaves the whole new game button to the clicks at six windows
+  from 1080 to 1920px wide, 1080x810, 1199x720 and 1920x500 included, that the fixed footer stays
+  off the frame with the board at its size from 1200x501 to 1920x1080, and that the board keeps
+  its size at 1024x768.
 - Update of 2026-11-03 (#203): the fixtures lift the blur of the photo behind the page, which
   WebKit on the Linux CI image paints in software on every frame, from an init script of each page.
   `contrast.spec.js` keeps it with `keepPhotoBlur`, and `photo-blur.spec.js` checks both cases.

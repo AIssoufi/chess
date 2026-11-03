@@ -8,7 +8,7 @@ export const MIN_SQUARE_SIZE_PX = 40;
 /** The largest side of a square, in CSS pixels, that the `--square` rule of the styles allows. */
 export const MAX_SQUARE_SIZE_PX = 70;
 
-/** How far a square may sit from its place on the grid, in CSS pixels: subpixel rounding only. */
+/** How far a measured edge or size may stray from its expected value, in CSS pixels: subpixels. */
 export const GRID_TOLERANCE_PX = 1;
 
 /** The `max-width` of the narrow screen rules of the styles, in CSS pixels. */
