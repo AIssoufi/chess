@@ -108,6 +108,9 @@ In the pull request that closes #78:
 - Update of 2026-11-03 (#203): the fixtures lift the blur of the photo behind the page, which
   WebKit on the Linux CI image paints in software on every frame, from an init script of each page.
   `contrast.spec.js` keeps it with `keepPhotoBlur`, and `photo-blur.spec.js` checks both cases.
+- Update of 2026-11-03 (#189): `move-markers.spec.js` reads, at each layout viewport, the ring of
+  the pawn selected on e4 after 1. e4 d5 outside forced colors mode, checks its color at 3:1
+  against a light and a dark square next to it, and that no other square has a ring.
 
 ## Alternatives considered
 

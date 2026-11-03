@@ -1,6 +1,10 @@
 import { LAST_MOVE_CLASS } from '../app/js/last-move/constants.js';
 import { BOARD_SQUARE_SELECTOR, PIECE_SELECTOR } from '../app/js/rendering/constants.js';
-import { CAPTURE_MOVE_CLASS, POSSIBLE_MOVE_CLASS } from '../app/js/selection/constants.js';
+import {
+  CAPTURE_MOVE_CLASS,
+  POSSIBLE_MOVE_CLASS,
+  SELECTED_CLASS,
+} from '../app/js/selection/constants.js';
 import {
   CAPTURE_OPENING_MOVES,
   CAPTURE_TARGET,
@@ -9,6 +13,8 @@ import {
   SELECTED_SQUARE,
 } from './helpers/board/constants.js';
 import { getSquare, playMoves, press, readLayout } from './helpers/board/utils.js';
+import { AA_NON_TEXT_CONTRAST_RATIO, NO_SHADOW } from './helpers/contrast/constants.js';
+import { getContrastRatio, parseCssColor, readFirstColor } from './helpers/contrast/utils.js';
 import { expect, test } from './helpers/fixtures.js';
 
 /** The start and target squares of the last move of `CAPTURE_OPENING_MOVES`. */
@@ -28,6 +34,25 @@ const TRANSPARENT = 'rgba(0, 0, 0, 0)';
  * starts 4% inside the square and is 8% thick.
  */
 const RING_BAND_SHARE = 0.08;
+
+/** A light square next to `SELECTED_SQUARE`, which no move of `CAPTURE_OPENING_MOVES` reaches. */
+const LIGHT_NEIGHBOR = 'f5';
+
+/** A dark square next to `SELECTED_SQUARE`, which no move of `CAPTURE_OPENING_MOVES` reaches. */
+const DARK_NEIGHBOR = 'f4';
+
+/** A light and a dark neighbor, both colors the ring of the selection must stand out from. */
+const NEIGHBOR_SQUARES = Object.freeze([LIGHT_NEIGHBOR, DARK_NEIGHBOR]);
+
+/**
+ * Reads the computed `box-shadow` of a square, where its selection ring is drawn.
+ *
+ * @param {import('@playwright/test').Locator} square The button of the square.
+ * @returns {Promise<string>} The computed `box-shadow`, `none` without any ring.
+ */
+function readBoxShadow(square) {
+  return square.evaluate((node) => getComputedStyle(node).boxShadow);
+}
 
 /**
  * Reads the marker of a square, its `::before` pseudo-element, and the side of the square.
@@ -105,6 +130,47 @@ for (const { width, height } of LAYOUT_VIEWPORTS) {
       await press(getSquare({ page, square: SELECTED_SQUARE }));
 
       expect(await readLayout(page)).toEqual(before);
+    });
+  });
+
+  test.describe(`selection at ${width}x${height}`, () => {
+    test.use({ viewport: { width, height } });
+
+    test.beforeEach(async ({ page }) => {
+      await page.goto('/');
+      await playMoves({ page, moves: CAPTURE_OPENING_MOVES });
+      await press(getSquare({ page, square: SELECTED_SQUARE }));
+    });
+
+    test('rings the selected square at 3:1 against a light and a dark square', async ({ page }) => {
+      const selectedSquare = getSquare({ page, square: SELECTED_SQUARE });
+      await expect(selectedSquare).toContainClass(SELECTED_CLASS);
+
+      const ringColor = readFirstColor(await readBoxShadow(selectedSquare));
+      expect(ringColor).not.toBe('');
+      for (const square of NEIGHBOR_SQUARES) {
+        const background = await getSquare({ page, square }).evaluate(
+          (node) => getComputedStyle(node).backgroundColor
+        );
+        const contrast = getContrastRatio({
+          foreground: parseCssColor(ringColor),
+          background: parseCssColor(background),
+        });
+        expect(contrast, `the ring against ${square}`).toBeGreaterThanOrEqual(
+          AA_NON_TEXT_CONTRAST_RATIO
+        );
+      }
+    });
+
+    test('rings no other square', async ({ page }) => {
+      const ringedSquares = await page
+        .locator(BOARD_SQUARE_SELECTOR)
+        .evaluateAll((nodes, noShadow) => {
+          const hasRing = (node) => getComputedStyle(node).boxShadow !== noShadow;
+          return nodes.filter(hasRing).map((node) => node.dataset.position);
+        }, NO_SHADOW);
+
+      expect(ringedSquares).toEqual([SELECTED_SQUARE]);
     });
   });
 
