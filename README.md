@@ -88,6 +88,7 @@ pnpm preview    # serve dist/ on http://localhost:4173/
   - `selection.test.js`: the selected square, its moves and what a click does;
   - `last-move.test.js`: the squares of the last move and their mark on the board;
   - `roving-focus.test.js`: the keyboard focus of the board;
+  - `square-nodes.test.js`: the lookup of a square's node on the board;
   - `promotion.test.js`: the promotion choice;
   - `alerts.test.js`: the game over dialog;
 - `prepare-commit-msg.test.js` runs Git in temporary repositories to test the hook that adds the
@@ -117,6 +118,15 @@ has no mouse nor Tab key; it checks instead that a tap leaves no hover look on t
 pieces and the social icons. `contrast.spec.js` checks that every text of the game frame outside the board keeps the
 4.5:1 of WCAG AA over any photo, and that the title, the footer and the social icons keep theirs
 over the pixels of the photo behind them.
+
+`capture-images.spec.js` rewrites the social preview `app/public/og-image.jpg` (1200x630) and the
+README screenshot `docs/screenshot.webp` (1280x800) from the production build: a game after three
+moves, with a knight selected and the photo kept blurred. The suite skips it, since it changes
+tracked files. Refresh both images after a visible change of the page, in Chromium only:
+
+```bash
+CAPTURE_IMAGES=1 pnpm test:e2e e2e/capture-images.spec.js --project=chromium
+```
 
 Install the two browsers once, and again after an upgrade of `@playwright/test`:
 
@@ -171,7 +181,7 @@ docs/                README screenshot, decisions (ADRs), the evolution of the s
                      ai-workflow/ (how agents work on the project)
 e2e/                 Browser tests (Playwright): the layout, landscape, scrollbar, contrast,
                      forced colors, photo blur, footer, move marker, move list, piece cursor,
-                     promotion, game and game result specs, and helpers
+                     promotion, game and game result specs, the image capture, and helpers
 playwright.config.js Playwright config: the browsers, and the preview server on a free port
 redirect/            Page that redirects the old GitHub Pages URL to the new domain
 test/                Unit tests
