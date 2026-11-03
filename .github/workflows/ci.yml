@@ -90,7 +90,12 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Firefox refuses to start as root with a home folder that another user owns, which
+      # /github/home is in this image, so the tests run with the home of root, as Playwright
+      # advises.
       - run: pnpm test:e2e
+        env:
+          HOME: /root
 
   # package.json also supports Node.js 24, so the tests run on it too; audit, format, lint and
   # build stay on .nvmrc in the check job above, since their result does not depend on the
