@@ -68,11 +68,19 @@ jobs:
 
   # The official Playwright image ships the browsers and their system libraries, so nothing comes
   # from apt, whose mirror sometimes stalls the runs.
+  # One job per Playwright project, side by side: in a single job, the five projects took 20 min
+  # of its 30 on 1645 tests, and a slow runner would go over.
   e2e:
     needs: playwright-version
     runs-on: ubuntu-latest
-    # The slowest pace measured on a runner, 2 s per test, takes 27 min on 804 tests.
+    # The slowest pace measured on a runner, 2 s per test, takes 11 min on the 329 tests of a
+    # project.
     timeout-minutes: 30
+    strategy:
+      # A failure in one engine still lets the others report theirs.
+      fail-fast: false
+      matrix:
+        project: [chromium, firefox, webkit, mobile-chromium, mobile-webkit]
     container:
       image: mcr.microsoft.com/playwright:v${{ needs.playwright-version.outputs.version }}-noble
       # Shares the host's IPC namespace, as Playwright advises, so Chromium does not run out of
@@ -93,7 +101,7 @@ jobs:
       # Firefox refuses to start as root with a home folder that another user owns, which
       # /github/home is in this image, so the tests run with the home of root, as Playwright
       # advises.
-      - run: pnpm test:e2e
+      - run: pnpm test:e2e --project=${{ matrix.project }}
         env:
           HOME: /root
 

@@ -20,6 +20,7 @@ export default defineConfig({
   // One line per test with its duration, also on CI, where the default `dot` reporter shows none.
   reporter: 'list',
   use: { baseURL: BASE_URL },
+  // The CI runs one e2e job per project: name a new project in the matrix of ci.yml too.
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
