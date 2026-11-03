@@ -1,21 +1,7 @@
 import { SQUARE_SELECTOR } from '../squares/constants.js';
-import { isSquare } from '../squares/utils.js';
+import { getSquareNode } from '../squares/nodes.js';
 import { SHORTCUT_MODIFIERS, TABBABLE_INDEX, UNTABBABLE_INDEX } from './constants.js';
 import { getNextSquare } from './utils.js';
-
-/**
- * Returns the node of a square of the board.
- *
- * @param {object} params
- * @param {ParentNode} params.board The node that holds the squares.
- * @param {unknown} params.square The square, such as `'e2'`, which may be of any type.
- * @returns {HTMLElement | null} The node, or `null` when the value is not a square of the board.
- */
-function getSquareNode({ board, square }) {
-  return isSquare(square)
-    ? board.querySelector(`${SQUARE_SELECTOR}[data-position="${square}"]`)
-    : null;
-}
 
 /**
  * Makes a square the only one of the board that the Tab key reaches.
@@ -42,7 +28,7 @@ function makeTabbable({ board, squareNode }) {
  * focusSquare({ board: document.querySelector('.container-squares'), square: 'e4' }); // true
  */
 export function focusSquare({ board, square } = {}) {
-  const squareNode = board ? getSquareNode({ board, square }) : null;
+  const squareNode = board ? getSquareNode({ root: board, square }) : null;
   if (!squareNode) return false;
 
   makeTabbable({ board, squareNode });

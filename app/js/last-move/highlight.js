@@ -1,4 +1,4 @@
-import { getSquareNode } from '../rendering/render.js';
+import { getSquareNode } from '../squares/nodes.js';
 import { LAST_MOVE_CLASS } from './constants.js';
 import { getLastMoveSquares } from './utils.js';
 

@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeEach } from 'vitest';
 import Chessboard from '../app/js/Chessboard.js';
-import { getSquareNode } from '../app/js/rendering/render.js';
+import { getSquareNode } from '../app/js/squares/nodes.js';
 import { CLICK_ACTIONS, NO_SELECTION } from '../app/js/selection/constants.js';
 import { highlightSelection } from '../app/js/selection/highlight.js';
 import { getClickAction, getSelection } from '../app/js/selection/utils.js';

@@ -11,10 +11,6 @@ import { PIECE_CLASS } from './rendering/constants.js';
 const CONFIGS = { knight, queen, bishop, pawn, king, rook };
 
 export default class PieceFactory {
-  constructor() {
-    this.counter = 1;
-  }
-
   /**
    * Builds the DOM node of a piece, an image named for screen readers, such as `dame noire`.
    *
@@ -29,7 +25,6 @@ export default class PieceFactory {
     if (!symbol) return null;
 
     const node = document.createElement('span');
-    node.id = this.counter++;
     node.textContent = symbol;
     node.className = PIECE_CLASS;
     node.dataset.type = type;

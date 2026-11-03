@@ -1,4 +1,4 @@
-import { getSquareNode } from '../rendering/render.js';
+import { getSquareNode } from '../squares/nodes.js';
 import { CAPTURE_MOVE_CLASS, POSSIBLE_MOVE_CLASS, SELECTED_CLASS } from './constants.js';
 
 /**
