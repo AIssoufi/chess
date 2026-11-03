@@ -184,7 +184,8 @@ test/                Unit tests
   - `playwright-version`: reads the exact `@playwright/test` version of the lockfile;
   - `e2e`: `pnpm test:e2e` in the official Playwright image of that version, which ships the
     browsers and their system libraries. A bump of the package moves the image with it, and the
-    job fails while no image exists for the new version.
+    job fails while no image exists for the new version. Its log gives one line per test with
+    its duration.
 - **Commit messages** (`commit-messages.yml`): on every pull request, and when its title changes,
   runs commitlint on each commit that the base branch lacks, and on the title with
   `commitlint/pr-title.config.js`, which needs no ticket reference.
