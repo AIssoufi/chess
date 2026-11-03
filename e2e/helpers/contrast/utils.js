@@ -1,6 +1,7 @@
 import {
   CHANNEL_MAX,
   CONTRAST_FLARE,
+  FIRST_COLOR_PATTERN,
   LUMINANCE_WEIGHTS,
   OPAQUE_ALPHA,
   PHOTO_EXTREMES,
@@ -32,6 +33,20 @@ export function parseCssColor(text) {
   const isChannelInRange = (channel) => channel <= CHANNEL_MAX;
   const isInRange = [red, green, blue].every(isChannelInRange) && alpha <= OPAQUE_ALPHA;
   return isInRange ? { red, green, blue, alpha } : null;
+}
+
+/**
+ * Reads the color that opens a computed value holding several tokens.
+ *
+ * @param {unknown} value A computed `box-shadow` or `background-image`.
+ * @returns {string} Its first color, or an empty string when it has none or is not a string.
+ * @example
+ * readFirstColor('rgb(0, 0, 0) 0px 0px 0px 8px inset'); // 'rgb(0, 0, 0)'
+ */
+export function readFirstColor(value) {
+  if (typeof value !== 'string') return '';
+
+  return FIRST_COLOR_PATTERN.exec(value)?.[0] ?? '';
 }
 
 /**

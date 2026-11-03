@@ -46,6 +46,12 @@ export const PHOTO_EXTREMES = Object.freeze([BLACK, WHITE]);
 export const RGB_COLOR_PATTERN =
   /^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:\s*[,/]\s*([\d.]+))?\s*\)$/;
 
+/** The color at the start of a computed `box-shadow` or of the first stop of a gradient. */
+export const FIRST_COLOR_PATTERN = /rgba?\([^)]*\)/;
+
+/** The computed `box-shadow` of an element without any shadow, such as a square without a ring. */
+export const NO_SHADOW = 'none';
+
 /** The channel value under which sRGB is linear, by the sRGB transfer function. */
 export const SRGB_LINEAR_THRESHOLD = 0.04045;
 

@@ -3,8 +3,14 @@ import { getSquare, playMoves, press } from './helpers/board/utils.js';
 import {
   AA_NON_TEXT_CONTRAST_RATIO,
   AA_TEXT_CONTRAST_RATIO,
+  NO_SHADOW,
 } from './helpers/contrast/constants.js';
-import { blendColors, getContrastRatio, parseCssColor } from './helpers/contrast/utils.js';
+import {
+  blendColors,
+  getContrastRatio,
+  parseCssColor,
+  readFirstColor,
+} from './helpers/contrast/utils.js';
 import { expect, test } from './helpers/fixtures.js';
 
 /** The color schemes of a system in forced colors mode, each with its own palette. */
@@ -60,17 +66,11 @@ const CHECKERBOARD_CONTRAST_RATIO = 1.9;
 /** The triangles that mark a square of the last move, one per corner. */
 const CORNER_COUNT = 4;
 
-/** The computed `box-shadow` of a square without any ring. */
-const NO_SHADOW = 'none';
-
 /** The white lining of the focus ring, in the computed `box-shadow` of the focused square. */
 const FOCUS_LINING_COLOR = 'rgb(255, 255, 255)';
 
 /** The inset rings of a selected square that has the focus: the white lining and the selection. */
 const FOCUSED_SELECTION_RING_COUNT = 2;
-
-/** The color at the start of a computed `box-shadow` or of the first stop of a gradient. */
-const FIRST_COLOR_PATTERN = /rgba?\([^)]*\)/;
 
 /**
  * Reads what a square paints.
@@ -108,16 +108,6 @@ function getCssContrast({ foreground, background }) {
     foreground: parseCssColor(foreground),
     background: parseCssColor(background),
   });
-}
-
-/**
- * Reads the color that opens a computed value holding several tokens.
- *
- * @param {string} value A computed `box-shadow` or `background-image`.
- * @returns {string} Its first color, or an empty string when it has none.
- */
-function readFirstColor(value) {
-  return FIRST_COLOR_PATTERN.exec(value)?.[0] ?? '';
 }
 
 test.skip(
