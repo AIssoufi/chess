@@ -194,6 +194,11 @@ function readFrameTexts(page) {
   }, BOARD_SELECTOR);
 }
 
+// The contrast is read on the page as a visitor sees it, so the photo keeps the blur that the
+// fixtures lift everywhere else. The pixel test also takes its screenshots on a page of its own,
+// which the init script of the fixtures never reaches.
+test.use({ keepPhotoBlur: true });
+
 for (const viewport of LAYOUT_VIEWPORTS) {
   const { width, height } = viewport;
 
