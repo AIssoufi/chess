@@ -21,6 +21,7 @@ import {
   expectTwoVisibleTurns,
   expectWholeControls,
 } from './helpers/landscape/utils.js';
+import { expectClearTurnLabel } from './helpers/turn-label/utils.js';
 
 for (const viewport of LANDSCAPE_VIEWPORTS) {
   const viewportLabel = `${viewport.width}x${viewport.height}`;
@@ -34,6 +35,14 @@ for (const viewport of LANDSCAPE_VIEWPORTS) {
 
     test('fits the panels beside the board before the first move', async ({ page }) => {
       await expectPanelsToFit(page);
+    });
+
+    test('keeps the turn label clear of the outline of the name (#169)', async ({ page }) => {
+      await expectClearTurnLabel(page);
+
+      await playMoves({ page, moves: SCANDINAVIAN_MOVES });
+
+      await expectClearTurnLabel(page);
     });
 
     test('shows two long turns of the move list, each on one line', async ({ page }) => {

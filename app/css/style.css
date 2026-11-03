@@ -936,6 +936,10 @@ body::before {
    * of WebKit on Linux: smaller names and turn labels, closer lines, and the captured pieces on one
    * line, which scrolls sideways, or in rows on the wide screens of the rule at the end of this
    * file. The title and the button of the move list also sit closer.
+   *
+   * The ring around the name of the side to move reaches 4px below it: the turn label starts under
+   * it, and its line gives back those 4px, so that the panel keeps its height. Both are in pixels,
+   * as the ring is, so that a smaller font size set in the browser never brings the label under it.
    */
   .control h2 {
     margin: 0.25rem 0 0;
@@ -943,7 +947,9 @@ body::before {
   }
 
   .control .control__turn {
-    margin: 0;
+    min-height: calc(1.5em - 4px);
+    margin: 4px 0 0;
+    line-height: calc(1.5em - 4px);
     font-size: 0.875rem;
   }
 
