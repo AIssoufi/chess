@@ -166,7 +166,10 @@ for (const viewport of LANDSCAPE_VIEWPORTS) {
         clientHeight: node.clientHeight,
       }));
       const listRight = list.x + list.width;
-      const isBesideBoard = list.x >= board.right || listRight <= board.left;
+      // Firefox puts the right edge of the board a few millionths of a pixel past the list.
+      const isRightOfBoard = list.x >= board.right - GRID_TOLERANCE_PX;
+      const isLeftOfBoard = listRight <= board.left + GRID_TOLERANCE_PX;
+      const isBesideBoard = isRightOfBoard || isLeftOfBoard;
 
       expect(board.top).toBeGreaterThanOrEqual(0);
       expect(board.bottom).toBeLessThanOrEqual(clientHeight);
