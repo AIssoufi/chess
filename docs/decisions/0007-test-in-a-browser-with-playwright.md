@@ -105,6 +105,9 @@ In the pull request that closes #78:
   included, then the stripes of the check after 1. e4 f5 2. Qh5+. It runs in Chromium only: WebKit
   matches the media query under emulation, but paints the normal colors of the page. The real
   contrast themes of Windows stay out of its reach.
+- Update of 2026-11-03 (#203): the fixtures lift the blur of the photo behind the page, which
+  WebKit on the Linux CI image paints in software on every frame, from an init script of each page.
+  `contrast.spec.js` keeps it with `keepPhotoBlur`, and `photo-blur.spec.js` checks both cases.
 
 ## Alternatives considered
 

@@ -104,7 +104,9 @@ runs it in the `check` job.
 It builds the site, serves `dist/` with `vite preview` on a free port, and runs the `*.spec.js`
 files of `e2e/`. Each page gets the Content Security Policy of `app/public/_headers`, which
 `vite preview` does not send, and a test fails on any console error, a blocked script or style
-included. [ADR 0007](docs/decisions/0007-test-in-a-browser-with-playwright.md) lists what they
+included. The photo behind the page loses its blur, which WebKit paints slowly without a GPU,
+except in the specs that set `keepPhotoBlur`, such as `contrast.spec.js`.
+[ADR 0007](docs/decisions/0007-test-in-a-browser-with-playwright.md) lists what they
 check. `scrollbars.spec.js` runs in Chromium only, launched with the classic scrollbars of a
 desktop window, which take room from the page where overlay ones take none. So does
 `forced-colors.spec.js`: WebKit matches the media query under emulation, but paints the normal

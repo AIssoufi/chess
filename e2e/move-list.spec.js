@@ -54,27 +54,6 @@ const LONGEST_TURN = Object.freeze(['gxf1=D+', 'Cb1xd2+']);
 const LAST_TWO_DIGIT_TURN = 99;
 
 /**
- * The style that lifts the blur of the photo behind the page. WebKit on the Linux CI image takes
- * 140 ms to paint a frame of it at 1280x800, against 25 ms without the blur, so the 44 presses of
- * `LONG_TURNS_MOVES` last about three times as long, which reached the 30 s of a test on 4 workers.
- */
-const NO_PHOTO_BLUR_STYLE = 'body::before { filter: none; }';
-
-/**
- * Lifts the blur of the photo for the rest of the test. The sheet is built from a script, since the
- * Content Security Policy of the page refuses an inline style.
- *
- * @param {import('@playwright/test').Page} page The page of the game.
- */
-async function liftPhotoBlur(page) {
-  await page.evaluate((style) => {
-    const sheet = new CSSStyleSheet();
-    sheet.replaceSync(style);
-    document.adoptedStyleSheets.push(sheet);
-  }, NO_PHOTO_BLUR_STYLE);
-}
-
-/**
  * Tells whether a viewport is one of the short landscape screens.
  *
  * @param {{ width: number, height: number }} viewport The viewport to check.
@@ -95,7 +74,6 @@ const STANDARD_VIEWPORTS = LAYOUT_VIEWPORTS.filter((viewport) => !isLandscapeVie
  * @param {number} params.lastTurn The number of the last turn of the list.
  */
 async function playLongGame({ page, lastTurn }) {
-  await liftPhotoBlur(page);
   await playMoves({ page, moves: LONG_TURNS_MOVES });
   await page.evaluate(
     ({ listSelector, turnCount, longestTurn }) => {
