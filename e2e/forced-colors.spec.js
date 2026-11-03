@@ -204,7 +204,8 @@ for (const colorScheme of COLOR_SCHEMES) {
         }
       });
 
-      test('keeps the piece of a hovered square readable', async ({ page }) => {
+      test('keeps the piece of a hovered square readable', async ({ page, hasTouch }) => {
+        test.skip(hasTouch, 'a touch screen has no pointer to hover the squares with');
         const square = getSquare({ page, square: DARK_SQUARE });
         const board = page.locator(BOARD_SELECTOR);
 

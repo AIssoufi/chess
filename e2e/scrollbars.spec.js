@@ -29,6 +29,11 @@ test.skip(
   'only Chromium can be given classic scrollbars from the command line'
 );
 
+test.skip(
+  ({ isMobile }) => isMobile,
+  'a mobile Chromium draws overlay scrollbars whatever its command line, which take no room'
+);
+
 for (const viewport of SCROLLING_VIEWPORTS) {
   const { width, height } = viewport;
 
