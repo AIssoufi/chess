@@ -6,7 +6,6 @@ import { DRAW_REASONS } from '../app/js/draws/constants.js';
 import { GAME_OUTCOMES } from '../app/js/game-over/constants.js';
 import {
   clearCheck,
-  getSquareNode,
   markCheck,
   renderCaptures,
   renderCurrentPlayer,
@@ -20,6 +19,7 @@ import { renderResult } from '../app/js/rendering/result.js';
 import { getKingSquare } from '../app/js/rendering/utils.js';
 import { NO_SELECTION } from '../app/js/selection/constants.js';
 import { BOARD_FILES, BOARD_SIZE, FIRST_RANK } from '../app/js/squares/constants.js';
+import { getSquareNode } from '../app/js/squares/nodes.js';
 
 const WHITE_KING = { type: 'king', color: 'white' };
 const BLACK_KING = { type: 'king', color: 'black' };
@@ -109,26 +109,6 @@ describe('getKingSquare', () => {
     ['an unknown color', { board: new Map([['e1', WHITE_KING]]), color: 'red' }],
   ])('returns null for %s', (_label, params) => {
     expect(getKingSquare(params)).toBeNull();
-  });
-});
-
-describe('getSquareNode', () => {
-  it('returns the node of a square', () => {
-    expect(getSquareNode({ square: 'e4' }).dataset.position).toBe('e4');
-  });
-
-  it.each([
-    ['a value that is not a square', 'z9'],
-    ['a value with a quote', 'e4"]'],
-    ['undefined', undefined],
-    ['a number', 42],
-  ])('returns null for %s', (_label, square) => {
-    expect(getSquareNode({ square })).toBeNull();
-  });
-
-  it('searches inside the given root only', () => {
-    const root = document.createElement('div');
-    expect(getSquareNode({ root, square: 'e4' })).toBeNull();
   });
 });
 

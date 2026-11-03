@@ -4,7 +4,7 @@ import { getSquareLabel } from '../labels/utils.js';
 import { getMoveTurns } from '../notation/utils.js';
 import { getSelection } from '../selection/utils.js';
 import { BOARD_SELECTOR, SQUARE_SELECTOR } from '../squares/constants.js';
-import { isSquare } from '../squares/utils.js';
+import { getSquareNode } from '../squares/nodes.js';
 import { getStatusMessage } from '../status/utils.js';
 import {
   BOARD_SQUARE_SELECTOR,
@@ -23,20 +23,6 @@ import {
   TURN_SELECTOR,
 } from './constants.js';
 import { getKingSquare } from './utils.js';
-
-/**
- * Returns the node of a square of the board.
- *
- * @param {object} params
- * @param {ParentNode} [params.root] The node that holds the board, the document by default.
- * @param {unknown} params.square The square, such as `'e4'`, which may be of any type.
- * @returns {HTMLElement | null} The node, or `null` when the value is not a square or the page has
- *   no such square.
- */
-export function getSquareNode({ root = document, square }) {
-  if (!isSquare(square)) return null;
-  return root.querySelector(`${SQUARE_SELECTOR}[data-position="${square}"]`);
-}
 
 /**
  * Shows the pieces of the game on the board, in place of the ones shown before, and marks those
