@@ -129,6 +129,17 @@ In the pull request that closes #78:
   orange and the icon turns orange; on `mobile-webkit`, where a tap leaves the pointer there, both
   keep their resting look. Without `@media (hover: hover)` around their rules, both touch tests
   fail.
+- Update of 2026-11-04 (#212): a `firefox` project (Desktop Firefox) and a `mobile-chromium`
+  project (Pixel 7, 412x839, touch) run every spec too, so the install command downloads three
+  browsers: `pnpm exec playwright install chromium firefox webkit`. `forced-colors.spec.js` runs
+  in Firefox, which paints the forced colors, and skips WebKit only; `scrollbars.spec.js` skips
+  the mobile Chromium, which draws overlay scrollbars whatever its command line; the mouse hover
+  tests skip both touch projects, which play the tap tests of #211 instead. `layout.spec.js`
+  allows 1px between the move list and the board, where Firefox puts the right edge of the board
+  a few millionths of a pixel past the list. The CI job sets `HOME` to `/root`, since Firefox
+  refuses to start as root with the home folder of another user, and runs one job per project in
+  a matrix: in a single job, the five projects ran 1645 tests in 1198 s of its 30 minutes, against
+  a median of 778 s for the three projects before.
 
 ## Alternatives considered
 

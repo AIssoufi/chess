@@ -14,17 +14,17 @@ the final position, which keeps the result of the game on screen.
 
 ## Tech stack
 
-| Tool                           | Role                                               |
-| ------------------------------ | -------------------------------------------------- |
-| JavaScript (ES modules)        | Game model and UI, no framework                    |
-| Vite 8                         | Dev server and production build                    |
-| Vitest 5, happy-dom 21         | Unit tests, with a DOM for the UI                  |
-| Playwright 1.64                | Browser tests in Chromium and WebKit, on the build |
-| Prettier 3                     | Code formatting                                    |
-| ESLint 10                      | Linting, with the recommended rules                |
-| Husky, lint-staged, commitlint | Git hooks: formatting, linting, commit format      |
-| pnpm 12, Node.js 26 and 24     | Package manager and runtime                        |
-| Cloudflare Pages               | Hosting, with a preview per branch                 |
+| Tool                           | Role                                                        |
+| ------------------------------ | ----------------------------------------------------------- |
+| JavaScript (ES modules)        | Game model and UI, no framework                             |
+| Vite 8                         | Dev server and production build                             |
+| Vitest 5, happy-dom 21         | Unit tests, with a DOM for the UI                           |
+| Playwright 1.64                | Browser tests in Chromium, Firefox and WebKit, on the build |
+| Prettier 3                     | Code formatting                                             |
+| ESLint 10                      | Linting, with the recommended rules                         |
+| Husky, lint-staged, commitlint | Git hooks: formatting, linting, commit format               |
+| pnpm 12, Node.js 26 and 24     | Package manager and runtime                                 |
+| Cloudflare Pages               | Hosting, with a preview per branch                          |
 
 ## Getting started
 
@@ -100,29 +100,34 @@ runs it in the `check` job.
 
 ### Browser tests
 
-`pnpm test:e2e` runs Playwright on the production build, in Chromium, WebKit and a WebKit phone.
+`pnpm test:e2e` runs Playwright on the production build, in five projects:
+
+| Project           | Browser                                   |
+| ----------------- | ----------------------------------------- |
+| `chromium`        | Desktop Chrome                            |
+| `firefox`         | Desktop Firefox                           |
+| `webkit`          | Desktop Safari                            |
+| `mobile-chromium` | Chromium on an emulated Pixel 7 (412x839) |
+| `mobile-webkit`   | WebKit on an emulated iPhone SE (320x568) |
+
+On the two phones, the helpers tap the squares and buttons instead of clicking them.
+
 It builds the site, serves `dist/` with `vite preview` on a free port, and runs the `*.spec.js`
 files of `e2e/`. Each page gets the Content Security Policy of `app/public/_headers`, which
 `vite preview` does not send, and a test fails on any console error, a blocked script or style
 included. The photo behind the page loses its blur, which WebKit paints slowly without a GPU,
 except in the specs that set `keepPhotoBlur`, such as `contrast.spec.js`.
-[ADR 0007](docs/decisions/0007-test-in-a-browser-with-playwright.md) lists what they
-check. `scrollbars.spec.js` runs in Chromium only, launched with the classic scrollbars of a
-desktop window, which take room from the page where overlay ones take none. So does
-`forced-colors.spec.js`: WebKit matches the media query under emulation, but paints the normal
-colors of the page. The `mobile-webkit` project runs the other specs on an emulated iPhone SE
-(320x568, touch), where the helpers tap the squares and buttons instead of clicking them, and
-skips the mouse hover tests and the keyboard tests of `promotion.spec.js`, since a touch screen
-has no mouse nor Tab key; it checks instead that a tap leaves no hover look on the promotion
-pieces and the social icons. `contrast.spec.js` checks that every text of the game frame outside the board keeps the
-4.5:1 of WCAG AA over any photo, and that the title, the footer and the social icons keep theirs
-over the pixels of the photo behind them.
+[ADR 0007](docs/decisions/0007-test-in-a-browser-with-playwright.md) lists what they check, and
+which projects each spec skips and why. `contrast.spec.js` checks that every text of the game frame
+outside the board keeps the 4.5:1 of WCAG AA over any photo, and that the title, the footer and the
+social icons keep theirs over the pixels of the photo behind them.
 
 Install the two browsers once, and again after an upgrade of `@playwright/test`:
 
 ```bash
-pnpm exec playwright install chromium webkit
+pnpm exec playwright install chromium firefox webkit
 pnpm test:e2e
+pnpm test:e2e --project=firefox
 ```
 
 A test that fails on an open layout issue is marked `test.fixme`, with the issue number in its
@@ -190,8 +195,10 @@ test/                Unit tests
   - `playwright-version`: reads the exact `@playwright/test` version of the lockfile;
   - `e2e`: `pnpm test:e2e` in the official Playwright image of that version, which ships the
     browsers and their system libraries. A bump of the package moves the image with it, and the
-    job fails while no image exists for the new version. Its log gives one line per test with
-    its duration.
+    job fails while no image exists for the new version. A matrix runs one job per Playwright
+    project, side by side and without fail-fast, named `e2e (<project>)`, with `HOME` set to
+    `/root`, since Firefox refuses to start as root with the home folder of another user. Its
+    log gives one line per test with its duration.
 - **Commit messages** (`commit-messages.yml`): on every pull request, and when its title changes,
   runs commitlint on each commit that the base branch lacks, and on the title with
   `commitlint/pr-title.config.js`, which needs no ticket reference.
