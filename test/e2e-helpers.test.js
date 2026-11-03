@@ -16,6 +16,7 @@ import {
   getRelativeLuminance,
   getWorstContrast,
   parseCssColor,
+  readFirstColor,
   toPixelBox,
 } from '../e2e/helpers/contrast/utils.js';
 import { PREVIEW_HOST } from '../e2e/helpers/server/constants.js';
@@ -313,6 +314,38 @@ describe('parseCssColor', () => {
     ['a number', 42],
   ])('gives null for %s', (_case, text) => {
     expect(parseCssColor(text)).toBeNull();
+  });
+});
+
+describe('readFirstColor', () => {
+  it('reads the color of a single shadow', () => {
+    expect(readFirstColor('rgb(0, 0, 0) 0px 0px 0px 8.5px inset')).toBe('rgb(0, 0, 0)');
+  });
+
+  it('reads the first color of two shadows', () => {
+    expect(
+      readFirstColor(
+        'rgb(255, 255, 255) 0px 0px 0px 5px inset, rgb(0, 0, 0) 0px 0px 0px 8.5px inset'
+      )
+    ).toBe('rgb(255, 255, 255)');
+  });
+
+  it('reads the translucent color of the first stop of a gradient', () => {
+    expect(
+      readFirstColor('linear-gradient(135deg, rgba(0, 0, 0, 0.5) 20%, rgba(0, 0, 0, 0) 20%)')
+    ).toBe('rgba(0, 0, 0, 0.5)');
+  });
+
+  it.each([
+    ['no shadow', 'none'],
+    ['an empty string', ''],
+    ['a hex color', '#000000 0px 0px 0px 8px inset'],
+    ['null', null],
+    ['undefined', undefined],
+    ['a number', 42],
+    ['an object', { toString: () => 'rgb(0, 0, 0)' }],
+  ])('gives an empty string for %s', (_case, value) => {
+    expect(readFirstColor(value)).toBe('');
   });
 });
 
