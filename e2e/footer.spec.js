@@ -15,6 +15,40 @@ import {
   readMissedButtonPoints,
 } from './helpers/footer/utils.js';
 
+/** The social icons of the footer; the first one is GitHub's. */
+const SOCIAL_ICON_SELECTOR = '.social-links svg';
+
+/** The fill of a social icon under nothing: a translucent white. */
+const RESTING_ICON_FILL = 'rgba(255, 255, 255, 0.44)';
+
+/** The fill of a social icon under a mouse: the orange of the dark squares. */
+const HOVERED_ICON_FILL = 'rgb(209, 139, 70)';
+
+test.describe('a social icon', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+  });
+
+  test('turns orange under a mouse', async ({ page, hasTouch }) => {
+    test.skip(hasTouch, 'a touch screen has no pointer to hover the icons with');
+    const icon = page.locator(SOCIAL_ICON_SELECTOR).first();
+
+    await icon.hover();
+
+    await expect(icon).toHaveCSS('fill', HOVERED_ICON_FILL);
+  });
+
+  // A tap leaves the pointer over the icon, as a hover does: it then stayed orange (#211).
+  test('keeps its color under a finger', async ({ page, hasTouch }) => {
+    test.skip(!hasTouch, 'only a touch screen keeps the pointer where the finger left it');
+    const icon = page.locator(SOCIAL_ICON_SELECTOR).first();
+
+    await icon.hover();
+
+    expect(await icon.evaluate((node) => getComputedStyle(node).fill)).toBe(RESTING_ICON_FILL);
+  });
+});
+
 for (const { width, height } of PAGE_FOOTER_VIEWPORTS) {
   test.describe(`with a footer in the page at ${width}x${height} (#197)`, () => {
     test.use({ viewport: { width, height } });

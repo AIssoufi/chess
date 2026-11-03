@@ -43,6 +43,34 @@ const SHIFT_TAB_ORDER = Object.freeze([
  */
 const ESCAPE_PRESSES = 3;
 
+/** The look of a piece of the promotion choice under nothing. */
+const RESTING_PIECE_STYLE = Object.freeze({
+  transform: 'none',
+  backgroundColor: 'rgb(255, 255, 255)',
+});
+
+/** The look of a piece of the promotion choice under a mouse: enlarged and orange. */
+const HOVERED_PIECE_STYLE = Object.freeze({
+  transform: 'matrix(1.15, 0, 0, 1.15, 0, 0)',
+  backgroundColor: 'rgb(255, 152, 0)',
+});
+
+/**
+ * Reads the look of an element once its transitions have ended, so that a growth just started does
+ * not read as the resting size.
+ *
+ * @param {import('@playwright/test').Locator} locator The element to read.
+ * @returns {Promise<{ transform: string, backgroundColor: string }>} Its computed transform and
+ *   background color.
+ */
+async function readSettledStyle(locator) {
+  return locator.evaluate(async (node) => {
+    await Promise.all(node.getAnimations().map((animation) => animation.finished));
+    const { transform, backgroundColor } = getComputedStyle(node);
+    return { transform, backgroundColor };
+  });
+}
+
 /**
  * Presses a key once per expected stop and reads which element has the focus after each press.
  *
@@ -110,6 +138,28 @@ test.describe('with a keyboard', () => {
     await expect(promotionSquare.locator(PIECE_SELECTOR)).toHaveText(queen.piece.white);
     await expect(promotionSquare).toBeFocused();
   });
+});
+
+test('enlarges a piece of the promotion choice under a mouse', async ({ page, hasTouch }) => {
+  test.skip(hasTouch, 'a touch screen has no pointer to hover the pieces with');
+  const piece = page.getByRole('button', { name: QUEEN_BUTTON_NAME });
+
+  await piece.hover();
+
+  expect(await readSettledStyle(piece)).toEqual(HOVERED_PIECE_STYLE);
+});
+
+// A tap leaves the pointer over the piece, as a hover does: WebKit then kept it enlarged (#211).
+test('leaves a piece of the promotion choice as it is under a finger', async ({
+  page,
+  hasTouch,
+}) => {
+  test.skip(!hasTouch, 'only a touch screen keeps the pointer where the finger left it');
+  const piece = page.getByRole('button', { name: QUEEN_BUTTON_NAME });
+
+  await piece.hover();
+
+  expect(await readSettledStyle(piece)).toEqual(RESTING_PIECE_STYLE);
 });
 
 for (const viewport of CHOICE_VIEWPORTS) {

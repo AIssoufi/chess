@@ -112,8 +112,9 @@ desktop window, which take room from the page where overlay ones take none. So d
 `forced-colors.spec.js`: WebKit matches the media query under emulation, but paints the normal
 colors of the page. The `mobile-webkit` project runs the other specs on an emulated iPhone SE
 (320x568, touch), where the helpers tap the squares and buttons instead of clicking them, and
-skips the hover tests and the keyboard tests of `promotion.spec.js`, since a touch screen has no
-Tab key. `contrast.spec.js` checks that every text of the game frame outside the board keeps the
+skips the mouse hover tests and the keyboard tests of `promotion.spec.js`, since a touch screen
+has no mouse nor Tab key; it checks instead that a tap leaves no hover look on the promotion
+pieces and the social icons. `contrast.spec.js` checks that every text of the game frame outside the board keeps the
 4.5:1 of WCAG AA over any photo, and that the title, the footer and the social icons keep theirs
 over the pixels of the photo behind them.
 
