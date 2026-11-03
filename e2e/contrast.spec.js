@@ -15,6 +15,7 @@ import {
   toPixelBox,
 } from './helpers/contrast/utils.js';
 import { expect, test } from './helpers/fixtures.js';
+import { waitForPhoto } from './helpers/photo/utils.js';
 
 /** Turns played, so that the move list shows its moves. */
 const FILLED_TURNS = 2;
@@ -55,26 +56,6 @@ const PHOTO_TARGETS = Object.freeze([
 
 /** The paint of a hidden text or icon, which leaves the pixels behind it in the screenshot. */
 const HIDDEN_PAINT = 'transparent';
-
-/** The address inside a CSS `url("…")` value, as `getComputedStyle` writes it. */
-const CSS_URL_PATTERN = /url\("(.+)"\)/;
-
-/**
- * Waits until the photo of `body::before` is decoded, so that the screenshots show it rather than
- * the dark background color of the body, which every target would pass over. A missing photo fails.
- *
- * @param {import('@playwright/test').Page} page The page of the game.
- * @returns {Promise<void>}
- */
-function waitForPhoto(page) {
-  return page.evaluate(async (urlPattern) => {
-    const { backgroundImage } = getComputedStyle(document.body, '::before');
-    const [, url] = backgroundImage.match(new RegExp(urlPattern)) ?? [];
-    const photo = new Image();
-    photo.src = url;
-    await photo.decode();
-  }, CSS_URL_PATTERN.source);
-}
 
 /**
  * Hides a text or an icon of `PHOTO_TARGETS` for the screenshots, by an inline style that the
