@@ -614,8 +614,11 @@ body::before {
   width: 3rem;
 }
 
-.social-links svg:hover {
-  fill: #d18b46;
+/* Only on devices with a real pointer: a touch screen would keep the last tapped icon colored. */
+@media (hover: hover) {
+  .social-links svg:hover {
+    fill: #d18b46;
+  }
 }
 
 /* King in check: besides its red, still diagonal stripes, a pattern that no other square uses, so
@@ -690,9 +693,13 @@ body::before {
   transition: transform 0.1s;
 }
 
-.promotion__pieces button:hover {
-  transform: scale(1.15);
-  background-color: #ff9800;
+/* Only on devices with a real pointer: a touch screen would keep the tapped piece enlarged and
+   orange. */
+@media (hover: hover) {
+  .promotion__pieces button:hover {
+    transform: scale(1.15);
+    background-color: #ff9800;
+  }
 }
 
 /*
