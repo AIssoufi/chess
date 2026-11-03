@@ -111,7 +111,7 @@ function getCssContrast({ foreground, background }) {
 }
 
 test.skip(
-  ({ browserName }) => browserName !== 'chromium',
+  ({ browserName }) => browserName === 'webkit',
   'WebKit matches the media query under emulation, but paints the normal colors of the page'
 );
 
